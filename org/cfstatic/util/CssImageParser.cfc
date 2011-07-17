@@ -1,0 +1,111 @@
+<cfcomponent output="false" extends="org.cfstatic.util.Base" hint="I provide an api for taking css and replacing its relative image paths with full image paths complete with cache busters based on the images last modified date">
+
+<!--- properties --->
+	<cfscript>
+		variables._baseCssPath	= "";
+		variables._baseCssUrl	= "";
+	</cfscript>
+
+<!--- constructor --->
+	<cffunction name="init" access="public" returntype="any" output="false" hint="I am the constructor of the parser. I take the base path and url of the css files, used to calculate full paths from relative paths.">
+    	<cfargument name="baseCssUrl" type="string" required="true" />
+		<cfargument name="baseCssPath" type="string" required="true" />
+
+    	<cfscript>
+    		_setBaseCssUrl( arguments.baseCssUrl );
+    		_setBaseCssPath( arguments.baseCssPath );
+			
+    		return this;
+    	</cfscript>
+    </cffunction>
+
+<!--- public methods --->
+	<cffunction name="parse" access="public" returntype="string" output="false" hint="I take a css input string (and path to the css file) and return css with full image paths and cachebusters">
+		<cfargument name="source" type="string" required="true" />
+		<cfargument name="filePath" type="string" required="true" />
+
+		<cfscript>
+			var originalCss = source;
+			var finalCss = originalCss;
+			var imageReferences = $reSearch('url\((.+?)\)', originalCss);
+			var i = 0;
+			var fullUrl = "";
+						
+			if(StructKeyExists(imageReferences, '$1') and ArrayLen(imageReferences.$1)){
+				imageReferences = imageReferences.$1;
+				for(i=1; i LTE ArrayLen(imageReferences); i++){
+					fullUrl = _calculateFullUrl(imageReferences[i], arguments.filePath);
+					finalCss = Replace(finalCss, 'url(#imageReferences[i]#)', 'url(#fullUrl#)', 'all');
+				}
+			}
+	
+			return finalCss;
+		</cfscript>
+    </cffunction>
+
+<!--- private methods --->
+	<cffunction name="_calculateFullUrl" access="public" returntype="string" output="false" hint="I calculate the full path from a relative image path, appending a cachebuster based on the last modified date of the image file">
+		<cfargument name="relativeUrl" type="string" required="true" />
+		<cfargument name="cssFilePath" type="string" required="true" />
+		
+		<cfscript>
+			var fullUrl = arguments.relativeUrl;
+			var lastModified = "";
+			var cssFileUrl = "";
+			var found = true;
+			var nTraversals = 0;
+			var imagePath = "";
+			var imageLastModified = "";
+			var cacheBuster = "";
+			var i = 0;
+			
+			// ignore non relative paths
+			if( Left(arguments.relativeUrl, 1) NEQ '/' AND NOT ReFindNoCase('^(http|https)://', arguments.relativeUrl) ){
+				cssFileUrl = _getBaseCssUrl() & Replace(GetDirectoryFromPath(cssFilePath), _getBaseCssPath(), '');
+				
+				// figure out how to traverse the url
+				while(found){
+					found = false;
+					if( Left(arguments.relativeUrl, (nTraversals+1) * 3) EQ RepeatString('../', nTraversals+1) ){
+						nTraversals++;
+						found = true;
+					}
+				}
+				for(i=1; i LTE nTraversals; i++){
+					cssFileUrl = ListDeleteAt(cssFileUrl, ListLen(cssFileUrl, '/'), '/');
+				}
+				
+				// build the full url without relative paths
+				fullUrl = ListAppend(cssFileUrl, Replace(arguments.relativeUrl, RepeatString('../', nTraversals), ''), '/');
+				
+				// calculate a cache buster if we can
+				imagePath = ListAppend(getDirectoryFromPath(arguments.cssFilePath), arguments.relativeUrl, '/');
+				if(FileExists(imagePath)){
+					imageLastModified = $fileLastModified( imagePath );
+					cacheBuster = DateFormat(imageLastModified, 'yyyymmdd') & TimeFormat(imageLastModified, 'hhmmss');
+					fullUrl = fullUrl & '?' & cacheBuster;
+				}
+			}
+			
+			return fullUrl;
+		</cfscript>
+    </cffunction>
+    	
+<!--- accessors --->
+	<cffunction name="_getBaseCssPath" access="private" returntype="string" output="false">
+    	<cfreturn _baseCssPath />
+    </cffunction>
+    <cffunction name="_setBaseCssPath" access="private" returntype="void" output="false">
+    	<cfargument name="baseCssPath" type="string" required="true" />
+    	<cfset _baseCssPath = arguments.baseCssPath />
+    </cffunction>
+	
+	<cffunction name="_getBaseCssUrl" access="private" returntype="string" output="false">
+    	<cfreturn _baseCssUrl />
+    </cffunction>
+    <cffunction name="_setBaseCssUrl" access="private" returntype="void" output="false">
+    	<cfargument name="baseCssUrl" type="string" required="true" />
+    	<cfset _baseCssUrl = arguments.baseCssUrl />
+    </cffunction>
+    
+</cfcomponent>
