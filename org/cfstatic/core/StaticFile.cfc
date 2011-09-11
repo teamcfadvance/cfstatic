@@ -167,7 +167,7 @@
 				if( StructKeyExists( meta, '$1' ) and StructKeyExists( meta, '$2') ){
 					for(i=1; i LTE ArrayLen(meta.$1); i++){
 						prop	= meta.$1[i];
-						value	= meta.$2[i];
+						value	= Trim(meta.$2[i]);
 						
 						if(StructKeyExists(_properties, prop)){
 							if(not IsArray(_properties[prop])){

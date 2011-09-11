@@ -166,7 +166,7 @@
 			if(ArrayLen(files)){
 				media = getStaticFile( files[1] ).getProperty('media', 'screen, projection', 'string');
 				for(i=2; i LTE ArrayLen(files); i++){
-					if(media NEQ getStaticFile( files[i] ).getProperty('media')){
+					if(media NEQ getStaticFile( files[i] ).getProperty('media', 'screen, projection', 'string')){
 						$throw( type="cfstatic.Package.badConfig", message="Appropriate error message here" );
 					}
 				}

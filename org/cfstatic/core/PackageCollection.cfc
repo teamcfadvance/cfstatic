@@ -198,6 +198,11 @@
 					try {
 						_addStaticFile( dependencyPath );
 					} catch(any e) {
+						// if the thrown error is one of ours, we should rethrow it (bubbling up)
+						if(e.type EQ 'org.cfstatic.missingDependency'){
+							$throw( argumentCollection = e );
+						}
+						// otherwise, throw our custom missing dependency error 
 						$throw(type="org.cfstatic.missingDependency", message="CFStatic Error: Could not find local dependency.", detail="The dependency, '#dependencies[i]#', could not be found or downloaded. CFStatic is expecting to find it at #dependencyPath#. The dependency is declared in '#arguments.path#'");
 					}
 

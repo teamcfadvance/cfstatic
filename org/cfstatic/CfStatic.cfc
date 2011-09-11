@@ -270,6 +270,7 @@
 			var javaLoader		= "";
 			
 			jars[1]				= ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
+			jars[2]				= ExpandPath('/org/cfstatic/lib/cfstatic.jar');
 			
 			javaLoader			= CreateObject('org.cfstatic.lib.javaloader.JavaLoader').init( jars );
 			

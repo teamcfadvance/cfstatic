@@ -155,7 +155,7 @@
 		</cfscript>
 	</cffunction>
 	
-	<cffunction name="$arrayRemoveDuplicates" access="public" returntype="array" output="false" hint="I remove duplicate elements from an array">
+	<cffunction name="$arrayRemoveDuplicates" access="private" returntype="array" output="false" hint="I remove duplicate elements from an array">
 		<cfargument name="theArray" type="array" required="true" />
 		
 		<cfscript>
@@ -170,7 +170,7 @@
 		</cfscript>
 	</cffunction>
 	
-	<cffunction name="$arrayMerge" access="public" returntype="array" output="false" hint="I add all the elemnts of one array to another, returning the result">
+	<cffunction name="$arrayMerge" access="private" returntype="array" output="false" hint="I add all the elemnts of one array to another, returning the result">
 		<cfargument name="arr1" type="array" required="true" />
 		<cfargument name="arr2" type="array" required="true" />
 		
@@ -182,6 +182,83 @@
 			}
 			
 			return arr1;
+		</cfscript>
+	</cffunction>
+	
+	<cffunction name="$overloadedArguments" access="private" returntype="any" output="false" hint="I allow simple function overloading in CF.">
+		<cfargument name="typeCombinations" type="array"  required="true" hint="An array of comma separated lists indicating acceptable types of arguments" />
+		<cfargument name="variableMappings" type="array"  required="true" hint="For each type combination there must be a corresponding variable mapping. i.e. a variable name for each of the typed arguments." />
+		<cfargument name="args"             type="struct" required="true" hint="The arguments themselves" />
+		
+		<cfscript>
+			var i        = "";
+			var n        = "";
+			var combo    = "";
+			var varnames = "";
+			var type     = "";
+			var matched  = "";
+			var result   = StructNew();
+			
+			if(ArrayLen(arguments.typeCombinations) NEQ ArrayLen(arguments.variableMappings)){
+				$throw('$overloadedArguments.mismatchedMappings');
+			}
+			
+			for(i=1; i LTE ArrayLen(arguments.typeCombinations); i++){
+				combo    = ListToArray(arguments.typeCombinations[i]);
+				varnames = ListToArray(arguments.variableMappings[i]);
+				
+				if(ArrayLen(combo) NEQ ArrayLen(varnames)){
+					$throw('$overloadedArguments.mismatchedMappings');
+				}
+				
+				if(ArrayLen(combo) EQ StructCount(arguments.args)){
+					matched = true;	
+					for(n=1; n LTE ArrayLen(combo); n++){
+						type = combo[n];
+						if(not StructKeyExists(arguments.args, n) or not $isType(arguments.args[n], type)){
+							matched = false;
+						}
+					}
+					if(matched){
+						for(n=1; n LTE ArrayLen(varnames); n++){
+							result[varnames[n]] = arguments.args[n];
+						}
+						break;
+					}
+				}	
+			}
+			
+			return result;
+		</cfscript>
+	</cffunction>
+	
+	<cffunction name="$isType" access="private" returntype="boolean" output="false" hint="I return true when the passed variable is of the type, 'type'; false otherwise">
+		<cfargument name="variable" type="any" required="true" />
+		<cfargument name="type"     type="string" required="true" />
+		
+		<cfscript>
+			switch(arguments.type){
+				case 'any':
+					return true;
+				case 'numeric':
+					return IsNumeric(arguments.variable);
+				case 'struct':
+					return IsStruct(arguments.variable);
+				case 'array':
+					return IsArray(arguments.variable);
+				case 'date':
+					return IsDate(arguments.variable);
+				case 'query':
+					return IsQuery(arguments.variable);
+				case 'xml':
+					return IsXml(arguments.variable);
+				case 'boolean':
+					return IsBoolean(arguments.variable);
+				case 'string':
+					return IsSimpleValue(arguments.variable);
+				default:
+					return IsInstanceOf(arguments.variable, arguments.type);
+			}
 		</cfscript>
 	</cffunction>
 	
