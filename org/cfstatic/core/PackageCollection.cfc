@@ -301,7 +301,7 @@
 				ieRestriction = getPackage( packages[1] ).getIeRestriction();
 				for(i=2; i LTE ArrayLen(packages); i++){
 					if(ieRestriction NEQ getPackage( packages[i] ).getIeRestriction()){
-						$throw( type="cfstatic.PackageCollection.badConfig", message="Appropriate error message here" );
+						$throw( type="cfstatic.PackageCollection.badConfig", message="There was an error compiling the #_getFileType()# min file, not all files define the same IE restriction." );
 					}
 				}
 			}
@@ -320,7 +320,7 @@
 				media = getPackage( packages[1] ).getCssMedia();
 				for(i=2; i LTE ArrayLen(packages); i++){
 					if(media NEQ getPackage( packages[i] ).getCssMedia()){
-						$throw( type="cfstatic.PackageCollection.badConfig", message="Appropriate error message here" );
+						$throw( type="cfstatic.PackageCollection.badConfig", message="There was an error compiling the #_getFileType()# min file, not all files define the same CSS media." );
 					}
 				}
 			}

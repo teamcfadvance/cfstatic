@@ -148,7 +148,7 @@
 				ieRestriction = getStaticFile( files[1] ).getProperty('ie');
 				for(i=2; i LTE ArrayLen(files); i++){
 					if(ieRestriction NEQ getStaticFile( files[i] ).getProperty('ie')){
-						$throw( type="cfstatic.Package.badConfig", message="Appropriate error message here" );
+						$throw( type="cfstatic.Package.badConfig", message="There was an error compiling the package, '#_getPackageName()#', not all files define the same IE restriction." );
 					}
 				}
 			}
@@ -167,7 +167,7 @@
 				media = getStaticFile( files[1] ).getProperty('media', 'screen, projection', 'string');
 				for(i=2; i LTE ArrayLen(files); i++){
 					if(media NEQ getStaticFile( files[i] ).getProperty('media', 'screen, projection', 'string')){
-						$throw( type="cfstatic.Package.badConfig", message="Appropriate error message here" );
+						$throw( type="cfstatic.Package.badConfig", message="There was an error compiling the package, '#_getPackageName()#', not all files define the same css media" );
 					}
 				}
 			}
