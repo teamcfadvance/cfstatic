@@ -76,7 +76,11 @@
 				}
 				
 				// build the full url without relative paths
-				fullUrl = ListAppend(cssFileUrl, Replace(arguments.relativeUrl, RepeatString('../', nTraversals), ''), '/');
+				if( nTraversals ){
+					fullUrl = ListAppend(cssFileUrl, Replace(arguments.relativeUrl, RepeatString('../', nTraversals), ''), '/');
+				} else {
+					fullUrl = ListAppend(cssFileUrl, arguments.relativeUrl, '/' );
+				}
 				
 				// calculate a cache buster if we can
 				imagePath = ListAppend(getDirectoryFromPath(arguments.cssFilePath), arguments.relativeUrl, '/');
