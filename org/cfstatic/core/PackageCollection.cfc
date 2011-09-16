@@ -151,7 +151,8 @@
 <!--- private methods --->
 	<cffunction name="_loadFromFiles" access="private" returntype="void" output="false" hint="I instantiate the collection by looking through all files in the collection's root directory">
 		<cfscript>
-			var files		= $directoryList( _getRootDirectory(), '*.#_getFileType()#' );
+			var filter		= iif(_getFileType() EQ 'css', DE('*.css,*.less'), DE('*.#_getFileType()#'));
+			var files		= $directoryList( _getRootDirectory(), filter );
 			var i			= 1;
 			
 			for(i=1; i lte files.recordCount; i++){

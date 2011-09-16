@@ -14,6 +14,7 @@
 		_jsPackages			= "";
 		_cssPackages		= "";
 		_yuiCompressor		= "";
+		_lessCompiler		= "";
 		_cssImageParser		= "";
 		_includeMapping		= StructNew();
 		_includeMapping.js	= StructNew();
@@ -266,15 +267,22 @@
 
 	<cffunction name="_loadCompilers" access="private" returntype="void" output="false" hint="I instantiate all the compilers used by cfstatic">
 		<cfscript>
-			var jars			= ArrayNew(1);
-			var javaLoader		= "";
+			var jarsForYui		  = ArrayNew(1);
+			var javaLoaderForYui  = "";
+			var jarsForLess		  = ArrayNew(1);
+			var javaLoaderForLess = "";
 			
-			jars[1]				= ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
-			jars[2]				= ExpandPath('/org/cfstatic/lib/cfstatic.jar');
+			// jars for YuiCompresser and LessCompiler must be kept seperate due to conflicts!
 			
-			javaLoader			= CreateObject('org.cfstatic.lib.javaloader.JavaLoader').init( jars );
+			jarsForYui[1]				= ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
+			jarsForYui[2]				= ExpandPath('/org/cfstatic/lib/cfstatic.jar');
+			jarsForLess[1]				= ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.1.4.jar');
 			
-			_setYuiCompressor	( CreateObject('component','org.cfstatic.util.YuiCompressor').init(javaLoader));
+			javaLoaderForYui			= CreateObject('org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui );
+			javaLoaderForLess			= CreateObject('org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
+			
+			_setYuiCompressor	( CreateObject('component','org.cfstatic.util.YuiCompressor').init(javaLoaderForYui));
+			_setLessCompiler	( CreateObject('component','org.cfstatic.util.LessCompiler').init(javaLoaderForLess));
 			_setCssImageParser	( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), ListAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
 		</cfscript>
 	</cffunction>
@@ -464,7 +472,17 @@
 		<cfargument name="file" type="org.cfstatic.core.StaticFile" required="true" hint="The staticFile object representing the css file to compile" />
 		
 		<cfscript>
-			var content		= _getYuiCompressor().compressCss( arguments.file.getContent() );
+			var content		= arguments.file.getContent();
+			
+			// compile less css
+			if(ListLast(arguments.file.getPath(), '.') EQ 'less'){
+				content = _getLessCompiler().compile( content );
+			}
+			
+			// compress using yui compressor
+			content			= _getYuiCompressor().compressCss( content );
+			
+			// parse relative image paths
 			content			= _getCssImageParser().parse( content, arguments.file.getPath() );
 			
 			return content;
@@ -679,6 +697,14 @@
 	</cffunction>
 	<cffunction name="_getYuiCompressor" access="private" returntype="any" output="false">
 		<cfreturn _yuiCompressor />
+	</cffunction>
+	
+	<cffunction name="_setLessCompiler" access="private" returntype="void" output="false">
+		<cfargument name="lessCompiler" required="true" type="any" />
+		<cfset _lessCompiler = arguments.lessCompiler />
+	</cffunction>
+	<cffunction name="_getLessCompiler" access="private" returntype="any" output="false">
+		<cfreturn _lessCompiler />
 	</cffunction>
 	
 	<cffunction name="_setCssImageParser" access="private" returntype="void" output="false">
