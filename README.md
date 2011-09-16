@@ -36,12 +36,14 @@ Quick start guide
    individually, or you can include whole directories, e.g.
 
     `application.cfstatic.include('/js/plugins/myplugin.js');  
+
     application.cfstatic.include('/js/core/');`
 
 6. Use the renderIncludes() method to output the necessary HTML to include your JS and CSS, e.g.
 	
-    `application.cfstatic.renderIncludes('css')  
-    application.cfstatic.renderIncludes('js')`
+    `application.cfstatic.renderIncludes('css');  
+
+    application.cfstatic.renderIncludes('js');`
 
 
 JavaDoc Style Documentation
