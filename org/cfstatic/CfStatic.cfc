@@ -71,6 +71,11 @@
 		<cfscript>
 			// we do not do any calculation here, simply build an array of resources. We calculate dependencies, min files, etc. in renderIncludes()
 			var includes = _getRequestIncludes();
+			
+			// add .css to .less includes
+			if(ListLast(arguments.resource, '.') EQ 'less'){
+				arguments.resource = arguments.resource & '.css';
+			}
 
 			ArrayAppend(includes, arguments.resource);
 
@@ -119,6 +124,9 @@
 <!--- private methods --->
 	<cffunction name="_processStaticFiles" access="private" returntype="void" output="false" hint="I call all the methods that do the grunt work of cfstatic (processing all the file metadata, caching relationships and compiling files)">
 		<cfscript>
+			// compile any less css files before having them picked up by the css packager
+			_compileLess();
+			
 			// process the directories to calculate all file metadata and dependencies
 			_setJsPackages			( _packageDirectory( ListAppend(_getRootDirectory(), _getJsDirectory(), '/' )	, _getJsUrl(), _getMinifiedUrl(), 'js') );
 			_setCssPackages			( _packageDirectory( ListAppend(_getRootDirectory(), _getCssDirectory(), '/' ), _getCssUrl(), _getMinifiedUrl(), 'css') );
@@ -304,6 +312,25 @@
 			}
 		</cfscript>
 	</cffunction>
+	
+	<cffunction name="_compileLess" access="public" returntype="void" output="false">
+		<cfscript>
+			var cssDir = ListAppend(_getRootdirectory(), _getCssdirectory(), '/');
+			var files  = $directoryList(cssDir, '*.less');
+			var i      = 0;
+			var file   = "";
+			var target = "";
+
+			for(i=1; i LTE files.recordCount; i++){
+				file = ListAppend(files.directory[i], files.name[i], '/');
+				target = file & '.css';
+				
+				if(not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file)){
+					$fileWrite( target, _getLesscompiler().compile( $fileRead(file) ) );
+				}
+			}
+		</cfscript>
+	</cffunction>
 
 	<cffunction name="_compileAll" access="private" returntype="void" output="false" hint="I compile all the js files into a single minified js file and all the css files into a single css file.">
 		<cfscript>
@@ -472,15 +499,8 @@
 		<cfargument name="file" type="org.cfstatic.core.StaticFile" required="true" hint="The staticFile object representing the css file to compile" />
 		
 		<cfscript>
-			var content		= arguments.file.getContent();
-			
-			// compile less css
-			if(ListLast(arguments.file.getPath(), '.') EQ 'less'){
-				content = _getLessCompiler().compile( content );
-			}
-			
 			// compress using yui compressor
-			content			= _getYuiCompressor().compressCss( content );
+			content			= _getYuiCompressor().compressCss( arguments.file.getContent() );
 			
 			// parse relative image paths
 			content			= _getCssImageParser().parse( content, arguments.file.getPath() );

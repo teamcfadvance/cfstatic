@@ -23,20 +23,14 @@
 		<cfargument name="recurse"		type="boolean" required="false"	default="true"	/>
 		
 		<cfset var result = "" />
-		<cfset var finalResult = QueryNew('name,size,type,datelastmodified,attributes,mode,directory') />
-		<cfset var f      = "" />
 		
-		<cfloop list="#arguments.filter#" index="f">
-			<cfdirectory	action="list"
-							directory="#arguments.directory#"
-							filter="#f#"
-							recurse="#arguments.recurse#"
-							name="result" />
+		<cfdirectory	action="list"
+						directory="#arguments.directory#"
+						filter="#arguments.filter#"
+						recurse="#arguments.recurse#"
+						name="result" />
 							
-			<cfset finalResult = $queryMerge(finalResult, result) />
-		</cfloop>
-		
-		<cfreturn finalResult />
+		<cfreturn result />
 	</cffunction>
 	
 	<cffunction name="$fileRead" access="private" returntype="string" output="false" hint="I return the content of the given file (path)">
@@ -268,24 +262,7 @@
 			}
 		</cfscript>
 	</cffunction>
-	
-	<cffunction name="$queryMerge" access="private" returntype="query" output="false">
-		<cfargument name="query1" type="query" required="true" />
-		<cfargument name="query2" type="query" required="true" />
-		
-		<cfset var merged = "" />
-		<cfquery name="merged" dbtype="query">
-			select * from arguments.query1
-			
-			union all
-			
-			select * from arguments.query2
-		</cfquery>
-		
-		<cfreturn merged />
-	</cffunction>
-	
-	
+
 <!--- accessors --->
 	<cffunction name="_setJavaLoader" access="private" returntype="void" output="false">
 		<cfargument name="javaLoader" required="true" type="any" />

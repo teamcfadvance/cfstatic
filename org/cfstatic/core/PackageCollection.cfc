@@ -151,8 +151,7 @@
 <!--- private methods --->
 	<cffunction name="_loadFromFiles" access="private" returntype="void" output="false" hint="I instantiate the collection by looking through all files in the collection's root directory">
 		<cfscript>
-			var filter		= iif(_getFileType() EQ 'css', DE('*.css,*.less'), DE('*.#_getFileType()#'));
-			var files		= $directoryList( _getRootDirectory(), filter );
+			var files		= $directoryList( _getRootDirectory(), '*.#_getFileType()#' );
 			var i			= 1;
 			
 			for(i=1; i lte files.recordCount; i++){
@@ -193,6 +192,12 @@
 						dependencyPath = _getRootdirectory() & dependencies[i];
 					}
 					dependencyPath	= Trim( dependencyPath );
+					
+					// add .css to .less dependencies
+					if(ListLast(dependencyPath, '.') EQ 'less'){
+						dependencyPath = dependencyPath & '.css';
+					}
+					
 					dependencyPkg	= _getPackageNameFromPath( dependencyPath );
 
 					// add the static file (yes, a call to this method - we want n depth recursion)
