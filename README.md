@@ -30,18 +30,18 @@ Quick start guide
 4. Create an instance of the CfStatic component ('org.cfstatic.CfStatic'), passing in your 
    configuration (see 'Configuration', below), e.g.
 
-	application.cfstatic = CreateObject('component', 'org.cfstatic.CfStatic').init( argumentCollection=config );
+    application.cfstatic = CreateObject('component', 'org.cfstatic.CfStatic').init( argumentCollection=config );
 
 5. Use the include() method to include files for your requested page. Files can be included 
    individually, or you can include whole directories, e.g.
 
-	application.cfstatic.include('/js/plugins/myplugin.js');
-	application.cfstatic.include('/js/core/');
+    application.cfstatic.include('/js/plugins/myplugin.js');
+    application.cfstatic.include('/js/core/');
 
 6. Use the renderIncludes() method to output the necessary HTML to include your JS and CSS, e.g.
 	
-    #application.cfstatic.renderIncludes('css')#
-    #application.cfstatic.renderIncludes('js')#
+    application.cfstatic.renderIncludes('css')
+    application.cfstatic.renderIncludes('js')
 
 
 JavaDoc Style Documentation
