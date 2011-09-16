@@ -35,15 +35,15 @@ Quick start guide
 5. Use the include() method to include files for your requested page. Files can be included 
    individually, or you can include whole directories, e.g.
 
-    `application.cfstatic.include('/js/plugins/myplugin.js');  
+    `application.cfstatic.include('/js/plugins/myplugin.js');`
 
-    application.cfstatic.include('/js/core/');`
+    `application.cfstatic.include('/js/core/');`
 
 6. Use the renderIncludes() method to output the necessary HTML to include your JS and CSS, e.g.
 	
-    `application.cfstatic.renderIncludes('css');  
+    `application.cfstatic.renderIncludes('css');`
 
-    application.cfstatic.renderIncludes('js');`
+    `application.cfstatic.renderIncludes('js');`
 
 
 JavaDoc Style Documentation
