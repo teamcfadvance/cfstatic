@@ -1,4 +1,4 @@
-<cfcomponent extends="BaseTestCase" output="false">
+<cfcomponent extends="tests.BaseTestCase" output="false">
 
 <!--- setup, teardown, etc --->
 	<cffunction name="setup" access="public" returntype="void" output="false">
