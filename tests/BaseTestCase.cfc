@@ -19,4 +19,9 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="getTestTarget" access="private" returntype="any" output="false">
+		<cfargument name="targetPath" type="string" required="true" />
+		
+		<cfreturn getMockBox().prepareMock( CreateObject('component', arguments.targetPath) ) />
+	</cffunction>
 </cfcomponent>
