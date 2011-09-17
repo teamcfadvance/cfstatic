@@ -2,3 +2,5 @@ WEB-INF
 example
 .htaccess
 .project
+tests/mxunit
+tests/mockbox
