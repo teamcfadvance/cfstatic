@@ -1,0 +1,9 @@
+/**
+ * this will have a different media target than ../somepackage/somefile.css. This should break when trying to do 'all' minify mode
+ * 
+ * @media print
+ */
+
+ body {
+ 	font-weight:normal;
+ }
