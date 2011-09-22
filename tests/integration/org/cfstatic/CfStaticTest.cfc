@@ -6,7 +6,7 @@
 			cfstatic = getTestTarget('org.cfstatic.CfStatic');
 		</cfscript>	
 	</cffunction>
-	
+
 	<cffunction name="teardown" access="public" returntype="void" output="false">
 		cfstatic = "";
 	</cffunction>

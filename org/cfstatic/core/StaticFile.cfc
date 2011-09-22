@@ -128,13 +128,21 @@
 
 	<cffunction name="getMinifiedFileName" access="public" returntype="string" output="false" hint="I return the filename to be used when this file is minified">
 		<cfscript>
-			var filename	= "#ListChangeDelims(getPackageName(), '.', '/')#.#ListLast(getPath(),'\/')#";
-			var ext			= ListLast(filename, '.');
+			var packageName = getPackageName();
+			var filename	= "";
+			var path        = getPath();
+			var ext			= ListLast(path, '.');
+
+			if(packageName EQ '/'){
+				filename = ListLast(path, '\/');
+			} else {
+				filename = "#ListChangeDelims(packageName, '.', '/')#.#ListLast(path,'\/')#";
+			}
 			
-			filename 		= ListDeleteAt(filename, ListLen(filename, '.'), '.');
+			filename 		= $listDeleteLast(filename, '.');
 			filename 		= ListAppend(filename, 'min', '.');
 			filename		= ListAppend(filename, ext, '.');
-			
+
 			return filename;
 		</cfscript>
 	</cffunction>

@@ -4,3 +4,5 @@ example
 .project
 tests/mxunit
 tests/mockbox
+cfstatic.sublime-project
+cfstatic.sublime-workspace

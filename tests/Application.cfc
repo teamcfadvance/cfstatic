@@ -2,9 +2,11 @@
 	<cfscript>
 		this.name = "cfstatictests_" & hash(GetCurrenttemplatepath());
 		
-		this.mappings['/mxunit']        = ExpandPath('./mxunit');
-		this.mappings['/mockbox']       = ExpandPath('./mockbox');
-		this.mappings['/org/cfstatic']  = ExpandPath('../org/cfstatic');
-		this.mappings['/tests']         = ExpandPath('./');
+		root = GetDirectoryFromPath(GetCurrentTemplatePath());
+
+		this.mappings['/mxunit']        = '#root#../mxunit';
+		this.mappings['/mockbox']       = '#root#mockbox';
+		this.mappings['/org/cfstatic']  = '#root#../org/cfstatic';
+		this.mappings['/tests']         = root;
 	</cfscript>
 </cfcomponent>
