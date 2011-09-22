@@ -230,9 +230,6 @@
 			}
 			
 			packageName = $listDeleteLast( ReplaceNoCase(arguments.path, _getRootdirectory(), ''), '/') & '/';
-			if(packageName EQ '/'){
-				packageName &= $listDeleteLast( ListLast( arguments.path, '/' ), '.' );
-			}
 			if(Right(packageName, 1) NEQ '/'){
 				packageName &= '/';
 			}

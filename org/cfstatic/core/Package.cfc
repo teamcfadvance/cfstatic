@@ -177,7 +177,12 @@
 	</cffunction>
 
 	<cffunction name="getMinifiedFileName" access="public" returntype="string" output="false" hint="I get the filename to be used when minifying the entire package">
-		<cfreturn "#ListChangeDelims(_getPackageName(), '.', '/')#.min.#_getFileType()#" />
+		<cfscript>
+			if(_getPackageName() EQ '/'){
+				return 'root.min.#_getFileType()#';
+			}
+			return "#ListChangeDelims(_getPackageName(), '.', '/')#.min.#_getFileType()#";
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="getOrdered" access="public" returntype="array" output="false" hint="I return an array of the packages files (the filenames) in the correct order, based on their dependencies">
