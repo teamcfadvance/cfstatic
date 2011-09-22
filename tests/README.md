@@ -1,12 +1,16 @@
 CfStatic Tests
 --------------
 
-These tests rely on MXUnit and MockBox. These can be found here:
+These tests rely on MXUnit (<http://mxunit.org/>).
 
-MXUnit: <http://mxunit.org/>  
-MockBox: <http://www.coldbox.org/download>
+The Application.cfc is setup to map MXUnit to a directory above the tests/ directory, i.e.
 
-The Application.cfc is setup to map MXUnit and Mockbox to directories beneath the `tests` directory. i.e.
-
-    /tests/mxunit
-    /tests/mockbox
+	/org
+		/cfstatic
+		...
+	/tests
+		/integration
+		Application.cfc
+		...
+	/mxunit
+		...
