@@ -2,7 +2,6 @@ WEB-INF
 example
 .htaccess
 .project
-tests/mxunit
-tests/mockbox
+mxunit
 cfstatic.sublime-project
 cfstatic.sublime-workspace

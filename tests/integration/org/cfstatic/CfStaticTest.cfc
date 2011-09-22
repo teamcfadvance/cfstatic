@@ -1,13 +1,15 @@
-<cfcomponent extends="tests.BaseTestCase" output="false">
+<cfcomponent extends="mxunit.framework.TestCase" output="false">
 
 <!--- setup, teardown, etc --->
 	<cffunction name="setup" access="public" returntype="void" output="false">
 		<cfscript>
-			cfstatic = getTestTarget('org.cfstatic.CfStatic');
+			super.setup();
+			cfstatic = createObject('component', 'org.cfstatic.CfStatic');
 		</cfscript>	
 	</cffunction>
 
 	<cffunction name="teardown" access="public" returntype="void" output="false">
+		super.teardown();
 		cfstatic = "";
 	</cffunction>
 
