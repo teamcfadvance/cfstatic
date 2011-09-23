@@ -77,7 +77,7 @@ Configuration
 CfStatic takes a few configuration options, most of which have defaults. The options are:
 
     staticDirectory:   Full path to the directory in which static files reside (e.g. /webroot/static/), 
-    staticUrl:         Url that maps to the static directory (e.g. http://mysite.com/static/)
+    staticUrl:         Url that maps to the static directory (e.g. http://mysite.com/static or /static)
     jsDirectory:       Relative path to the directoy in which javascript files reside. Relative to 
                        static path. Default is 'js'
     cssDirectory:      Relative path to the directoy in which css files reside. Relative to static 
