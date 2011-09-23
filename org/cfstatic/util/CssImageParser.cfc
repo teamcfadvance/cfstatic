@@ -62,7 +62,7 @@
 			// ignore non relative paths
 			if( Left(arguments.relativeUrl, 1) NEQ '/' AND NOT ReFindNoCase('^(http|https)://', arguments.relativeUrl) ){
 				cssFileUrl = _getBaseCssUrl() & Replace(GetDirectoryFromPath(cssFilePath), _getBaseCssPath(), '');
-				
+
 				// figure out how to traverse the url
 				while(found){
 					found = false;
@@ -77,13 +77,13 @@
 				
 				// build the full url without relative paths
 				if( nTraversals ){
-					fullUrl = ListAppend(cssFileUrl, Replace(arguments.relativeUrl, RepeatString('../', nTraversals), ''), '/');
+					fullUrl = $listAppend(cssFileUrl, Replace(arguments.relativeUrl, RepeatString('../', nTraversals), ''), '/');
 				} else {
-					fullUrl = ListAppend(cssFileUrl, arguments.relativeUrl, '/' );
+					fullUrl = $listAppend(cssFileUrl, arguments.relativeUrl, '/' );
 				}
 				
 				// calculate a cache buster if we can
-				imagePath = ListAppend(getDirectoryFromPath(arguments.cssFilePath), arguments.relativeUrl, '/');
+				imagePath = $listAppend(getDirectoryFromPath(arguments.cssFilePath), arguments.relativeUrl, '/');
 				if(FileExists(imagePath)){
 					imageLastModified = $fileLastModified( imagePath );
 					cacheBuster = DateFormat(imageLastModified, 'yyyymmdd') & TimeFormat(imageLastModified, 'hhmmss');

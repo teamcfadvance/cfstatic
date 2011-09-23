@@ -23,7 +23,7 @@
 			_setPath( arguments.path );
 			_setPackageName( arguments.packageName );
 			_setUrl( arguments.fileUrl );
-			_setMinifiedUrl( ListAppend( arguments.minifiedUrl, getMinifiedFileName(), '/' ));
+			_setMinifiedUrl( $listAppend( arguments.minifiedUrl, getMinifiedFileName(), '/' ));
 			_setFileType( arguments.fileType );
 			
 			if(_isLocal()){
@@ -140,8 +140,8 @@
 			}
 			
 			filename 		= $listDeleteLast(filename, '.');
-			filename 		= ListAppend(filename, 'min', '.');
-			filename		= ListAppend(filename, ext, '.');
+			filename 		= $listAppend(filename, 'min', '.');
+			filename		= $listAppend(filename, ext, '.');
 
 			return filename;
 		</cfscript>

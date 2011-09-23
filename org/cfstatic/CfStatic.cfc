@@ -44,10 +44,10 @@
 			_setRootDirectory		( arguments.staticDirectory );
 			_setJsDirectory			( arguments.jsDirectory		);
 			_setCssDirectory		( arguments.cssDirectory	);
-			_setOutputDirectory		( ListAppend(arguments.staticDirectory, arguments.outputDirectory, '/') );
-			_setJsUrl				( ListAppend(arguments.staticUrl,		arguments.jsDirectory, '/')		);
-			_setCssUrl				( ListAppend(arguments.staticUrl,		arguments.cssDirectory, '/')	);
-			_setMinifiedUrl			( ListAppend(arguments.staticUrl,		arguments.outputDirectory, '/')	);
+			_setOutputDirectory		( $listAppend(arguments.staticDirectory, arguments.outputDirectory, '/') );
+			_setJsUrl				( $listAppend(arguments.staticUrl,		arguments.jsDirectory, '/')		);
+			_setCssUrl				( $listAppend(arguments.staticUrl,		arguments.cssDirectory, '/')	);
+			_setMinifiedUrl			( $listAppend(arguments.staticUrl,		arguments.outputDirectory, '/')	);
 			_setMinifyMode			( arguments.minifyMode 			);
 			_setDownloadExternals	( arguments.downloadExternals	);
 			_setDebugAllowed		( arguments.debugAllowed		);
@@ -128,8 +128,8 @@
 			_compileLess();
 			
 			// process the directories to calculate all file metadata and dependencies
-			_setJsPackages			( _packageDirectory( ListAppend(_getRootDirectory(), _getJsDirectory(), '/' )	, _getJsUrl(), _getMinifiedUrl(), 'js') );
-			_setCssPackages			( _packageDirectory( ListAppend(_getRootDirectory(), _getCssDirectory(), '/' ), _getCssUrl(), _getMinifiedUrl(), 'css') );
+			_setJsPackages			( _packageDirectory( $listAppend(_getRootDirectory(), _getJsDirectory(), '/' )	, _getJsUrl(), _getMinifiedUrl(), 'js') );
+			_setCssPackages			( _packageDirectory( $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ), _getCssUrl(), _getMinifiedUrl(), 'css') );
 
 			// calculate mappings between include paths and minified files and their dependencies (used to speed up includes)
 			_calculateMappings();
@@ -291,7 +291,7 @@
 			
 			_setYuiCompressor	( CreateObject('component','org.cfstatic.util.YuiCompressor').init(javaLoaderForYui));
 			_setLessCompiler	( CreateObject('component','org.cfstatic.util.LessCompiler').init(javaLoaderForLess));
-			_setCssImageParser	( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), ListAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
+			_setCssImageParser	( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
 		</cfscript>
 	</cffunction>
 
@@ -315,14 +315,14 @@
 	
 	<cffunction name="_compileLess" access="public" returntype="void" output="false">
 		<cfscript>
-			var cssDir = ListAppend(_getRootdirectory(), _getCssdirectory(), '/');
+			var cssDir = $listAppend(_getRootdirectory(), _getCssdirectory(), '/');
 			var files  = $directoryList(cssDir, '*.less');
 			var i      = 0;
 			var file   = "";
 			var target = "";
 
 			for(i=1; i LTE files.recordCount; i++){
-				file = ListAppend(files.directory[i], files.name[i], '/');
+				file = $listAppend(files.directory[i], files.name[i], '/');
 				target = file & '.css';
 				
 				if(not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file)){
@@ -357,7 +357,7 @@
 				}
 						
 				fileName	= _getJsPackages().getMinifiedFileName();
-				filePath	= ListAppend( _getOutputDirectory(), filename, '/' );
+				filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 				$fileWrite(filePath, content.toString());
 			}
 			
@@ -375,7 +375,7 @@
 				}			
 			
 				fileName	= _getCssPackages().getMinifiedFileName();
-				filePath	= ListAppend( _getOutputDirectory(), filename, '/' );
+				filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 				$fileWrite(filePath, content.toString());
 			}
 		</cfscript>
@@ -407,7 +407,7 @@
 					}
 					
 					fileName	= package.getMinifiedFileName();
-					filePath	= ListAppend( _getOutputDirectory(), filename, '/' );
+					filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 					$fileWrite(filePath, content.toString());
 				}
 			}
@@ -426,7 +426,7 @@
 					}
 
 					fileName	= package.getMinifiedFileName();
-					filePath	= ListAppend( _getOutputDirectory(), filename, '/' );
+					filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 					$fileWrite(filePath, content.toString());
 				}
 			}
@@ -457,7 +457,7 @@
 						if(  _compilationNecessary( file ) ){
 							content		= _compileJsFile( file );
 							fileName	= file.getMinifiedFileName();
-							filePath	= ListAppend( _getOutputDirectory(), filename, '/' );
+							filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 							$fileWrite(filePath, content);	
 						}
 						
@@ -477,7 +477,7 @@
 						if(  _compilationNecessary( file ) ){
 							content		= _compileCssFile( file );
 							fileName	= file.getMinifiedFileName();
-							filePath	= ListAppend( _getOutputDirectory(), filename, '/' );
+							filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 							$fileWrite(filePath, content);
 						}
 					}
@@ -513,7 +513,7 @@
 		<cfargument name="collectionPackageOrFile" type="any" required="true" hint="This could be either a staticFile, package or packageCollection" />
 		
 		<cfscript>
-			var minFile = ListAppend(_getOutputDirectory(), arguments.collectionPackageOrFile.getMinifiedFileName(), '/');
+			var minFile = $listAppend(_getOutputDirectory(), arguments.collectionPackageOrFile.getMinifiedFileName(), '/');
 			
 			// if we've been told to, we ought to...
 			if( _getForceCompilation() ){

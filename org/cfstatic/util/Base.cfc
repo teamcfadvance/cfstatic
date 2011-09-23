@@ -111,6 +111,21 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="$listAppend" access="private" returntype="string" output="false" hint="I override listAppend, ensuring that, when a list already contains its delimiter at the end, a duplicate delimiter is not appended">
+		<cfargument name="list" type="string" required="true" />
+		<cfargument name="value" type="string" required="true" />
+		<cfargument name="delimiter" type="string" required="false" default="," />
+		
+		<cfscript>
+			if( Right(arguments.list, Len(arguments.delimiter)) eq arguments.delimiter ){
+				arguments.list = Left( arguments.list, Len(arguments.list) - Len(arguments.delimiter ));
+			}
+
+			return ListAppend( arguments.list, arguments.value, arguments.delimiter );
+		</cfscript>
+	</cffunction>
+
+
 	<cffunction name="$renderCssInclude" access="private" returntype="string" output="false" hint="I return the html necessary to include the given css file">
 		<cfargument name="src" type="string" required="true" />
 		<cfargument name="media" type="string" required="true" />
