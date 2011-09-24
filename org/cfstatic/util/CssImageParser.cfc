@@ -28,13 +28,18 @@
 			var originalCss = source;
 			var finalCss = originalCss;
 			var imageReferences = $reSearch('url\((.+?)\)', originalCss);
+			var img = "";
 			var i = 0;
 			var fullUrl = "";
 						
 			if(StructKeyExists(imageReferences, '$1') and ArrayLen(imageReferences.$1)){
 				imageReferences = imageReferences.$1;
+
 				for(i=1; i LTE ArrayLen(imageReferences); i++){
-					fullUrl = _calculateFullUrl(imageReferences[i], arguments.filePath);
+					// remove quotes around url() image paths (there's probably a neater regex way to do it but hey)
+					img = Replace(Replace(imageReferences[i], '"', '', 'all'), "'", "", "all");
+					
+					fullUrl = _calculateFullUrl(img, arguments.filePath);
 					finalCss = Replace(finalCss, 'url(#imageReferences[i]#)', 'url(#fullUrl#)', 'all');
 				}
 			}
