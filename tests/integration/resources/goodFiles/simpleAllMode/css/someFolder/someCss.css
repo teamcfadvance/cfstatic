@@ -1,0 +1,9 @@
+/**
+ * some random css that depends on typography.css
+ * 
+ * @depends /typography.css
+ */
+
+ html {
+ 	background-color:#ff0000; /* nice */
+ }

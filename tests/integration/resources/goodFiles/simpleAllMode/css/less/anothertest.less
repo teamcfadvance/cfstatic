@@ -1,0 +1,13 @@
+/**
+ * This less file depends on testing.less
+ *
+ * @depends /less/testing.less
+ */
+
+ @someColor:#ff99ff;
+
+ .class {
+ 	.another .class {
+ 		color:@someColor;
+ 	}
+ }

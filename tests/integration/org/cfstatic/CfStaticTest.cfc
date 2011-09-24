@@ -147,9 +147,35 @@
 		</cfscript>	
 	</cffunction>
 
-	<cffunction name="t07_cfstatic_shouldConcatenateAndMinifyAllFilesInFolders_whenInPackageMinifyMode" returntype="void">
+	<cffunction name="t07_cfstatic_shouldConcatenateAndMinifyAllFilesToOne_whenInAllMinifyMode" returntype="void">
 		<cfscript>
-			fail("t07_cfstatic_shouldConcatenateAndMinifyAllFilesInFolders_whenInPackageMinifyMode not yet implemented")
+			var minFolder = "";
+			var expectedFolder = "";
+			
+			rootDir &= 'goodFiles/simpleAllMode/';
+
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/any/old/thing"
+				, minifyMode      = "all"
+			);
+
+			minFolder      = rootDir & 'min';
+			expectedFolder = rootDir & 'expectedOutput/withoutExternals';
+			
+			Assert( _areFoldersEqual(expectedFolder, minFolder) );
+			
+			_cleanUpMinifiedFiles();
+			cfstatic.init(
+				  staticDirectory   = rootDir
+				, staticUrl         = "/any/old/thing"
+				, minifyMode        = "all"
+				, downloadExternals = true
+			);
+			expectedFolder = rootDir & 'expectedOutput/withExternals';
+			
+			Assert( _areFoldersEqual(expectedFolder, minFolder) );
 		</cfscript>
 	</cffunction>
 
@@ -167,6 +193,37 @@
 			     <cffile action="delete" file="#directory#\#name#" />
 			</cfloop>
 		</cfif>
+	</cffunction>
+
+	<cffunction name="_areFoldersEqual" access="private" returntype="boolean" output="false">
+		<cfargument name="folder1" type="string" required="true" hint=""/>
+		<cfargument name="folder2" type="string" required="true" hint=""/>
+
+		<cfset var files = "" />
+		<cfset var file1 = "" />
+		<cfset var file2 = "" />
+
+
+		<cfdirectory action="list" directory="#arguments.folder1#" name="files"/>
+		<cfloop query="files">
+			<cfset file1 = ListAppend(arguments.folder1, files.name, '/') />
+			<cfset file2 = ListAppend(arguments.folder2, files.name, '/') />
+			
+			<cfif not FileExists( file2 ) or _fileCheckSum(file1) NEQ _fileCheckSum(file2)>
+				<cfreturn false />
+			</cfif>
+		</cfloop>
+		
+		<cfreturn true />
+	</cffunction>
+
+	<cffunction name="_fileChecksum" access="private" returntype="string" output="false">
+		<cfargument name="filePath" type="string" required="true" />
+		
+		<cfset var content = "" />
+		<cffile action="read" file="#arguments.filePath#" variable="content" />
+
+		<cfreturn Hash(content) />
 	</cffunction>
 	
 </cfcomponent>
