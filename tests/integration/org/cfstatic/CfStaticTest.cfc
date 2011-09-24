@@ -5,21 +5,27 @@
 		<cfscript>
 			super.setup();
 			cfstatic = createObject('component', 'org.cfstatic.CfStatic');
+			rootDir = _getResourcePath();
 		</cfscript>	
 	</cffunction>
 
 	<cffunction name="teardown" access="public" returntype="void" output="false">
-		super.teardown();
-		cfstatic = "";
+		<cfscript>
+			_cleanUpMinifiedFiles();
+			super.teardown();
+			rootDir = "";
+			cfstatic = "";
+		</cfscript>
 	</cffunction>
 
 <!--- tests --->
 	<cffunction name="t01_cfstatic_shouldThrowError_whenMixedMediaInPackage" returntype="void">
 		<cfscript>
 			var failed = false;
-			
+			rootDir &= 'badFiles/mixedMediaInPackage/';
+
 			cfstatic.init(
-				  staticDirectory = _getResourcePath() & 'badFiles/mixedMediaInPackage/'
+				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
 				, minifyMode      = "package"
 			);
@@ -38,9 +44,10 @@
 	<cffunction name="t02_cfstatic_shouldThrowError_whenMixedIeConstraintInPackage" returntype="void">
 		<cfscript>
 			var failed = false;
-			
+			rootDir &= 'badFiles/mixedIeInPackage/';
+
 			cfstatic.init(
-				  staticDirectory = _getResourcePath() & 'badFiles/mixedIeInPackage/'
+				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
 				, minifyMode      = "package"
 			);
@@ -49,7 +56,7 @@
 				
 			} catch ( "cfstatic.Package.badConfig" e ) {
 				failed = true;
-			}			
+			}
 			
 			Assert(failed);
 		</cfscript>	
@@ -58,9 +65,10 @@
 	<cffunction name="t03_cfstatic_shouldThrowError_whenMixedMediaAndUsingMinifyAllMode" returntype="void">
 		<cfscript>
 			var failed = false;
-			
+			rootDir &= 'badFiles/mixedMediaInAll/';
+
 			cfstatic.init(
-				  staticDirectory = _getResourcePath() & 'badFiles/mixedMediaInAll/'
+				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
 				, minifyMode      = "all"
 			);
@@ -78,9 +86,9 @@
 	<cffunction name="t04_cfstatic_shouldThrowError_whenMixedIeConstraintAndUsingMinifyAllMode" returntype="void">
 		<cfscript>
 			var failed = false;
-			
+			rootDir &= 'badFiles/mixedIeInAll/';
 			cfstatic.init(
-				  staticDirectory = _getResourcePath() & 'badFiles/mixedIeInAll/'
+				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
 				, minifyMode      = "all"
 			);
@@ -99,10 +107,10 @@
 	<cffunction name="t05_cfstatic_shouldThrowError_whenCompilingBadJavaScript" returntype="void">
 		<cfscript>
 			var failed = false;
-			
+			rootDir &= 'badFiles/badJavaScript/';
 			try {
 				cfstatic.init(
-					  staticDirectory = _getResourcePath() & 'badFiles/badJavaScript/'
+					  staticDirectory = rootDir
 					, staticUrl       = "/any/old/thing"
 				);
 							
@@ -119,10 +127,12 @@
 	<cffunction name="t06_cfstatic_shouldThrowError_whenMissingDependencies" returntype="void">
 		<cfscript>
 			var failed = false;
+
+			rootDir &= 'badFiles/missingDependencies/';
 			
 			try {
 				cfstatic.init(
-					  staticDirectory = _getResourcePath() & 'badFiles/missingDependencies/'
+					  staticDirectory = rootDir
 					, staticUrl       = "/any/old/thing"
 				);
 			} catch ( "org.cfstatic.missingDependency" e ) {
@@ -133,11 +143,30 @@
 				Assert(find("/css/other/somePage.less.css", e.detail));
 			}			
 			
-			Assert(failed);		</cfscript>	
+			Assert(failed);
+		</cfscript>	
+	</cffunction>
+
+	<cffunction name="t07_cfstatic_shouldConcatenateAndMinifyAllFilesInFolders_whenInPackageMinifyMode" returntype="void">
+		<cfscript>
+			fail("t07_cfstatic_shouldConcatenateAndMinifyAllFilesInFolders_whenInPackageMinifyMode not yet implemented")
+		</cfscript>
 	</cffunction>
 
 <!--- private --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
 	</cffunction>
+
+	<cffunction name="_cleanUpMinifiedFiles" access="private" returntype="void" output="false">
+		<cfset var dir   = rootDir & 'min' />
+		<cfset var files = "" />
+		<cfif DirectoryExists(dir)>
+			<cfdirectory action="list" directory="#dir#" name="files" />
+			<cfloop query="files">
+			     <cffile action="delete" file="#directory#\#name#" />
+			</cfloop>
+		</cfif>
+	</cffunction>
+	
 </cfcomponent>
