@@ -164,9 +164,9 @@
 			var i		= 0;
 			
 			if(ArrayLen(files)){
-				media = getStaticFile( files[1] ).getProperty('media', 'screen, projection', 'string');
+				media = getStaticFile( files[1] ).getProperty('media', 'all', 'string');
 				for(i=2; i LTE ArrayLen(files); i++){
-					if(media NEQ getStaticFile( files[i] ).getProperty('media', 'screen, projection', 'string')){
+					if(media NEQ getStaticFile( files[i] ).getProperty('media', 'all', 'string')){
 						$throw( type="cfstatic.Package.badConfig", message="There was an error compiling the package, '#_getPackageName()#', not all files define the same css media" );
 					}
 				}

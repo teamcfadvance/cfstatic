@@ -112,7 +112,7 @@
 		<cfargument name="minified" type="boolean" required="true" hint="Whether or not to refer to the minified or non-minified file when rendering the html include"/>
 		
 		<cfscript>
-			var media		= getProperty('media', 'screen, projection', 'string');
+			var media		= getProperty('media', 'all', 'string');
 			var ie			= getProperty('IE', '', 'string');
 			var cacheBuster	= getLastModified();
 			var src			= iif(arguments.minified, DE(_getMinifiedUrl()), DE(_getUrl()));
