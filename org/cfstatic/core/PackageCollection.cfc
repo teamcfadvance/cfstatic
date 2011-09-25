@@ -8,6 +8,7 @@
 		_fileType		= "";
 		_packages		= StructNew();
 		_ordered		= ArrayNew(1);
+		_cacheBust      = true;
 	</cfscript>
 
 <!--- constructor --->
@@ -16,12 +17,14 @@
 		<cfargument name="rootUrl"			type="string" required="true" />
 		<cfargument name="minifiedUrl"		type="string" required="true" />
 		<cfargument name="fileType"			type="string" required="true" />
+		<cfargument name="cacheBust"        type="boolean" required="true" />
 		
 		<cfscript>
 			_setRootDirectory	( arguments.rootDirectory	);
 			_setRootUrl			( arguments.rootUrl		 	);
 			_setMinifiedUrl		( arguments.minifiedUrl	 	);
 			_setFileType		( arguments.fileType		);			
+			_setCacheBust       ( arguments.cacheBust );
 			_loadFromFiles		( );
 			
 			return this;
@@ -58,7 +61,6 @@
 			var minify		= "";
 			var packages	= "";
 			var i			= "";
-			var cacheBuster	= "";
 			var src			= "";
 			var media		= "";
 			var ie			= "";
@@ -87,7 +89,6 @@
 
 				// minified at the 'all' level (package collection)
 				case 'all':
-					cacheBuster = getLastModified();
 					src			= "#_getMinifiedUrl()#/#getMinifiedFileName()#";
 					ie			= _getIeRestriction();
 					
@@ -99,9 +100,9 @@
 					// simple single include
 					if(_getFileType() EQ 'css'){
 						media = _getCssMedia();
-						str.append( $renderCssInclude( src, media, ie, cacheBuster) );
+						str.append( $renderCssInclude( src, media, ie ) );
 					} else {
-						str.append( $renderJsInclude( src, ie, cacheBuster) );
+						str.append( $renderJsInclude( src, ie ) );
 					}
 					break;
 			}
@@ -127,7 +128,16 @@
 	</cffunction>
 
 	<cffunction name="getMinifiedFileName" access="public" returntype="string" output="false" hint="I return the name of the file that this collection should use when being minified as a whole">
-		<cfreturn "#_getFileType()#.min.#_getFileType()#" />
+		<cfscript>
+			var filename = "#_getFileType()#.min";
+
+			if(_getCacheBust()){
+				filename = $listAppend(filename, $generateCacheBuster( getLastModified() ), '.');
+			}
+
+			return $listAppend(filename, _getFileType(), '.');
+		</cfscript>
+		<cfreturn "" />
 	</cffunction>
 	
 	<cffunction name="getLastModified" access="public" returntype="date" output="false" hint="I return the last modified date of the entire collection (based on the latest modified date of all the child packages)">
@@ -246,9 +256,8 @@
 				rootUrl = rootUrl & packageName;
 			}
 			
-			return CreateObject('component', 'Package').init( arguments.packageName, rootUrl, _getMinifiedUrl(), _getFileType() );
+			return CreateObject('component', 'Package').init( arguments.packageName, rootUrl, _getMinifiedUrl(), _getFileType(), _getCacheBust() );
 		</cfscript>
-		<cfreturn  />
 	</cffunction>
 	
 	<cffunction name="_addPackage" access="private" returntype="void" output="false" hint="Adds a package to the collection">
@@ -368,4 +377,13 @@
 	<cffunction name="_getPackages" access="private" returntype="struct" output="false">
 		<cfreturn _packages />
 	</cffunction>
+
+	<cffunction name="_getCacheBust" access="private" returntype="boolean" output="false">
+		<cfreturn _cacheBust>
+	</cffunction>
+	<cffunction name="_setCacheBust" access="private" returntype="void" output="false">
+		<cfargument name="cacheBust" type="boolean" required="true" />
+		<cfset _cacheBust = arguments.cacheBust />
+	</cffunction>
+
 </cfcomponent>

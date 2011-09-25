@@ -142,17 +142,15 @@
 		<cfargument name="src" type="string" required="true" />
 		<cfargument name="media" type="string" required="true" />
 		<cfargument name="ieConditional" type="string" required="false" default="" />
-		<cfargument name="dateLastModified" type="string" required="false" default="#Now()#" />
 				
-		<cfreturn $renderIeConditional('<link rel="stylesheet" href="#arguments.src#?#$generateCacheBuster(arguments.dateLastModified)#" media="#arguments.media#" />', arguments.ieConditional) />
+		<cfreturn $renderIeConditional('<link rel="stylesheet" href="#arguments.src#" media="#arguments.media#" />', arguments.ieConditional) />
 	</cffunction>
 	
 	<cffunction name="$renderJsInclude" access="private" returntype="string" output="false" hint="I return the html nevessary to include the given javascript file">
 		<cfargument name="src" type="string" required="true" />
 		<cfargument name="ieConditional" type="string" required="false" default="" />
-		<cfargument name="dateLastModified" type="string" required="false" default="#Now()#" />
 		
-		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#arguments.src#?#$generateCacheBuster(arguments.dateLastModified)#"></script>', arguments.ieConditional ) />
+		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#arguments.src#"></script>', arguments.ieConditional ) />
 	</cffunction>
 	
 	<cffunction name="$generateCacheBuster" access="private" returntype="string" output="false" hint="I return a cachebuster string for a given date">

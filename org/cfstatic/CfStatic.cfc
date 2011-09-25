@@ -30,6 +30,7 @@
 		<cfargument name="outputDirectory"		type="string"	required="false"	default="min"		hint="Relative path to the directory in which minified files will be output. Relative to static path." />
 		<cfargument name="minifyMode"			type="string"	required="false"	default="package"	hint="The minify mode. Options are: 'none', 'file', 'package' or 'all'." />
 		<cfargument name="downloadExternals"	type="boolean"	required="false"	default="false"		hint="If set to true, CfMinify will download and minify locally any external dependencies (e.g. http://code.jquery.com/jquery-1.6.1.min.js)" />
+		<cfargument name="addCacheBusters" 		type="boolean"	required="false"	default="true"		hint="If set to true (default), CfStatic will use last modified date as part of generated minified filenames"/>
 		<cfargument name="debugAllowed"			type="boolean"	required="false"	default="true"		hint="Whether or not debug is allowed. Defaulting to true, even though this may seem like a dev setting. No real extra load is made on the server by a user making use of debug mode and it is useful by default." />
 		<cfargument name="debugKey"				type="string"	required="false"	default="debug"		hint="URL parameter name used to invoke debugging (if enabled)" />
 		<cfargument name="debugPassword"		type="string"	required="false"	default="true"		hint="URL parameter value used to invoke debugging (if enabled)" />
@@ -60,7 +61,8 @@
 			_setDebugPassword		( arguments.debugPassword		);
 			_setForceCompilation	( arguments.forceCompilation	);	
 			_setCheckForUpdates		( arguments.checkForUpdates		);	
-			
+			_setAddCacheBusters		( arguments.addCacheBusters     );
+
 			// instantiate any compilers we are using and compile the static resources
 			_loadCompilers();
 			_processStaticFiles();
@@ -150,7 +152,7 @@
 		<cfargument name="minifiedUrl"		type="string" required="true" />
 		<cfargument name="fileType"			type="string" required="true" />
 		
-		<cfreturn CreateObject('component', 'org.cfstatic.core.PackageCollection').init( arguments.rootDirectory, arguments.rootUrl, arguments.minifiedUrl, arguments.fileType ) />
+		<cfreturn CreateObject('component', 'org.cfstatic.core.PackageCollection').init( arguments.rootDirectory, arguments.rootUrl, arguments.minifiedUrl, arguments.fileType, _getAddCacheBusters() ) />
 	</cffunction>
 
 	<cffunction name="_calculateMappings" access="private" returntype="void" output="false" hint="I calculate the include mappings. The mappings are a quick referenced storage of a given 'include' string that a coder might use to include a package or file that is mapped to the resultant set of packages and files that it might need to include given its dependencies. These mappings then negate the need to calculate dependencies on every request (making cfstatic super fast).">
@@ -761,5 +763,13 @@
 	<cffunction name="_getIncludeMappings" access="private" returntype="struct" output="false">
 		<cfargument name="type" type="string" required="true" />
 		<cfreturn _includeMappings[arguments.type] />
+	</cffunction>
+
+	<cffunction name="_getAddCacheBusters" access="private" returntype="boolean" output="false">
+		<cfreturn _addCacheBusters>
+	</cffunction>
+	<cffunction name="_setAddCacheBusters" access="private" returntype="void" output="false">
+		<cfargument name="addCacheBusters" type="boolean" required="true" />
+		<cfset _addCacheBusters = arguments.addCacheBusters />
 	</cffunction>
 </cfcomponent>

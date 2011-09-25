@@ -1,3 +1,4 @@
+
 <cfcomponent output="false" extends="org.cfstatic.util.Base" hint="I am an abstract representation of a single package, a directory that contains static files that can be packaged together. I provide methods such as getting all the content of the files in the correct order and getting the last modified date of the entire package.">
 	
 <!--- properties --->
@@ -6,6 +7,7 @@
 		_ordered		= ArrayNew(1);
 		_fileType		= "";
 		_packageName	= "";
+		_cacheBust		= true;
 	</cfscript>
 	
 <!--- constructor --->
@@ -14,12 +16,14 @@
 		<cfargument name="rootUrl" type="string" required="true" />
 		<cfargument name="minifiedUrl" type="string" required="true" />
 		<cfargument name="fileType" type="string" required="true" />
+		<cfargument name="cacheBust"    type="boolean" required="true" />
 		
 		<cfscript>
 			_setPackageName( arguments.packageName );
 			_setRootUrl( arguments.rootUrl );
 			_setMinifiedUrl( arguments.minifiedUrl );
 			_setFileType( arguments.fileType );
+			_setCacheBust( arguments.cacheBust );
 			
 			return this;
 		</cfscript>
@@ -88,7 +92,6 @@
 			var str			= "";
 			var files		= "";
 			var i			= "";
-			var cacheBuster	= "";
 			var src			= "";
 			var media		= "";
 			var ie			= "";
@@ -105,15 +108,14 @@
 					return str.toString();
 
 				case 'package':
-					cacheBuster = getLastModified();
 					src			= "#_getMinifiedUrl()#/#getMinifiedFileName()#";
 					ie			= getIeRestriction();
 					
 					if(_getFileType() EQ 'css'){
 						media = getCssMedia();
-						return $renderCssInclude( src, media, ie, cacheBuster);
+						return $renderCssInclude( src, media, ie );
 					} else {
-						return $renderJsInclude( src, ie, cacheBuster);
+						return $renderJsInclude( src, ie );
 					}
 					break;
 			}
@@ -178,10 +180,19 @@
 
 	<cffunction name="getMinifiedFileName" access="public" returntype="string" output="false" hint="I get the filename to be used when minifying the entire package">
 		<cfscript>
+			var filename = "";
+
 			if(_getPackageName() EQ '/'){
-				return 'root.min.#_getFileType()#';
+				filename = "root.min";
+			} else {
+				filename = "#ListChangeDelims(_getPackageName(), '.', '/')#.min";
 			}
-			return "#ListChangeDelims(_getPackageName(), '.', '/')#.min.#_getFileType()#";
+
+			if(_getCacheBust()){
+				filename    = $listAppend(filename, $generateCacheBuster( getLastModified() ), '.');
+			}
+
+			return $listAppend( filename, _getFileType(), '.');
 		</cfscript>
 	</cffunction>
 
@@ -209,7 +220,7 @@
 				fileUrl = _getRootUrl() & ListLast(arguments.path, '/');
 			}
 			
-			return CreateObject('component', 'org.cfstatic.core.StaticFile').init( Trim(arguments.path), _getPackageName(), fileUrl, _getMinifiedUrl(), _getFileType() );
+			return CreateObject('component', 'org.cfstatic.core.StaticFile').init( Trim(arguments.path), _getPackageName(), fileUrl, _getMinifiedUrl(), _getFileType(), _getCacheBust() );
 		</cfscript>
 	</cffunction>
 	
@@ -282,4 +293,13 @@
 	<cffunction name="_getStaticFiles" access="private" returntype="struct" output="false">
 		<cfreturn _staticFiles />
 	</cffunction>
+
+	<cffunction name="_getCacheBust" access="private" returntype="boolean" output="false">
+		<cfreturn _cacheBust>
+	</cffunction>
+	<cffunction name="_setCacheBust" access="private" returntype="void" output="false">
+		<cfargument name="cacheBust" type="boolean" required="true" />
+		<cfset _cacheBust = arguments.cacheBust />
+	</cffunction>
+
 </cfcomponent>

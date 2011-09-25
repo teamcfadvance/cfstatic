@@ -6,6 +6,7 @@
 		_url			= "";
 		_minifiedUrl	= "";
 		_fileType		= "";
+		_cacheBust		= true;
 		_dependencies	= ArrayNew(1);
 		_properties		= StructNew();
 		_lastModified	= CreateDateTime(1900,1,1,0,0,0);
@@ -13,11 +14,12 @@
 
 <!--- constructor --->
 	<cffunction name="init" access="public" returntype="StaticFile" output="false" hint="I am the constructor">
-		<cfargument name="path"			type="string" required="true" />
-		<cfargument name="packageName"	type="string" required="true" />
-		<cfargument name="fileUrl"		type="string" required="true" />
-		<cfargument name="minifiedUrl"	type="string" required="true" />
-		<cfargument name="fileType" type="string" required="true" />
+		<cfargument name="path"			type="string"  required="true" />
+		<cfargument name="packageName"	type="string"  required="true" />
+		<cfargument name="fileUrl"		type="string"  required="true" />
+		<cfargument name="minifiedUrl"	type="string"  required="true" />
+		<cfargument name="fileType"     type="string"  required="true" />
+		<cfargument name="cacheBust"    type="boolean" required="true" />
 		
 		<cfscript>
 			_setPath( arguments.path );
@@ -25,6 +27,7 @@
 			_setUrl( arguments.fileUrl );
 			_setMinifiedUrl( $listAppend( arguments.minifiedUrl, getMinifiedFileName(), '/' ));
 			_setFileType( arguments.fileType );
+			_setCacheBust( arguments.cacheBust );
 			
 			if(_isLocal()){
 				_parseProperties();			
@@ -114,14 +117,13 @@
 		<cfscript>
 			var media		= getProperty('media', 'all', 'string');
 			var ie			= getProperty('IE', '', 'string');
-			var cacheBuster	= getLastModified();
 			var src			= iif(arguments.minified, DE(_getMinifiedUrl()), DE(_getUrl()));
 
 			if(_getFileType() EQ 'css'){
-				return $renderCssInclude( src, media, ie, cacheBuster);
+				return $renderCssInclude( src, media, ie );
 				
 			} else {
-				return $renderJsInclude( src, ie, cacheBuster);
+				return $renderJsInclude( src, ie );
 			}
 		</cfscript>
 	</cffunction>
@@ -141,6 +143,9 @@
 			
 			filename 		= $listDeleteLast(filename, '.');
 			filename 		= $listAppend(filename, 'min', '.');
+			if(_getCacheBust()){
+				filename    = $listAppend(filename, $generateCacheBuster( getLastModified() ), '.');
+			}
 			filename		= $listAppend(filename, ext, '.');
 
 			return filename;
@@ -237,5 +242,13 @@
 	</cffunction>
 	<cffunction name="_getFileType" access="private" returntype="string" output="false">
 		<cfreturn _fileType />
+	</cffunction>
+
+	<cffunction name="_getCacheBust" access="private" returntype="boolean" output="false">
+		<cfreturn _cacheBust>
+	</cffunction>
+	<cffunction name="_setCacheBust" access="private" returntype="void" output="false">
+		<cfargument name="cacheBust" type="boolean" required="true" />
+		<cfset _cacheBust = arguments.cacheBust />
 	</cffunction>
 </cfcomponent>
