@@ -25,9 +25,9 @@
 			_setPath( arguments.path );
 			_setPackageName( arguments.packageName );
 			_setUrl( arguments.fileUrl );
+			_setCacheBust( arguments.cacheBust );
 			_setMinifiedUrl( $listAppend( arguments.minifiedUrl, getMinifiedFileName(), '/' ));
 			_setFileType( arguments.fileType );
-			_setCacheBust( arguments.cacheBust );
 			
 			if(_isLocal()){
 				_parseProperties();			
@@ -146,9 +146,8 @@
 			if(_getCacheBust()){
 				filename    = $listAppend(filename, $generateCacheBuster( getLastModified() ), '.');
 			}
-			filename		= $listAppend(filename, ext, '.');
 
-			return filename;
+			return $listAppend(filename, ext, '.');
 		</cfscript>
 	</cffunction>
 
