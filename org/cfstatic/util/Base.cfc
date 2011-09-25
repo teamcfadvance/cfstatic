@@ -32,6 +32,18 @@
 							
 		<cfreturn result />
 	</cffunction>
+
+	<cffunction name="$directoryClean" access="private" returntype="void" output="false" hint="I delete all the files in a directory">
+		<cfargument name="directory" type="string" required="true"/>
+		<cfargument name="excludeFiles" type="string" required="false" default="" hint="list of filenames to ignore in the cleaning" />
+
+		<cfset var files = $directoryList( directory=arguments.directory, recurse=false ) />
+		<cfloop query="files">
+			<cfif not ListFind(arguments.excludeFiles, files.name)>
+				<cffile action="delete" file="#files.directory#/#files.name#" />
+			</cfif>
+		</cfloop>
+	</cffunction>
 	
 	<cffunction name="$fileRead" access="private" returntype="string" output="false" hint="I return the content of the given file (path)">
 		<cfargument name="path" type="string" required="true" />

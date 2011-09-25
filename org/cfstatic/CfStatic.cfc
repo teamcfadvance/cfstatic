@@ -383,6 +383,8 @@
 				filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 				$fileWrite(filePath, content.toString());
 			}
+
+			$directoryClean( directory=_getOutputDirectory(), excludeFiles=ListAppend( _getJsPackages().getMinifiedFileName(), _getCssPackages().getMinifiedFileName() ) );
 		</cfscript>
 	</cffunction>
 
@@ -397,6 +399,7 @@
 			var n				= "";
 			var filePath		= "";
 			var fileName		= "";
+			var fileList        = "";
 
 			// js
 			packages		= _getJsPackages().getOrdered();
@@ -415,10 +418,11 @@
 					filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 					$fileWrite(filePath, content.toString());
 				}
+				
+				fileList = ListAppend(fileList, package.getMinifiedFileName());
 			}
 			
 			// css
-			
 			packages		= _getCssPackages().getOrdered();
 			for(i=1; i LTE ArrayLen(packages); i++){
 				content			= CreateObject("java","java.lang.StringBuffer");
@@ -434,7 +438,11 @@
 					filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 					$fileWrite(filePath, content.toString());
 				}
+
+				fileList = ListAppend(fileList, package.getMinifiedFileName());
 			}
+
+			$directoryClean( directory=_getOutputDirectory(), excludeFiles=fileList );
 		</cfscript>
 	</cffunction>
 	
@@ -449,6 +457,7 @@
 			var n			= "";
 			var filePath	= "";
 			var fileName	= "";
+			var fileList    = "";
 
 			// js
 			packages		= _getJsPackages().getOrdered();
@@ -465,7 +474,7 @@
 							filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 							$fileWrite(filePath, content);	
 						}
-						
+						fileList = ListAppend(fileList, file.getMinifiedFileName());
 					}
 				}
 			}
@@ -485,9 +494,12 @@
 							filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
 							$fileWrite(filePath, content);
 						}
+						fileList = ListAppend(fileList, file.getMinifiedFileName());
 					}
 				}
 			}
+
+			$directoryClean( directory=_getOutputDirectory(), excludeFiles=fileList );
 		</cfscript>
 	</cffunction>
 	
