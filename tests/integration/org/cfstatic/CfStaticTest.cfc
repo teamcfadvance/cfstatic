@@ -164,7 +164,7 @@
 			minFolder      = rootDir & 'min';
 			expectedFolder = rootDir & 'expectedOutput/withoutExternals';
 			
-			Assert( _areFoldersEqual(expectedFolder, minFolder) );
+			_assertFoldersAreEqual(expectedFolder, minFolder);
 			
 			_cleanUpMinifiedFiles();
 			cfstatic.init(
@@ -175,8 +175,29 @@
 			);
 			expectedFolder = rootDir & 'expectedOutput/withExternals';
 			
-			Assert( _areFoldersEqual(expectedFolder, minFolder) );
+			_assertFoldersAreEqual(expectedFolder, minFolder);
 		</cfscript>
+	</cffunction>
+
+	<cffunction name="t08_cfstatic_shouldConcatenateAndMinifyFilesInFolders_whenInPackageMinifyMode" returntype="void">
+		<cfscript>
+			var minFolder = "";
+			var expectedFolder = "";
+			
+			rootDir &= 'goodFiles/standardFolders/';
+
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/any/old/thing"
+				, minifyMode      = "package"
+			);
+
+			minFolder      = rootDir & 'min';
+			expectedFolder = rootDir & 'expectedOutput/packageMode';
+			
+			_assertFoldersAreEqual(expectedFolder, minFolder);
+		</cfscript>	
 	</cffunction>
 
 <!--- private --->
@@ -195,26 +216,27 @@
 		</cfif>
 	</cffunction>
 
-	<cffunction name="_areFoldersEqual" access="private" returntype="boolean" output="false">
+	<cffunction name="_assertFoldersAreEqual" access="private" returntype="void" output="false">
 		<cfargument name="folder1" type="string" required="true" hint=""/>
 		<cfargument name="folder2" type="string" required="true" hint=""/>
 
-		<cfset var files = "" />
+		<cfset var files1 = "" />
+		<cfset var files2 = "" />
 		<cfset var file1 = "" />
 		<cfset var file2 = "" />
 
 
-		<cfdirectory action="list" directory="#arguments.folder1#" name="files"/>
-		<cfloop query="files">
-			<cfset file1 = ListAppend(arguments.folder1, files.name, '/') />
-			<cfset file2 = ListAppend(arguments.folder2, files.name, '/') />
+		<cfdirectory action="list" directory="#arguments.folder1#" name="files1"/>
+		<cfdirectory action="list" directory="#arguments.folder2#" name="files2"/>
+
+		<cfset AssertEquals( ValueList(files1.name), ValueList(files2.name), 'The two folders did not contain exactly the same files') />
+
+		<cfloop query="files1">
+			<cfset file1 = ListAppend(arguments.folder1, files1.name, '/') />
+			<cfset file2 = ListAppend(arguments.folder2, files1.name, '/') />
 			
-			<cfif not FileExists( file2 ) or _fileCheckSum(file1) NEQ _fileCheckSum(file2)>
-				<cfreturn false />
-			</cfif>
+			<cfset AssertEquals( _fileCheckSum(file1), _fileCheckSum(file2), 'The checksums of the #files1.name# files were not equal') />
 		</cfloop>
-		
-		<cfreturn true />
 	</cffunction>
 
 	<cffunction name="_fileChecksum" access="private" returntype="string" output="false">

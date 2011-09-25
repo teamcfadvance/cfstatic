@@ -1,0 +1,10 @@
+/**
+ * I am a test mobile css (nothing really useful here)
+ *
+ * @depends /core/typography.css
+ * @media handheld
+ */
+
+ .content {
+ 	width:400px;
+ }

@@ -1,0 +1,10 @@
+/**
+ * Another css, this one sat in the root. When in package minify mode, we expect a root.min.css for 
+ * files that are not in a sub-dir
+ *
+ * @depends /core/typography.css
+ */
+
+ html {
+ 	background:transparent;
+ }

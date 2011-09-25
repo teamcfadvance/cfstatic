@@ -39,6 +39,11 @@
 		<cfscript>
 			// ensure easy windows / unix compatibility
 			arguments.staticDirectory = ListChangeDelims(arguments.staticDirectory, '/', '\');
+
+			// if we are given a relative or mapped path, ensure we have the full path
+			if(directoryExists(ExpandPath(arguments.staticDirectory))){
+				arguments.staticDirectory = ExpandPath(arguments.staticDirectory);
+			}
 		
 			// set config options
 			_setRootDirectory		( arguments.staticDirectory );
