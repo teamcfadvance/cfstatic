@@ -11,9 +11,12 @@
 	</cffunction>
 	
 	<cffunction name="compile" access="public" returntype="string" output="false">
-		<cfargument name="input" type="string" required="true" />
+		<cfargument name="filePath" type="string" required="true" />
 		
-		<cfreturn $loadJavaClass('com.asual.lesscss.LessEngine').compile( arguments.input ) />
+		<cfscript>
+			var file = CreateObject('java', 'java.io.File').init( arguments.filePath );
+			return $loadJavaClass('com.asual.lesscss.LessEngine').compile( file );
+		</cfscript>
 	</cffunction>
 
 </cfcomponent>

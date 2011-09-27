@@ -333,7 +333,7 @@
 				target = file & '.css';
 				
 				if(not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file)){
-					$fileWrite( target, _getLesscompiler().compile( $fileRead(file) ) );
+					$fileWrite( target, _getLesscompiler().compile( file ) );
 				}
 			}
 		</cfscript>
