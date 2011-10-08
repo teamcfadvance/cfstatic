@@ -334,6 +334,9 @@
 				
 				if(not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file)){
 					$fileWrite( target, _getLesscompiler().compile( file ) );
+
+					// set the last modified date of the generated css file to be that of the LESS file
+					FileSetLastModified( target, $fileLastModified(file) );
 				}
 			}
 		</cfscript>

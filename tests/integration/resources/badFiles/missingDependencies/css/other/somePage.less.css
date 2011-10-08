@@ -1,8 +1,0 @@
-/**
- * I have a bad dependency declaration, an error should be thrown (layout.less does not exist)
- *
- * @depends /core/layout.less
- */
-p {
-  font-weight: bold;
-}

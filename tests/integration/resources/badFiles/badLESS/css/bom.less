@@ -1,0 +1,9 @@
+@somevariable:10px;
+
+.mixin(@blah, @fubar){
+	width:@somevariable;
+}
+
+.someBadClassDefinition {
+	.mixin(@somevariabl); // (bad var name)
+}

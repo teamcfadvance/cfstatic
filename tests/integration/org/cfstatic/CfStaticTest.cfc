@@ -200,6 +200,25 @@
 		</cfscript>	
 	</cffunction>
 
+	<cffunction name="t09_cfstatic_shoulThrowFriendlyErrorWhenBadLESSSyntax" returntype="void">
+		<cfscript>
+			var failed = false;
+
+			rootDir &= 'badFiles/badLESS/';
+			try {
+				cfstatic.init(
+					  staticDirectory = rootDir
+					, staticUrl       = "/any/old/thing"
+				);
+							
+			} catch ( "org.cfstatic.util.LessCompiler.badLESS" e ) {
+				failed = true;
+			}
+			
+			Assert(failed);
+		</cfscript>	
+	</cffunction>
+
 <!--- private --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
@@ -208,12 +227,22 @@
 	<cffunction name="_cleanUpMinifiedFiles" access="private" returntype="void" output="false">
 		<cfset var dir   = rootDir & 'min' />
 		<cfset var files = "" />
+		
+		<!--- min files --->
 		<cfif DirectoryExists(dir)>
 			<cfdirectory action="list" directory="#dir#" name="files" />
 			<cfloop query="files">
-			     <cffile action="delete" file="#directory#\#name#" />
+			     <cffile action="delete" file="#directory#/#name#" />
 			</cfloop>
 		</cfif>
+
+		<!--- compiled less files --->
+		<cfdirectory action="list" directory="#rootDir#" filter="*.less.css" recurse="true" name="files" />
+		<cfloop query="files">
+			<cfif type EQ "file">
+				<cffile action="delete" file="#directory#/#name#" />
+			</cfif>
+		</cfloop>
 	</cffunction>
 
 	<cffunction name="_assertFoldersAreEqual" access="private" returntype="void" output="false">

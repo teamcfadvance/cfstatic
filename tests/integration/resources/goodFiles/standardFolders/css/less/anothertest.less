@@ -4,10 +4,13 @@
  * @depends /less/testing.less
  */
 
- @someColor:#ff99ff;
+@import "../common.less";
 
- .class {
- 	.another .class {
- 		color:@someColor;
- 	}
- }
+@someColor:#ff99ff;
+
+.class {
+	.another .class {
+		color:@someColor;
+		border-color:@light-grey;
+	}
+}
