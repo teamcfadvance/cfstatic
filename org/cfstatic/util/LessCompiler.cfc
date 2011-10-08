@@ -6,6 +6,9 @@
 			if(StructKeyExists(arguments, 'javaloader')){
 				super._setJavaLoader(arguments.javaloader);
 			}
+
+			_setLessEngine( $loadJavaClass('com.asual.lesscss.LessEngine') );
+
 			return this;
 		</cfscript>
 	</cffunction>
@@ -14,7 +17,8 @@
 		<cfargument name="filePath" type="string" required="true" />
 		
 		<cfscript>
-			var file = "";
+			var file     = "";
+			var compiled = "";
 			
 			// ensure file has no special chars that LESS chokes on
 			_cleanFile(arguments.filePath);
@@ -24,11 +28,14 @@
 
 			// attempt less compilation
 			try {
-				return $loadJavaClass('com.asual.lesscss.LessEngine').compile( file );				
+				compiled = _getLessEngine().compile( file );				
 			} catch( any e ){
-				
-				$throw('org.cfstatic.util.LessCompiler.badLESS', e.message, e.detail)
+				$throw('org.cfstatic.util.LessCompiler.badLESS', e.message, e.detail);
 			}
+
+			// cleanup and return
+			file = "";
+			return compiled;
 		</cfscript>
 	</cffunction>
 
@@ -45,4 +52,11 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="_getLessEngine" access="private" returntype="any" output="false">
+		<cfreturn _LessEngine>
+	</cffunction>
+	<cffunction name="_setLessEngine" access="private" returntype="void" output="false">
+		<cfargument name="LessEngine" type="any" required="true" />
+		<cfset _LessEngine = arguments.LessEngine />
+	</cffunction>
 </cfcomponent>

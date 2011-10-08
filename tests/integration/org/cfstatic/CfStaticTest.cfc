@@ -254,7 +254,6 @@
 		<cfset var file1 = "" />
 		<cfset var file2 = "" />
 
-
 		<cfdirectory action="list" directory="#arguments.folder1#" name="files1"/>
 		<cfdirectory action="list" directory="#arguments.folder2#" name="files2"/>
 
