@@ -38,13 +38,13 @@
 		<cfargument name="checkForUpdates" 		type="boolean"	required="false"	default="false"		hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
 
 		<cfscript>
-			// ensure easy windows / unix compatibility
-			arguments.staticDirectory = ListChangeDelims(arguments.staticDirectory, '/', '\');
-
 			// if we are given a relative or mapped path, ensure we have the full path
 			if(directoryExists(ExpandPath(arguments.staticDirectory))){
 				arguments.staticDirectory = ExpandPath(arguments.staticDirectory);
 			}
+			
+			// ensure easy windows / unix compatibility
+			arguments.staticDirectory = ListChangeDelims(arguments.staticDirectory, '/', '\');
 		
 			// set config options
 			_setRootDirectory		( arguments.staticDirectory );
