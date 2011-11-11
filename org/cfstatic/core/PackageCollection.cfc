@@ -161,12 +161,22 @@
 <!--- private methods --->
 	<cffunction name="_loadFromFiles" access="private" returntype="void" output="false" hint="I instantiate the collection by looking through all files in the collection's root directory">
 		<cfscript>
-			var files		= $directoryList( _getRootDirectory(), '*.#_getFileType()#' );
-			var i			= 1;
+			var files				= $directoryList( _getRootDirectory(), '*.#_getFileType()#' );
+			var i					= 1;
+			var staticIncludeList	= "";
+			
+			//Get list of included files from request scope, TODO: this should probably be changed
+			if(structKeyExists(request,'_cfstaticIncludes') AND arrayLen(request['_cfstaticIncludes'])){
+				staticIncludeList = arrayToList(request['_cfstaticIncludes']);
+			}
 			
 			for(i=1; i lte files.recordCount; i++){
-				_addStaticFile( ListChangeDelims(files.directory[i], '/', '\') & '/' & files.name[i] );
+				//Only add files to the package collection if they were explicitly included, If no files or packages have been included explicitly, include "all"
+				if(staticIncludeList EQ "" OR ListFind(staticIncludeList,"#removeChars(files.directory[i],1,len(_getRootDirectory()))##files.name[i]#")){
+						_addStaticFile( ListChangeDelims(files.directory[i], '/', '\') & '/' & files.name[i] );				
+				}
 			}
+			
 		</cfscript>
 	</cffunction>
 
