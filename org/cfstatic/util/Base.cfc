@@ -39,7 +39,7 @@
 
 		<cfset var files = $directoryList( directory=arguments.directory, recurse=false ) />
 		<cfloop query="files">
-			<cfif not ListFind(arguments.excludeFiles, files.name)>
+			<cfif files.type EQ 'File' and not ListFind(arguments.excludeFiles, files.name)>
 				<cffile action="delete" file="#files.directory#/#files.name#" />
 			</cfif>
 		</cfloop>

@@ -283,22 +283,22 @@
 	<cffunction name="_loadCompilers" access="private" returntype="void" output="false" hint="I instantiate all the compilers used by cfstatic">
 		<cfscript>
 			var jarsForYui		  = ArrayNew(1);
-			var javaLoaderForYui  = "";
 			var jarsForLess		  = ArrayNew(1);
-			var javaLoaderForLess = "";
 			
-			// jars for YuiCompresser and LessCompiler must be kept seperate due to conflicts!
+			// put javaloader instances in server scope due to memory leak issues
+			if( not StructKeyExists(server, '_cfstaticJavaloaders') ){
+				jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
+				jarsForYui[2]  = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
+				jarsForLess[1] = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.1.4.jar');
+
+				server['_cfstaticJavaloaders'] = StructNew();
+				server['_cfstaticJavaloaders'].yui  = CreateObject('org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui  );
+				server['_cfstaticJavaloaders'].less = CreateObject('org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
+			}
 			
-			jarsForYui[1]				= ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
-			jarsForYui[2]				= ExpandPath('/org/cfstatic/lib/cfstatic.jar');
-			jarsForLess[1]				= ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.1.4.jar');
-			
-			javaLoaderForYui			= CreateObject('org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui );
-			javaLoaderForLess			= CreateObject('org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
-			
-			_setYuiCompressor	( CreateObject('component','org.cfstatic.util.YuiCompressor').init(javaLoaderForYui));
-			_setLessCompiler	( CreateObject('component','org.cfstatic.util.LessCompiler').init(javaLoaderForLess));
-			_setCssImageParser	( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
+			_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( server['_cfstaticJavaloaders'].yui  ) );
+			_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( server['_cfstaticJavaloaders'].less ) );
+			_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
 		</cfscript>
 	</cffunction>
 
