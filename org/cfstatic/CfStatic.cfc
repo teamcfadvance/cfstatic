@@ -23,19 +23,20 @@
 
 <!--- constructor --->
 	<cffunction name="init" access="public" returntype="CfStatic" output="false" hint="I am the constructor for CfMinify. Pass in your CfStatic configuration options to me.">
-		<cfargument name="staticDirectory"		type="string"	required="true"							hint="Full path to the directoy in which static files reside" />
-		<cfargument name="staticUrl"			type="string"	required="true"							hint="Url that maps to the static directory" />
-		<cfargument name="jsDirectory"			type="string"	required="false"	default="js"		hint="Relative path to the directoy in which javascript files reside. Relative to static path." />
-		<cfargument name="cssDirectory"			type="string"	required="false"	default="css"		hint="Relative path to the directoy in which css files reside. Relative to static path." />
-		<cfargument name="outputDirectory"		type="string"	required="false"	default="min"		hint="Relative path to the directory in which minified files will be output. Relative to static path." />
-		<cfargument name="minifyMode"			type="string"	required="false"	default="package"	hint="The minify mode. Options are: 'none', 'file', 'package' or 'all'." />
-		<cfargument name="downloadExternals"	type="boolean"	required="false"	default="false"		hint="If set to true, CfMinify will download and minify locally any external dependencies (e.g. http://code.jquery.com/jquery-1.6.1.min.js)" />
-		<cfargument name="addCacheBusters" 		type="boolean"	required="false"	default="true"		hint="If set to true (default), CfStatic will use last modified date as part of generated minified filenames"/>
-		<cfargument name="debugAllowed"			type="boolean"	required="false"	default="true"		hint="Whether or not debug is allowed. Defaulting to true, even though this may seem like a dev setting. No real extra load is made on the server by a user making use of debug mode and it is useful by default." />
-		<cfargument name="debugKey"				type="string"	required="false"	default="debug"		hint="URL parameter name used to invoke debugging (if enabled)" />
-		<cfargument name="debugPassword"		type="string"	required="false"	default="true"		hint="URL parameter value used to invoke debugging (if enabled)" />
-		<cfargument name="forceCompilation"		type="boolean"	required="false"	default="false"		hint="Whether or not to check for updated files before compiling" />
-		<cfargument name="checkForUpdates" 		type="boolean"	required="false"	default="false"		hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
+		<cfargument name="staticDirectory"     type="string"  required="true"                    hint="Full path to the directoy in which static files reside" />
+		<cfargument name="staticUrl"           type="string"  required="true"                    hint="Url that maps to the static directory" />
+		<cfargument name="jsDirectory"         type="string"  required="false" default="js"      hint="Relative path to the directoy in which javascript files reside. Relative to static path." />
+		<cfargument name="cssDirectory"        type="string"  required="false" default="css"     hint="Relative path to the directoy in which css files reside. Relative to static path." />
+		<cfargument name="outputDirectory"     type="string"  required="false" default="min"     hint="Relative path to the directory in which minified files will be output. Relative to static path." />
+		<cfargument name="minifyMode"          type="string"  required="false" default="package" hint="The minify mode. Options are: 'none', 'file', 'package' or 'all'." />
+		<cfargument name="downloadExternals"   type="boolean" required="false" default="false"   hint="If set to true, CfMinify will download and minify locally any external dependencies (e.g. http://code.jquery.com/jquery-1.6.1.min.js)" />
+		<cfargument name="addCacheBusters"     type="boolean" required="false" default="true"    hint="If set to true (default), CfStatic will use last modified date as part of generated minified filenames"/>
+		<cfargument name="debugAllowed"        type="boolean" required="false" default="true"    hint="Whether or not debug is allowed. Defaulting to true, even though this may seem like a dev setting. No real extra load is made on the server by a user making use of debug mode and it is useful by default." />
+		<cfargument name="debugKey"            type="string"  required="false" default="debug"   hint="URL parameter name used to invoke debugging (if enabled)" />
+		<cfargument name="debugPassword"       type="string"  required="false" default="true"    hint="URL parameter value used to invoke debugging (if enabled)" />
+		<cfargument name="forceCompilation"    type="boolean" required="false" default="false"   hint="Whether or not to check for updated files before compiling" />
+		<cfargument name="checkForUpdates"     type="boolean" required="false" default="false"   hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
+		<cfargument name="includeAllByDefault" type="boolean" required="false" default="true"    hint="Whether or not to include all static files in a request when the .include() method is never called" />
 
 		<cfscript>
 			// if we are given a relative or mapped path, ensure we have the full path
@@ -44,7 +45,7 @@
 			}
 			
 			// ensure easy windows / unix compatibility
-			arguments.staticDirectory = ListChangeDelims(arguments.staticDirectory, '/', '\');
+			arguments.staticDirectory = $samifyUnixAndWindowsPaths( arguments.staticDirectory );
 		
 			// set config options
 			_setRootDirectory		( arguments.staticDirectory );
@@ -62,6 +63,7 @@
 			_setForceCompilation	( arguments.forceCompilation	);	
 			_setCheckForUpdates		( arguments.checkForUpdates		);	
 			_setAddCacheBusters		( arguments.addCacheBusters     );
+			_setIncludeAllByDefault ( arguments.includeAllByDefault );
 
 			// instantiate any compilers we are using and compile the static resources
 			_loadCompilers();
@@ -116,12 +118,18 @@
 
 			if( not StructKeyExists(arguments, 'type') OR arguments.type EQ 'css' ){
 				filters = _getRequestIncludeFilters( type = 'css' );
-				str.append( _getCssPackages().renderincludes( minification, _getDownloadExternals(), filters.packages, filters.files ) );
+
+				if( (ArrayLen(filters.packages) + ArrayLen(filters.files)) or _getIncludeAllByDefault() ){
+					str.append( _getCssPackages().renderincludes( minification, _getDownloadExternals(), filters.packages, filters.files ) );
+				}
 			}
 			if( not StructKeyExists(arguments, 'type') OR arguments.type EQ 'js' ){
-				filters = _getRequestIncludeFilters( type = 'js' );
 				str.append( _renderRequestData() );
-				str.append( _getJsPackages().renderincludes( minification, _getDownloadExternals(), filters.packages, filters.files ) );
+				
+				filters = _getRequestIncludeFilters( type = 'js' );
+				if( (ArrayLen(filters.packages) + ArrayLen(filters.files)) or _getIncludeAllByDefault() ){
+					str.append( _getJsPackages().renderincludes( minification, _getDownloadExternals(), filters.packages, filters.files ) );
+				}
 			}
 			
 			return str.toString();
@@ -774,5 +782,13 @@
 	<cffunction name="_setAddCacheBusters" access="private" returntype="void" output="false">
 		<cfargument name="addCacheBusters" type="boolean" required="true" />
 		<cfset _addCacheBusters = arguments.addCacheBusters />
+	</cffunction>
+
+	<cffunction name="_getIncludeAllByDefault" access="private" returntype="boolean" output="false">
+		<cfreturn _includeAllByDefault>
+	</cffunction>
+	<cffunction name="_setIncludeAllByDefault" access="private" returntype="void" output="false">
+		<cfargument name="includeAllByDefault" type="boolean" required="true" />
+		<cfset _includeAllByDefault = arguments.includeAllByDefault />
 	</cffunction>
 </cfcomponent>

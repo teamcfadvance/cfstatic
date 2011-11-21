@@ -288,6 +288,12 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="$samifyUnixAndWindowsPaths" access="private" returntype="string" output="false">
+		<cfargument name="path" type="string" required="true" />
+
+		<cfreturn ListChangeDelims(arguments.path, '/', '\') />
+	</cffunction>
+
 <!--- accessors --->
 	<cffunction name="_setJavaLoader" access="private" returntype="void" output="false">
 		<cfargument name="javaLoader" required="true" type="any" />
