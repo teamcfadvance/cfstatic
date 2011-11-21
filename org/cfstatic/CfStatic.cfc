@@ -520,8 +520,13 @@
 		<cfargument name="file" type="org.cfstatic.core.StaticFile" required="true" hint="The staticFile object representing the javascript file to compile" />
 
 		<cfscript>
-			var content = _getYuiCompressor().compressJs( arguments.file.getContent() );
-			return content;
+			// if the file is minified already, just return its content
+			if( arguments.file.getProperty('minified', 'false', 'string') ){
+				return arguments.file.getContent();
+			}
+			
+			// else, return compressed version			
+			return _getYuiCompressor().compressJs( arguments.file.getContent() );
 		</cfscript>
     </cffunction>
 	
@@ -529,11 +534,15 @@
 		<cfargument name="file" type="org.cfstatic.core.StaticFile" required="true" hint="The staticFile object representing the css file to compile" />
 		
 		<cfscript>
-			// compress using yui compressor
-			content			= _getYuiCompressor().compressCss( arguments.file.getContent() );
-			
+			var content = arguments.file.getContent();
+
+			// compress using yui compressor (if not already minified)
+			if( not arguments.file.getProperty('minified', 'false', 'string') ){
+				content = _getYuiCompressor().compressCss( content );
+			}
+
 			// parse relative image paths
-			content			= _getCssImageParser().parse( content, arguments.file.getPath() );
+			content	= _getCssImageParser().parse( content, arguments.file.getPath() );
 			
 			return content;
 		</cfscript>
