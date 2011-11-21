@@ -31,5 +31,7 @@ Other resources
 ---------------
 
 Authors Blog : http://fusion.dominicwatson.co.uk/categories/CfStatic/
+
 Source       : https://github.com/DominicWatson/cfstatic/
+
 Issues       : https://github.com/DominicWatson/cfstatic/issues/
