@@ -2,15 +2,22 @@
 
 <!--- private properties --->
 	<cfscript>
-		_rootDirectory		= "";
-		_jsDirectory		= "";
-		_jsUrl				= "";
-		_cssDirectory		= "";
-		_cssUrl				= "";
-		_outputDirectory	= "";
-		_minifiedUrl		= "";
-		_minifyMode			= "package";
-		_downloadExternals	= false;
+		_staticDirectory     = "";
+		_staticUrl           = "";
+		_jsDirectory         = "js";
+		_cssDirectory        = "css";
+		_outputDirectory     = "min";
+		_minifyMode          = "package";
+		_downloadExternals   = false;
+		_addCacheBusters     = true;
+		_debugAllowed        = true;
+		_debugKey            = "debug";
+		_debugPassword       = true;
+		_forceCompilation    = false;
+		_checkForUpdates     = false;
+		_includeAllByDefault = true;
+		_embedCssImages      = "none";
+
 		_jsPackages			= "";
 		_cssPackages		= "";
 		_yuiCompressor		= "";
@@ -22,7 +29,7 @@
 	</cfscript>
 
 <!--- constructor --->
-	<cffunction name="init" access="public" returntype="CfStatic" output="false" hint="I am the constructor for CfMinify. Pass in your CfStatic configuration options to me.">
+	<cffunction name="init" access="public" returntype="CfStatic" output="false" hint="I am the constructor for CfStatic. Pass in your CfStatic configuration options to me.">
 		<cfargument name="staticDirectory"     type="string"  required="true"                    hint="Full path to the directoy in which static files reside" />
 		<cfargument name="staticUrl"           type="string"  required="true"                    hint="Url that maps to the static directory" />
 		<cfargument name="jsDirectory"         type="string"  required="false" default="js"      hint="Relative path to the directoy in which javascript files reside. Relative to static path." />
@@ -37,6 +44,7 @@
 		<cfargument name="forceCompilation"    type="boolean" required="false" default="false"   hint="Whether or not to check for updated files before compiling" />
 		<cfargument name="checkForUpdates"     type="boolean" required="false" default="false"   hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
 		<cfargument name="includeAllByDefault" type="boolean" required="false" default="true"    hint="Whether or not to include all static files in a request when the .include() method is never called" />
+		<cfargument name="embedCssImages"      type="string"  required="false" default="none"    hint="Either 'none', 'all' or a regular expression to select css images that should be embedded in css files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images"/>
 
 		<cfscript>
 			// if we are given a relative or mapped path, ensure we have the full path
@@ -64,6 +72,7 @@
 			_setCheckForUpdates		( arguments.checkForUpdates		);
 			_setAddCacheBusters		( arguments.addCacheBusters     );
 			_setIncludeAllByDefault ( arguments.includeAllByDefault );
+			_setEmbedCssImages      ( arguments.embedCssImages      );
 
 			// instantiate any compilers we are using and compile the static resources
 			_loadCompilers();
@@ -542,7 +551,7 @@
 			}
 
 			// parse relative image paths
-			content	= _getCssImageParser().parse( content, arguments.file.getPath() );
+			content	= _getCssImageParser().parse( content, arguments.file.getPath(), _getEmbedCssImages() );
 
 			return content;
 		</cfscript>
@@ -799,5 +808,13 @@
 	<cffunction name="_setIncludeAllByDefault" access="private" returntype="void" output="false">
 		<cfargument name="includeAllByDefault" type="boolean" required="true" />
 		<cfset _includeAllByDefault = arguments.includeAllByDefault />
+	</cffunction>
+
+	<cffunction name="_getEmbedCssImages" access="private" returntype="string" output="false">
+		<cfreturn _embedCssImages>
+	</cffunction>
+	<cffunction name="_setEmbedCssImages" access="private" returntype="void" output="false">
+		<cfargument name="embedCssImages" type="string" required="true" />
+		<cfset _embedCssImages = arguments.embedCssImages />
 	</cffunction>
 </cfcomponent>

@@ -52,6 +52,19 @@
 		<cffile action="read" file="#arguments.path#" variable="content" />
 		<cfreturn content />
 	</cffunction>
+
+	<cffunction name="$fileReadBinary" access="private" returntype="string" output="false" hint="I return the content of the given file (path)">
+		<cfargument name="path" type="string" required="true" />
+		<cfargument name="convertToBase64" type="boolean" required="false" default="false" />
+	
+		<cfset var content = "" />
+		<cffile action="readBinary" file="#arguments.path#" variable="content" />
+		<cfif arguments.convertToBase64>
+			<cfreturn toBase64(content) />
+		<cfelse>
+			<cfreturn content />
+		</cfif>
+	</cffunction>
 	
 	<cffunction name="$fileWrite" access="private" returntype="void" output="false" hint="I write the passed content to the given file (path)">
 		<cfargument name="path" type="string" required="true" />

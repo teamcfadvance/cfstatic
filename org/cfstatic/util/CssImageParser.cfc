@@ -21,8 +21,9 @@
 
 <!--- public methods --->
 	<cffunction name="parse" access="public" returntype="string" output="false" hint="I take a css input string (and path to the css file) and return css with full image paths and cachebusters">
-		<cfargument name="source" type="string" required="true" />
-		<cfargument name="filePath" type="string" required="true" />
+		<cfargument name="source"           type="string" required="true" />
+		<cfargument name="filePath"         type="string" required="true" />
+		<cfargument name="embedImagesRegex" type="string" required="true" />
 
 		<cfscript>
 			var originalCss = source;
@@ -31,6 +32,8 @@
 			var img = "";
 			var i = 0;
 			var fullUrl = "";
+			var base64Encoded = "";
+			var imageMimeType = "";
 						
 			if(StructKeyExists(imageReferences, '$1') and ArrayLen(imageReferences.$1)){
 				imageReferences = imageReferences.$1;
@@ -39,8 +42,15 @@
 					// remove quotes around url() image paths (there's probably a neater regex way to do it but hey)
 					img = Replace(Replace(imageReferences[i], '"', '', 'all'), "'", "", "all");
 					
-					fullUrl = _calculateFullUrl(img, arguments.filePath);
-					finalCss = Replace(finalCss, 'url(#imageReferences[i]#)', 'url(#fullUrl#)', 'all');
+					if( arguments.embedImagesRegex EQ 'all' or (arguments.embedImagesRegex NEQ 'none' and ReFindNoCase( embedImagesRegex, img ) )){
+						base64Encoded = _calculateBase64String(img, arguments.filePath);
+						imageMimeType = _calculateMimeType(img);
+						finalCss = Replace(finalCss, 'url(#imageReferences[i]#)', 'url(data:#imageMimeType#;base64,#base64Encoded#)', 'all');
+						
+					} else {
+						fullUrl = _calculateFullUrl(img, arguments.filePath);
+						finalCss = Replace(finalCss, 'url(#imageReferences[i]#)', 'url(#fullUrl#)', 'all');
+					}
 				}
 			}
 	
@@ -98,6 +108,35 @@
 			
 			return fullUrl;
 		</cfscript>
+    </cffunction>
+
+    <cffunction name="_calculateBase64String" access="private" returntype="string" output="false">
+		<cfargument name="relativeUrl" type="string" required="true" />
+		<cfargument name="cssFilePath" type="string" required="true" />
+
+		<cfscript>
+			var imagePath = $listAppend(getDirectoryFromPath(arguments.cssFilePath), arguments.relativeUrl, '/');
+			if(FileExists(imagePath)){
+				return $fileReadBinary( path=imagePath, convertToBase64=true );
+			}
+
+			return "";
+		</cfscript>
+    </cffunction>
+
+    <cffunction name="_calculateMimeType" access="private" returntype="string" output="false">
+    	<cfargument name="imagePath" type="string" required="true" />
+
+    	<cfscript>
+    		switch( ListLast(arguments.imagePath, '.') ){
+    			case 'gif':
+    				return 'image/gif';
+    			case 'png':
+    				return 'image/png';
+    			default:
+    				return 'image/jpeg';
+    		}
+    	</cfscript>
     </cffunction>
     	
 <!--- accessors --->
