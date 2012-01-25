@@ -301,16 +301,17 @@
 		<cfscript>
 			var jarsForYui		  = ArrayNew(1);
 			var jarsForLess		  = ArrayNew(1);
+			var cfstaticJavaloaders   = StructNew();
 
 			// put javaloader instances in server scope due to memory leak issues
 			if( not StructKeyExists(server, '_cfstaticJavaloaders') ){
 				jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
 				jarsForYui[2]  = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
 				jarsForLess[1] = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.1.4.jar');
-
-				server['_cfstaticJavaloaders'] = StructNew();
-				server['_cfstaticJavaloaders'].yui  = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui  );
-				server['_cfstaticJavaloaders'].less = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
+				
+				cfstaticJavaloaders.yui  = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui  );
+				cfstaticJavaloaders.less = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
+				server['_cfstaticJavaloaders'] = cfstaticJavaloaders;
 			}
 
 			_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( server['_cfstaticJavaloaders'].yui  ) );
