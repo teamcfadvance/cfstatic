@@ -58,6 +58,8 @@
 		
 		<cfscript>
 			var str			=  CreateObject("java","java.lang.StringBuffer");
+			var included    = false;
+			var include     = "";
 			var minify		= "";
 			var packages	= "";
 			var i			= "";
@@ -81,8 +83,15 @@
 						}
 						
 						// add the package's rendering if it is not filtered out
-						if(not ArrayLen(arguments.includePackages) or arguments.includePackages.contains(JavaCast('string', packages[i]))){
-							str.append( getPackage( packages[i] ).renderIncludes( minification = minify, includeFiles = arguments.includeFiles ) );
+						included = arguments.includePackages.contains(JavaCast('string', packages[i]));
+						if(not ArrayLen(arguments.includePackages) or included){
+							// if the package has been directly included, we do not want to filter on files also
+							if( included ){
+								include = ArrayNew(1);
+							} else {
+								include = arguments.includeFiles;
+							}
+							str.append( getPackage( packages[i] ).renderIncludes( minification = minify, includeFiles = include ) );
 						}
 					}
 					break;
