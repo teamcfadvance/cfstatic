@@ -174,7 +174,7 @@
 			var i			= 1;
 			
 			for(i=1; i lte files.recordCount; i++){
-				_addStaticFile( ListChangeDelims(files.directory[i], '/', '\') & '/' & files.name[i] );
+				_addStaticFile( $samifyUnixAndWindowsPaths(files.directory[i]) & '/' & files.name[i] );
 			}
 		</cfscript>
 	</cffunction>
