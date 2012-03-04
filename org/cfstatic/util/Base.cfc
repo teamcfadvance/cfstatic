@@ -304,7 +304,7 @@
 	<cffunction name="$samifyUnixAndWindowsPaths" access="private" returntype="string" output="false">
 		<cfargument name="path" type="string" required="true" />
 
-		<cfreturn ListChangeDelims(arguments.path, '/', '\') />
+		<cfreturn iif(left(arguments.path,2) eq '\\',de('//'),de('')) & ListChangeDelims(arguments.path, '/', '\') />
 	</cffunction>
 
 <!--- accessors --->
