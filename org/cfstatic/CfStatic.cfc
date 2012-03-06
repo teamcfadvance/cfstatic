@@ -17,6 +17,8 @@
 		_checkForUpdates     = false;
 		_includeAllByDefault = true;
 		_embedCssImages      = "none";
+		_includePattern      = ".*";
+		_excludePattern      = "";
 
 		_jsPackages			= "";
 		_cssPackages		= "";
@@ -45,6 +47,8 @@
 		<cfargument name="checkForUpdates"     type="boolean" required="false" default="false"   hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
 		<cfargument name="includeAllByDefault" type="boolean" required="false" default="true"    hint="Whether or not to include all static files in a request when the .include() method is never called" />
 		<cfargument name="embedCssImages"      type="string"  required="false" default="none"    hint="Either 'none', 'all' or a regular expression to select css images that should be embedded in css files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images"/>
+		<cfargument name="includePattern"      type="string"  required="false" default=".*"      hint="Regex pattern indicating css and javascript files to be included in CfStatic's processing. Defaults to .* (all)" />
+		<cfargument name="excludePattern"      type="string"  required="false" default=""        hint="Regex pattern indicating css and javascript files to be excluded from CfStatic's processing. Defaults to blank (exclude none)" />
 
 		<cfscript>
 			// if we are given a relative or mapped path, ensure we have the full path
@@ -73,6 +77,8 @@
 			_setAddCacheBusters		( arguments.addCacheBusters     );
 			_setIncludeAllByDefault ( arguments.includeAllByDefault );
 			_setEmbedCssImages      ( arguments.embedCssImages      );
+			_setIncludePattern      ( arguments.includePattern      );
+			_setExcludePattern      ( arguments.excludePattern      );
 
 			// instantiate any compilers we are using and compile the static resources
 			_loadCompilers();
@@ -169,7 +175,7 @@
 		<cfargument name="minifiedUrl"		type="string" required="true" />
 		<cfargument name="fileType"			type="string" required="true" />
 
-		<cfreturn CreateObject('component', 'org.cfstatic.core.PackageCollection').init( arguments.rootDirectory, arguments.rootUrl, arguments.minifiedUrl, arguments.fileType, _getAddCacheBusters() ) />
+		<cfreturn CreateObject('component', 'org.cfstatic.core.PackageCollection').init( arguments.rootDirectory, arguments.rootUrl, arguments.minifiedUrl, arguments.fileType, _getAddCacheBusters(), _getIncludePattern(), _getExcludePattern() ) />
 	</cffunction>
 
 	<cffunction name="_calculateMappings" access="private" returntype="void" output="false" hint="I calculate the include mappings. The mappings are a quick referenced storage of a given 'include' string that a coder might use to include a package or file that is mapped to the resultant set of packages and files that it might need to include given its dependencies. These mappings then negate the need to calculate dependencies on every request (making cfstatic super fast).">
@@ -348,13 +354,15 @@
 
 			for(i=1; i LTE files.recordCount; i++){
 				file = $listAppend(files.directory[i], files.name[i], '/');
-				target = file & '.css';
+				if ( $shouldFileBeIncluded( file, _getIncludePattern(), _getExcludePattern() ) ){
+					target = file & '.css';
 
-				if(not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file)){
-					$fileWrite( target, _getLesscompiler().compile( file ) );
+					if(not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file)){
+						$fileWrite( target, _getLesscompiler().compile( file ) );
 
-					// set the last modified date of the generated css file to be that of the LESS file
-					FileSetLastModified( target, $fileLastModified(file) );
+						// set the last modified date of the generated css file to be that of the LESS file
+						FileSetLastModified( target, $fileLastModified(file) );
+					}
 				}
 			}
 		</cfscript>
@@ -817,5 +825,21 @@
 	<cffunction name="_setEmbedCssImages" access="private" returntype="void" output="false">
 		<cfargument name="embedCssImages" type="string" required="true" />
 		<cfset _embedCssImages = arguments.embedCssImages />
+	</cffunction>
+
+	<cffunction name="_getIncludePattern" access="private" returntype="string" output="false">
+		<cfreturn _includePattern>
+	</cffunction>
+	<cffunction name="_setIncludePattern" access="private" returntype="void" output="false">
+		<cfargument name="includePattern" type="string" required="true" />
+		<cfset _includePattern = arguments.includePattern />
+	</cffunction>
+
+	<cffunction name="_getExcludePattern" access="private" returntype="string" output="false">
+		<cfreturn _excludePattern>
+	</cffunction>
+	<cffunction name="_setExcludePattern" access="private" returntype="void" output="false">
+		<cfargument name="excludePattern" type="string" required="true" />
+		<cfset _excludePattern = arguments.excludePattern />
 	</cffunction>
 </cfcomponent>

@@ -307,6 +307,24 @@
 		<cfreturn iif(left(arguments.path,2) eq '\\',de('//'),de('')) & ListChangeDelims(arguments.path, '/', '\') />
 	</cffunction>
 
+	<cffunction name="$shouldFileBeIncluded" access="private" returntype="boolean" output="false">
+		<cfargument name="filePath"       type="string" required="true" />
+		<cfargument name="includePattern" type="string" required="true" />
+		<cfargument name="excludePattern" type="string" required="true" />
+
+		<cfscript>
+			if ( Len(Trim(arguments.includePattern)) AND NOT ReFindNoCase(arguments.includePattern, arguments.filePath) ) {
+				return false;
+			}
+
+			if ( Len(Trim(arguments.excludePattern)) AND ReFindNoCase(arguments.excludePattern, arguments.filePath) ) {
+				return false;
+			}
+
+			return true;
+		</cfscript>
+	</cffunction>
+
 <!--- accessors --->
 	<cffunction name="_setJavaLoader" access="private" returntype="void" output="false">
 		<cfargument name="javaLoader" required="true" type="any" />
