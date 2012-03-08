@@ -311,8 +311,8 @@
 		<cfargument name="filePath"       type="string" required="true" />
 		<cfargument name="includePattern" type="string" required="true" />
 		<cfargument name="excludePattern" type="string" required="true" />
-
 		<cfscript>
+			filepath = $samifyUnixAndWindowsPaths(filepath);
 			if ( Len(Trim(arguments.includePattern)) AND NOT ReFindNoCase(arguments.includePattern, arguments.filePath) ) {
 				return false;
 			}
