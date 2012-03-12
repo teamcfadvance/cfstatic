@@ -75,7 +75,7 @@
 			var i = 0;
 			
 			// ignore non relative paths
-			if( Left(arguments.relativeUrl, 1) NEQ '/' AND NOT ReFindNoCase('^(http|https)://', arguments.relativeUrl) ){
+			if( Left(arguments.relativeUrl, 1) NEQ '/' AND NOT ReFindNoCase('^(http|https)://', arguments.relativeUrl) AND NOT ReFindNoCase('^data:.*?;base64,', arguments.relativeUrl) ){
 				cssFileUrl = _getBaseCssUrl() & Replace(GetDirectoryFromPath(cssFilePath), _getBaseCssPath(), '');
 
 				// figure out how to traverse the url
