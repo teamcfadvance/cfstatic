@@ -158,7 +158,7 @@
 		<cfargument name="ieConditional" type="string" required="false" default="" />
 		<cfargument name="charset" type="string" required="false" default="utf-8" />
 				
-		<cfreturn $renderIeConditional('<link rel="stylesheet" href="#arguments.src#" media="#arguments.media#" charset="#arguments.charset#" />', arguments.ieConditional) />
+		<cfreturn $renderIeConditional('<link rel="stylesheet" href="#arguments.src#" media="#arguments.media#" charset="#arguments.charset#" />', arguments.ieConditional) & $newline() />
 	</cffunction>
 	
 	<cffunction name="$renderJsInclude" access="private" returntype="string" output="false" hint="I return the html nevessary to include the given javascript file">
@@ -166,7 +166,7 @@
 		<cfargument name="ieConditional" type="string" required="false" default="" />
 		<cfargument name="charset" type="string" required="false" default="utf-8" />
 		
-		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#arguments.src#" charset="#arguments.charset#"></script>', arguments.ieConditional ) />
+		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#arguments.src#" charset="#arguments.charset#"></script>', arguments.ieConditional ) & $newline() />
 	</cffunction>
 	
 	<cffunction name="$generateCacheBuster" access="private" returntype="string" output="false" hint="I return a cachebuster string for a given date">
@@ -326,6 +326,10 @@
 
 			return true;
 		</cfscript>
+	</cffunction>
+
+	<cffunction name="$newline" access="private" returntype="string" output="false">
+		<cfreturn Chr(13) & Chr(10) />
 	</cffunction>
 
 <!--- accessors --->
