@@ -67,10 +67,11 @@
 	</cffunction>
 	
 	<cffunction name="$fileWrite" access="private" returntype="void" output="false" hint="I write the passed content to the given file (path)">
-		<cfargument name="path" type="string" required="true" />
+		<cfargument name="path"    type="string" required="true" />
 		<cfargument name="content" type="string" required="true" />
+		<cfargument name="charset" type="string" required="false" default="utf-8" />
 	
-		<cffile action="write" file="#arguments.path#" output="#arguments.content#" addnewline="false" />
+		<cffile action="write" file="#arguments.path#" output="#arguments.content#" addnewline="false" charset="#arguments.charset#" />
 	</cffunction>
 
 	<cffunction name="$fileLastModified" access="private" returntype="date" output="false" hint="I return the last modified date of the given file (path)">
@@ -155,15 +156,17 @@
 		<cfargument name="src" type="string" required="true" />
 		<cfargument name="media" type="string" required="true" />
 		<cfargument name="ieConditional" type="string" required="false" default="" />
+		<cfargument name="charset" type="string" required="false" default="utf-8" />
 				
-		<cfreturn $renderIeConditional('<link rel="stylesheet" href="#arguments.src#" media="#arguments.media#" />', arguments.ieConditional) />
+		<cfreturn $renderIeConditional('<link rel="stylesheet" href="#arguments.src#" media="#arguments.media#" charset="#arguments.charset#" />', arguments.ieConditional) />
 	</cffunction>
 	
 	<cffunction name="$renderJsInclude" access="private" returntype="string" output="false" hint="I return the html nevessary to include the given javascript file">
 		<cfargument name="src" type="string" required="true" />
 		<cfargument name="ieConditional" type="string" required="false" default="" />
+		<cfargument name="charset" type="string" required="false" default="utf-8" />
 		
-		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#arguments.src#"></script>', arguments.ieConditional ) />
+		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#arguments.src#" charset="#arguments.charset#"></script>', arguments.ieConditional ) />
 	</cffunction>
 	
 	<cffunction name="$generateCacheBuster" access="private" returntype="string" output="false" hint="I return a cachebuster string for a given date">

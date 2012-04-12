@@ -113,17 +113,17 @@
 	
 	<cffunction name="renderInclude" access="public" returntype="string" output="false" hint="I return the html needed to include the file">
 		<cfargument name="minified" type="boolean" required="true" hint="Whether or not to refer to the minified or non-minified file when rendering the html include"/>
-		
+		<cfargument name="charset"  type="string"  required="false" default="utf-8" />
 		<cfscript>
 			var media		= getProperty('media', 'all', 'string');
 			var ie			= getProperty('IE', '', 'string');
 			var src			= iif(arguments.minified, DE(_getMinifiedUrl()), DE(_getUrl()));
 
 			if(_getFileType() EQ 'css'){
-				return $renderCssInclude( src, media, ie );
+				return $renderCssInclude( src, media, ie, arguments.charset );
 				
 			} else {
-				return $renderJsInclude( src, ie );
+				return $renderJsInclude( src, ie, arguments.charset );
 			}
 		</cfscript>
 	</cffunction>

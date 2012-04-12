@@ -62,7 +62,8 @@
 		<cfargument name="downloadExternals" type="boolean" required="true" hint="Whether or not external dependencies are internalized" />
 		<cfargument name="includePackages" type="array" required="false" default="#ArrayNew(1)#" hint="Only include the packages in this array. If empty, include *all* packages." />
 		<cfargument name="includeFiles" type="array" required="false" default="#ArrayNew(1)#" hint="Only include the files in this array. If empty, include *all* files." />
-		
+		<cfargument name="charset"      type="string" required="false" default="utf-8" />		
+
 		<cfscript>
 			var str			=  CreateObject("java","java.lang.StringBuffer");
 			var included    = false;
@@ -98,7 +99,7 @@
 							} else {
 								include = arguments.includeFiles;
 							}
-							str.append( getPackage( packages[i] ).renderIncludes( minification = minify, includeFiles = include ) );
+							str.append( getPackage( packages[i] ).renderIncludes( minification = minify, includeFiles = include, charset=arguments.charset ) );
 						}
 					}
 					break;
@@ -110,15 +111,15 @@
 					
 					// if we aren't downloading externals, render the external includes as unminified
 					if(not arguments.downloadExternals and _packageExists('external')){
-						str.append( getPackage('external').renderIncludes(minification='none'));
+						str.append( getPackage('external').renderIncludes( minification='none' ));
 					}
 					
 					// simple single include
 					if(_getFileType() EQ 'css'){
 						media = _getCssMedia();
-						str.append( $renderCssInclude( src, media, ie ) );
+						str.append( $renderCssInclude( src, media, ie, arguments.charset ) );
 					} else {
-						str.append( $renderJsInclude( src, ie ) );
+						str.append( $renderJsInclude( src, ie, arguments.charset ) );
 					}
 					break;
 			}

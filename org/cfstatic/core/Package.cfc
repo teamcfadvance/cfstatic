@@ -86,8 +86,8 @@
 	
 	<cffunction name="renderIncludes" access="public" returntype="string" output="false" hint="I return the html include string required to include this package">
 		<cfargument name="minification" type="string" required="true" hint="Mode of minification, this will effect how the includes are rendered. Either 'package', 'file' or 'none'" />
-		<cfargument name="includeFiles" type="array" required="false" default="#ArrayNew(1)#" hint="Only include the files in this array. If empty, include *all* files." />
-
+		<cfargument name="includeFiles" type="array"  required="false" default="#ArrayNew(1)#" hint="Only include the files in this array. If empty, include *all* files." />
+		<cfargument name="charset"      type="string" required="false" default="utf-8" />
 		<cfscript>
 			var str			= "";
 			var files		= "";
@@ -102,7 +102,7 @@
 					files = getOrdered();
 					for(i=1; i LTE ArrayLen(files); i++){
 						if(not ArrayLen(arguments.includeFiles) or arguments.includeFiles.contains(JavaCast('string', files[i]))){
-							str.append( getStaticFile(files[i]).renderInclude( minified = (arguments.minification EQ 'file') ) );
+							str.append( getStaticFile(files[i]).renderInclude( minified = (arguments.minification EQ 'file'), charset = arguments.charset ) );
 						}
 					}
 					return str.toString();
@@ -113,9 +113,9 @@
 					
 					if(_getFileType() EQ 'css'){
 						media = getCssMedia();
-						return $renderCssInclude( src, media, ie );
+						return $renderCssInclude( src, media, ie, arguments.charset );
 					} else {
-						return $renderJsInclude( src, ie );
+						return $renderJsInclude( src, ie, arguments.charset );
 					}
 					break;
 			}

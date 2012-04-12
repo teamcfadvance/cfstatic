@@ -19,6 +19,7 @@
 		_embedCssImages      = "none";
 		_includePattern      = ".*";
 		_excludePattern      = "";
+		_outputCharset       = "utf-8";
 
 		_jsPackages			= "";
 		_cssPackages		= "";
@@ -49,7 +50,7 @@
 		<cfargument name="embedCssImages"      type="string"  required="false" default="none"    hint="Either 'none', 'all' or a regular expression to select css images that should be embedded in css files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images"/>
 		<cfargument name="includePattern"      type="string"  required="false" default=".*"      hint="Regex pattern indicating css and javascript files to be included in CfStatic's processing. Defaults to .* (all)" />
 		<cfargument name="excludePattern"      type="string"  required="false" default=""        hint="Regex pattern indicating css and javascript files to be excluded from CfStatic's processing. Defaults to blank (exclude none)" />
-
+		<cfargument name="outputCharset"       type="string"  required="false" default="utf-8"   hint="Character set to use when writing outputted minified files" />
 		<cfscript>
 			// if we are given a relative or mapped path, ensure we have the full path
 			if(directoryExists(ExpandPath(arguments.staticDirectory))){
@@ -79,6 +80,7 @@
 			_setEmbedCssImages      ( arguments.embedCssImages      );
 			_setIncludePattern      ( arguments.includePattern      );
 			_setExcludePattern      ( arguments.excludePattern      );
+			_setOutputCharset       ( arguments.outputCharset       );
 
 			// instantiate any compilers we are using and compile the static resources
 			_loadCompilers();
@@ -135,7 +137,7 @@
 				filters = _getRequestIncludeFilters( type = 'css' );
 
 				if( (ArrayLen(filters.packages) + ArrayLen(filters.files)) or _getIncludeAllByDefault() ){
-					str.append( _getCssPackages().renderincludes( minification, _getDownloadExternals(), filters.packages, filters.files ) );
+					str.append( _getCssPackages().renderincludes( minification, _getDownloadExternals(), filters.packages, filters.files, _getOutputCharset() ) );
 				}
 			}
 			if( not StructKeyExists(arguments, 'type') OR arguments.type EQ 'js' ){
@@ -143,7 +145,7 @@
 
 				filters = _getRequestIncludeFilters( type = 'js' );
 				if( (ArrayLen(filters.packages) + ArrayLen(filters.files)) or _getIncludeAllByDefault() ){
-					str.append( _getJsPackages().renderincludes( minification, _getDownloadExternals(), filters.packages, filters.files ) );
+					str.append( _getJsPackages().renderincludes( minification, _getDownloadExternals(), filters.packages, filters.files, _getOutputCharset() ) );
 				}
 			}
 
@@ -358,7 +360,7 @@
 					target = file & '.css';
 
 					if(not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file)){
-						$fileWrite( target, _getLesscompiler().compile( file ) );
+						$fileWrite( target, _getLesscompiler().compile( file ), _getOutputCharset() );
 
 						// set the last modified date of the generated css file to be that of the LESS file
 						FileSetLastModified( target, $fileLastModified(file) );
@@ -394,7 +396,7 @@
 
 				fileName	= _getJsPackages().getMinifiedFileName();
 				filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-				$fileWrite(filePath, content.toString());
+				$fileWrite(filePath, content.toString(), _getOutputCharset() );
 			}
 
 			// css
@@ -412,7 +414,7 @@
 
 				fileName	= _getCssPackages().getMinifiedFileName();
 				filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-				$fileWrite(filePath, content.toString());
+				$fileWrite(filePath, content.toString(), _getOutputCharset() );
 			}
 
 			$directoryClean( directory=_getOutputDirectory(), excludeFiles=ListAppend( _getJsPackages().getMinifiedFileName(), _getCssPackages().getMinifiedFileName() ) );
@@ -447,7 +449,7 @@
 
 					fileName	= package.getMinifiedFileName();
 					filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-					$fileWrite(filePath, content.toString());
+					$fileWrite(filePath, content.toString(), _getOutputCharset() );
 				}
 
 				fileList = ListAppend(fileList, package.getMinifiedFileName());
@@ -467,7 +469,7 @@
 
 					fileName	= package.getMinifiedFileName();
 					filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-					$fileWrite(filePath, content.toString());
+					$fileWrite(filePath, content.toString(), _getOutputCharset() );
 				}
 
 				fileList = ListAppend(fileList, package.getMinifiedFileName());
@@ -503,7 +505,7 @@
 							content		= _compileJsFile( file );
 							fileName	= file.getMinifiedFileName();
 							filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-							$fileWrite(filePath, content);
+							$fileWrite(filePath, content, _getOutputCharset() );
 						}
 						fileList = ListAppend(fileList, file.getMinifiedFileName());
 					}
@@ -523,7 +525,7 @@
 							content		= _compileCssFile( file );
 							fileName	= file.getMinifiedFileName();
 							filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-							$fileWrite(filePath, content);
+							$fileWrite(filePath, content, _getOutputCharset() );
 						}
 						fileList = ListAppend(fileList, file.getMinifiedFileName());
 					}
@@ -804,7 +806,7 @@
 	</cffunction>
 
 	<cffunction name="_getAddCacheBusters" access="private" returntype="boolean" output="false">
-		<cfreturn _addCacheBusters>
+		<cfreturn _addCacheBusters />
 	</cffunction>
 	<cffunction name="_setAddCacheBusters" access="private" returntype="void" output="false">
 		<cfargument name="addCacheBusters" type="boolean" required="true" />
@@ -812,7 +814,7 @@
 	</cffunction>
 
 	<cffunction name="_getIncludeAllByDefault" access="private" returntype="boolean" output="false">
-		<cfreturn _includeAllByDefault>
+		<cfreturn _includeAllByDefault />
 	</cffunction>
 	<cffunction name="_setIncludeAllByDefault" access="private" returntype="void" output="false">
 		<cfargument name="includeAllByDefault" type="boolean" required="true" />
@@ -820,7 +822,7 @@
 	</cffunction>
 
 	<cffunction name="_getEmbedCssImages" access="private" returntype="string" output="false">
-		<cfreturn _embedCssImages>
+		<cfreturn _embedCssImages />
 	</cffunction>
 	<cffunction name="_setEmbedCssImages" access="private" returntype="void" output="false">
 		<cfargument name="embedCssImages" type="string" required="true" />
@@ -828,7 +830,7 @@
 	</cffunction>
 
 	<cffunction name="_getIncludePattern" access="private" returntype="string" output="false">
-		<cfreturn _includePattern>
+		<cfreturn _includePattern />
 	</cffunction>
 	<cffunction name="_setIncludePattern" access="private" returntype="void" output="false">
 		<cfargument name="includePattern" type="string" required="true" />
@@ -836,10 +838,18 @@
 	</cffunction>
 
 	<cffunction name="_getExcludePattern" access="private" returntype="string" output="false">
-		<cfreturn _excludePattern>
+		<cfreturn _excludePattern />
 	</cffunction>
 	<cffunction name="_setExcludePattern" access="private" returntype="void" output="false">
 		<cfargument name="excludePattern" type="string" required="true" />
 		<cfset _excludePattern = arguments.excludePattern />
+	</cffunction>
+
+	<cffunction name="_getOutputCharset" access="private" returntype="any" output="false">
+		<cfreturn _outputCharset />
+	</cffunction>
+	<cffunction name="_setOutputCharset" access="private" returntype="void" output="false">
+		<cfargument name="outputCharset" type="any" required="true" />
+		<cfset _outputCharset = arguments.outputCharset />
 	</cffunction>
 </cfcomponent>
