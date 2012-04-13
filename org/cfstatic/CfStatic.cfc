@@ -58,7 +58,7 @@
 			}
 
 			// ensure easy windows / unix compatibility
-			arguments.staticDirectory = $samifyUnixAndWindowsPaths( arguments.staticDirectory );
+			arguments.staticDirectory = $normalizeUnixAndWindowsPaths( arguments.staticDirectory );
 
 			// set config options
 			_setRootDirectory		( arguments.staticDirectory );

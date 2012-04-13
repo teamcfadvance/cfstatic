@@ -304,10 +304,10 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="$samifyUnixAndWindowsPaths" access="private" returntype="string" output="false">
+	<cffunction name="$normalizeUnixAndWindowsPaths" access="private" returntype="string" output="false">
 		<cfargument name="path" type="string" required="true" />
 
-		<cfreturn iif(left(arguments.path,2) eq '\\',de('//'),de('')) & ListChangeDelims(arguments.path, '/', '\') />
+		<cfreturn Replace( arguments.path, '\', '/', 'all' ) />
 	</cffunction>
 
 	<cffunction name="$shouldFileBeIncluded" access="private" returntype="boolean" output="false">
@@ -315,7 +315,7 @@
 		<cfargument name="includePattern" type="string" required="true" />
 		<cfargument name="excludePattern" type="string" required="true" />
 		<cfscript>
-			filepath = $samifyUnixAndWindowsPaths(filepath);
+			filepath = $normalizeUnixAndWindowsPaths(filepath);
 			if ( Len(Trim(arguments.includePattern)) AND NOT ReFindNoCase(arguments.includePattern, arguments.filePath) ) {
 				return false;
 			}
