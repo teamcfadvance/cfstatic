@@ -312,26 +312,37 @@
 			var cfstaticJavaloaders   = StructNew();
 
 			// put javaloader instances in server scope due to memory leak issues
-			if( not StructKeyExists(server, '_cfstaticJavaloaders') ){
-				jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
-				jarsForYui[2]  = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
-				jarsForLess[1] = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.3.0.jar');
-				
-				cfstaticJavaloaders.yui  = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui  );
-				cfstaticJavaloaders.less = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
-				
-				if(arguments.compilerScope eq "application"){
-					application['_cfstaticJavaloaders'] = cfstaticJavaloaders;
-					_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( application['_cfstaticJavaloaders'].yui  ) );
-					_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( application['_cfstaticJavaloaders'].less ) );
-				} else {
-					server['_cfstaticJavaloaders'] = cfstaticJavaloaders;
-					_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( server['_cfstaticJavaloaders'].yui  ) );
-					_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( server['_cfstaticJavaloaders'].less ) );
-				}
-			}
+			if(arguments.compilerScope eq "application"){
+				if( not StructKeyExists(server, '_cfstaticJavaloaders') ){
+					jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
+					jarsForYui[2]  = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
+					jarsForLess[1] = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.3.0.jar');
 
-			_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
+					cfstaticJavaloaders.yui  = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui  );
+					cfstaticJavaloaders.less = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
+					application['_cfstaticJavaloaders'] = cfstaticJavaloaders;
+				}
+
+				_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( application['_cfstaticJavaloaders'].yui  ) );
+				_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( application['_cfstaticJavaloaders'].less ) );
+				_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
+			} else {
+				if( not StructKeyExists(server, '_cfstaticJavaloaders') ){
+					jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
+					jarsForYui[2]  = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
+					jarsForLess[1] = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.3.0.jar');
+
+					cfstaticJavaloaders.yui  = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui  );
+					cfstaticJavaloaders.less = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
+					server['_cfstaticJavaloaders'] = cfstaticJavaloaders;
+				}
+
+				_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( server['_cfstaticJavaloaders'].yui  ) );
+				_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( server['_cfstaticJavaloaders'].less ) );
+				_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
+
+
+			}
 		</cfscript>
 	</cffunction>
 
