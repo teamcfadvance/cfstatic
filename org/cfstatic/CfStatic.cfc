@@ -307,24 +307,18 @@
 		<cfargument name="compilerScope" type="string" required="false" default="server" hint="The scope should the compilers be persisted">
 		
 		<cfscript>
-			// put javaloader instances in server scope due to memory leak issues
-			if(arguments.compilerScope eq "application"){
-				if( not StructKeyExists(application, '_cfstaticJavaloaders') ){
-					application['_cfstaticJavaloaders'] = _loadJavaLoaders();
-				}
-
-				_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( application['_cfstaticJavaloaders'].yui  ) );
-				_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( application['_cfstaticJavaloaders'].less ) );
-				_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
-			} else {
-				if( not StructKeyExists(server, '_cfstaticJavaloaders') ){
-					server['_cfstaticJavaloaders'] = _loadJavaLoaders();
-				}
-
-				_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( server['_cfstaticJavaloaders'].yui  ) );
-				_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( server['_cfstaticJavaloaders'].less ) );
-				_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
+			var scope = server;
+			if ( arguments.compilerScope EQ 'application' ){
+			    scope = application;
 			}
+
+			if( not StructKeyExists(scope, '_cfstaticJavaloaders') ){
+				scope['_cfstaticJavaloaders'] = _loadJavaLoaders();
+			}
+			
+			_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( scope['_cfstaticJavaloaders'].yui  ) );
+			_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( scope['_cfstaticJavaloaders'].less ) );
+			_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
 		</cfscript>
 	</cffunction>
 
