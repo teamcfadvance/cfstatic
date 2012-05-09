@@ -51,6 +51,8 @@
 		<cfargument name="includePattern"      type="string"  required="false" default=".*"      hint="Regex pattern indicating css and javascript files to be included in CfStatic's processing. Defaults to .* (all)" />
 		<cfargument name="excludePattern"      type="string"  required="false" default=""        hint="Regex pattern indicating css and javascript files to be excluded from CfStatic's processing. Defaults to blank (exclude none)" />
 		<cfargument name="outputCharset"       type="string"  required="false" default="utf-8"   hint="Character set to use when writing outputted minified files" />
+		<cfargument name="compilerScope"       type="string"  required="false" default="server"  hint="The scope in which instances of JavaLoader libraries for the compilers should be persisted, either 'application' or 'server' (default is 'server' to prevent JavaLoader memoery leaks)" />
+
 		<cfscript>
 			// if we are given a relative or mapped path, ensure we have the full path
 			if(directoryExists(ExpandPath(arguments.staticDirectory))){
@@ -83,7 +85,7 @@
 			_setOutputCharset       ( arguments.outputCharset       );
 
 			// instantiate any compilers we are using and compile the static resources
-			_loadCompilers();
+			_loadCompilers( compilerScope = arguments.compilerScope );
 			_processStaticFiles();
 
 			// return reference to self
@@ -306,25 +308,38 @@
 	</cffunction>
 
 	<cffunction name="_loadCompilers" access="private" returntype="void" output="false" hint="I instantiate all the compilers used by cfstatic">
+		<cfargument name="compilerScope" type="string" required="false" default="server" hint="The scope should the compilers be persisted">
+		
+		<cfscript>
+			var scope = server;
+			if ( arguments.compilerScope EQ 'application' ){
+			    scope = application;
+			}
+
+			if( not StructKeyExists(scope, '_cfstaticJavaloaders') ){
+				scope['_cfstaticJavaloaders'] = _loadJavaLoaders();
+			}
+			
+			_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( scope['_cfstaticJavaloaders'].yui  ) );
+			_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( scope['_cfstaticJavaloaders'].less ) );
+			_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_loadJavaLoaders" access="private" output="false">
 		<cfscript>
 			var jarsForYui		  = ArrayNew(1);
 			var jarsForLess		  = ArrayNew(1);
 			var cfstaticJavaloaders   = StructNew();
+ 
+			jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
+			jarsForYui[2]  = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
+			jarsForLess[1] = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.3.0.jar');
 
-			// put javaloader instances in server scope due to memory leak issues
-			if( not StructKeyExists(server, '_cfstaticJavaloaders') ){
-				jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
-				jarsForYui[2]  = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
-				jarsForLess[1] = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.3.0.jar');
-				
-				cfstaticJavaloaders.yui  = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui  );
-				cfstaticJavaloaders.less = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
-				server['_cfstaticJavaloaders'] = cfstaticJavaloaders;
-			}
-
-			_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( server['_cfstaticJavaloaders'].yui  ) );
-			_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( server['_cfstaticJavaloaders'].less ) );
-			_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
+			cfstaticJavaloaders.yui  = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui  );
+			cfstaticJavaloaders.less = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
+			
+		 	return cfstaticJavaloaders;
 		</cfscript>
 	</cffunction>
 
