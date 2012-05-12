@@ -257,12 +257,12 @@
 		<cfdirectory action="list" directory="#arguments.folder1#" name="files1"/>
 		<cfdirectory action="list" directory="#arguments.folder2#" name="files2"/>
 
-		<cfset AssertEquals( ValueList(files1.name), ValueList(files2.name), 'The two folders did not contain exactly the same files') />
-
 		<cfloop query="files1">
 			<cfset file1 = ListAppend(arguments.folder1, files1.name, '/') />
-			<cfset file2 = ListAppend(arguments.folder2, files1.name, '/') />
-			
+			<cfset file2 = _findEquivalentFileThatMayHaveDifferentTimestamp(files1.name, ValueList(files2.name)) />
+
+			<cfset Assert( file2 NEQ "", "The two folders did not contain the same files. Folder 1: #ValueList(files1.name)#. Folder 2: #ValueList(files2.name)#") />
+			<cfset file2 = ListAppend( arguments.folder2, file2 , '/' ) />
 			<cfset AssertEquals( _fileCheckSum(file1), _fileCheckSum(file2), 'The checksums of the #files1.name# files were not equal') />
 		</cfloop>
 	</cffunction>
@@ -274,6 +274,27 @@
 		<cffile action="read" file="#arguments.filePath#" variable="content" />
 
 		<cfreturn Hash(content) />
+	</cffunction>
+
+	<cffunction name="_findEquivalentFileThatMayHaveDifferentTimestamp" access="private" returntype="string" output="false">
+		<cfargument name="fileName"           type="string" required="true" />
+		<cfargument name="equivalentFileList" type="any"    required="true" />
+
+		<cfset var equivFile        = "" />
+		<cfset var strippedFileName = _removeTimeStampFromFile(arguments.fileName) />
+		<cfloop list="#arguments.equivalentFileList#" index="equivFile">
+			<cfif _removeTimeStampFromFile(equivFile) EQ strippedFileName>
+				<cfreturn equivFile />
+			</cfif>
+		</cfloop>
+
+		<cfreturn "" />
+	</cffunction>
+
+	<cffunction name="_removeTimeStampFromFile" access="private" returntype="string" output="false">
+		<cfargument name="fileName" type="string" required="true" />
+
+		<cfreturn ReReplace( arguments.fileName, '\.[0-9]{14}', "", "all" ) />
 	</cffunction>
 	
 </cfcomponent>
