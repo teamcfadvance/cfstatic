@@ -332,7 +332,7 @@
 			var jarsForLess         = ArrayNew(1);
 			var cfstaticJavaloaders = StructNew();
  
-			jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.6.jar');
+			jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.7.jar');
 			jarsForYui[2]  = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
 			jarsForLess[1] = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.3.0.jar');
 
