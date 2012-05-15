@@ -260,8 +260,13 @@
 
 						// setup the mapping structure for it
 						mappings[include] = StructNew();
-						mappings[include].packages = mappings[pkgInclude].packages; // for a start, we can add the mappings for the package already
-						mappings[include].files = ArrayNew(1);
+						mappings[include].packages = ArrayNew(1);
+						mappings[include].files    = ArrayNew(1);
+
+						// add the package to the mapping when we are in package mode
+						if ( _getMinifyMode() EQ 'package' ){
+							mappings[include].packages = mappings[pkgInclude].packages;
+						}
 
 						// add the file itself
 						ArrayAppend( mappings[include].files, files[n]);
