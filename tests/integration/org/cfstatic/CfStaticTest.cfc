@@ -219,6 +219,64 @@
 		</cfscript>	
 	</cffunction>
 
+	<cffunction name="t10_renderIncludes_shouldOutputAllIncludes_whenIncludeNeverCalled" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+
+
+			// all mode
+			rootDir &= 'goodFiles/simpleAllMode/';
+			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_all_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "all"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+			renderedOutput = cfstatic.renderIncludes();
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+
+			// package mode
+			rootDir        = Replace( rootDir, 'simpleAllMode', 'standardFolders' );
+			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_package_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "package"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+			renderedOutput = cfstatic.renderIncludes();
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+
+			// file mode
+			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_file_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "file"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+			renderedOutput = cfstatic.renderIncludes();
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+
+
+			// none mode
+			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_none_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "none"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+			renderedOutput = cfstatic.renderIncludes();
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+
+			
+		</cfscript>
+	</cffunction>
+
 <!--- private --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
@@ -270,10 +328,16 @@
 	<cffunction name="_fileChecksum" access="private" returntype="string" output="false">
 		<cfargument name="filePath" type="string" required="true" />
 		
+		<cfreturn Hash( _fileRead( arguments.filePath ) ) />
+	</cffunction>
+
+	<cffunction name="_fileRead" access="private" returntype="string" output="false">
+		<cfargument name="filePath" type="string" required="true" />
+		
 		<cfset var content = "" />
 		<cffile action="read" file="#arguments.filePath#" variable="content" />
 
-		<cfreturn Hash(content) />
+		<cfreturn content />
 	</cffunction>
 
 	<cffunction name="_findEquivalentFileThatMayHaveDifferentTimestamp" access="private" returntype="string" output="false">
@@ -281,9 +345,9 @@
 		<cfargument name="equivalentFileList" type="any"    required="true" />
 
 		<cfset var equivFile        = "" />
-		<cfset var strippedFileName = _removeTimeStampFromFile(arguments.fileName) />
+		<cfset var strippedFileName = _removeTimeStampFromFileNames(arguments.fileName) />
 		<cfloop list="#arguments.equivalentFileList#" index="equivFile">
-			<cfif _removeTimeStampFromFile(equivFile) EQ strippedFileName>
+			<cfif _removeTimeStampFromFileNames(equivFile) EQ strippedFileName>
 				<cfreturn equivFile />
 			</cfif>
 		</cfloop>
@@ -291,10 +355,22 @@
 		<cfreturn "" />
 	</cffunction>
 
-	<cffunction name="_removeTimeStampFromFile" access="private" returntype="string" output="false">
+	<cffunction name="_removeTimeStampFromFileNames" access="private" returntype="string" output="false">
 		<cfargument name="fileName" type="string" required="true" />
 
 		<cfreturn ReReplace( arguments.fileName, '\.[0-9]{14}', "", "all" ) />
+	</cffunction>
+
+	<cffunction name="_removeNewLines" access="private" returntype="string" output="false">
+		<cfargument name="stringWithNewLines" type="string" required="true" />
+
+		<cfreturn Replace( Replace( stringWithNewLines, Chr(10), '', 'all' ), Chr(13), '', 'all' ) />
+	</cffunction>
+
+	<cffunction name="_cleanupRenderedOutput" access="private" returntype="string" output="false">
+		<cfargument name="renderedOutput" type="string" required="true" />
+
+		<cfreturn _removeNewLines( _removeTimeStampFromFileNames( arguments.renderedOutput ) ) />
 	</cffunction>
 	
 </cfcomponent>

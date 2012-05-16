@@ -406,11 +406,13 @@
 			if( _compilationNecessary(_getJsPackages() ) ){
 				packages		= _getJsPackages().getOrdered();
 				for(i=1; i LTE ArrayLen(packages); i++){
-					package		= _getJsPackages().getPackage(packages[i]);
-					files			= package.getOrdered();
-					for(n=1; n LTE ArrayLen(files); n++){
-						file		= package.getStaticFile( files[n] );
-						content.append( _compileJsFile( file ) );
+					if ( _getDownloadexternals() OR packages[i] NEQ 'external' ) {
+						package		= _getJsPackages().getPackage(packages[i]);
+						files			= package.getOrdered();
+						for(n=1; n LTE ArrayLen(files); n++){
+							file		= package.getStaticFile( files[n] );
+							content.append( _compileJsFile( file ) );
+						}
 					}
 				}
 
