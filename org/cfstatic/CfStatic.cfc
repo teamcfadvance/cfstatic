@@ -314,7 +314,7 @@
 
 	<cffunction name="_loadCompilers" access="private" returntype="void" output="false" hint="I instantiate all the compilers used by cfstatic">
 		<cfargument name="javaLoaderScope" type="string" required="false" default="server" hint="The scope should the compilers be persisted">
-		
+
 		<cfscript>
 			var jlScope = server;
 			if ( arguments.javaLoaderScope EQ 'application' ){
@@ -324,7 +324,7 @@
 			if( not StructKeyExists(jlScope, '_cfstaticJavaloaders') ){
 				jlScope['_cfstaticJavaloaders'] = _loadJavaLoaders();
 			}
-			
+
 			_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( jlScope['_cfstaticJavaloaders'].yui  ) );
 			_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( jlScope['_cfstaticJavaloaders'].less ) );
 			_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
@@ -336,14 +336,14 @@
 			var jarsForYui          = ArrayNew(1);
 			var jarsForLess         = ArrayNew(1);
 			var cfstaticJavaloaders = StructNew();
- 
+
 			jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.7.jar');
 			jarsForYui[2]  = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
 			jarsForLess[1] = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.3.0.jar');
 
 			cfstaticJavaloaders.yui  = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui  );
 			cfstaticJavaloaders.less = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
-			
+
 		 	return cfstaticJavaloaders;
 		</cfscript>
 	</cffunction>
@@ -381,9 +381,6 @@
 
 					if(not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file)){
 						$fileWrite( target, _getLesscompiler().compile( file ), _getOutputCharset() );
-
-						// set the last modified date of the generated css file to be that of the LESS file
-						FileSetLastModified( target, $fileLastModified(file) );
 					}
 				}
 			}
