@@ -219,15 +219,14 @@
 		</cfscript>	
 	</cffunction>
 
-	<cffunction name="t10_renderIncludes_shouldOutputAllIncludes_whenIncludeNeverCalled" returntype="void">
+	<cffunction name="t10_renderIncludes_shouldOutputAllIncludes_whenIncludeNeverCalledInAllMode" returntype="void">
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
 			var outputHtmlRoot = rootDir & 'renderedIncludes/';
 
-
-			// all mode
 			rootDir &= 'goodFiles/simpleAllMode/';
+
 			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_all_mode.html' );
 			cfstatic.init(
 				  staticDirectory = rootDir
@@ -237,9 +236,17 @@
 			);
 			renderedOutput = cfstatic.renderIncludes();
 			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
 
-			// package mode
-			rootDir        = Replace( rootDir, 'simpleAllMode', 'standardFolders' );
+	<cffunction name="t11_renderIncludes_shouldOutputAllIncludes_whenIncludeNeverCalledInPackageMode" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/standardFolders/';
+
 			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_package_mode.html' );
 			cfstatic.init(
 				  staticDirectory = rootDir
@@ -249,8 +256,17 @@
 			);
 			renderedOutput = cfstatic.renderIncludes();
 			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
+	
+	<cffunction name="t12_renderIncludes_shouldOutputAllIncludes_whenIncludeNeverCalledInFileMode" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
 
-			// file mode
+			rootDir &= 'goodFiles/standardFolders/';
+
 			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_file_mode.html' );
 			cfstatic.init(
 				  staticDirectory = rootDir
@@ -260,9 +276,17 @@
 			);
 			renderedOutput = cfstatic.renderIncludes();
 			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
 
+	<cffunction name="t13_renderIncludes_shouldOutputAllIncludesFromOriginalLocations_whenIncludeNeverCalledInNoneMode" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
 
-			// none mode
+			rootDir &= 'goodFiles/standardFolders/';
+
 			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_none_mode.html' );
 			cfstatic.init(
 				  staticDirectory = rootDir
@@ -271,9 +295,7 @@
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 			renderedOutput = cfstatic.renderIncludes();
-			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
-
-			
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );			
 		</cfscript>
 	</cffunction>
 
