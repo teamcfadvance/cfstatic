@@ -299,7 +299,22 @@
 		</cfscript>
 	</cffunction>
 
-<!--- private --->
+	<cffunction name="t14_renderIncludes_shouldRenderNothing_whenIncludeAllByDefaultIsSetToFalse_allMode" returntype="void">
+		<cfscript>
+			rootDir &= 'goodFiles/simpleAllMode/';
+			cfstatic.init(
+				  staticDirectory     = rootDir
+				, staticUrl           = "/assets"
+				, minifyMode          = "file"
+				, debugKey            = "doNotLetMxUnitDebugScrewTests"
+				, includeAllByDefault = false
+			);
+			AssertEquals( "", cfstatic.renderIncludes() );
+		</cfscript>	
+	</cffunction>
+
+
+<!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
 	</cffunction>
