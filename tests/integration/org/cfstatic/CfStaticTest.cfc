@@ -387,7 +387,6 @@
 				, staticUrl       = "/assets"
 				, minifyMode      = "all"
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
-				, debugPassword   = "thisIsATest"
 			);
 
 			cfstatic.include('/css/someFolder/')
