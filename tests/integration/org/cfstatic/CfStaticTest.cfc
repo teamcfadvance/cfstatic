@@ -15,6 +15,7 @@
 			super.teardown();
 			rootDir = "";
 			cfstatic = "";
+			StructClear(request);
 		</cfscript>
 	</cffunction>
 
@@ -28,6 +29,7 @@
 				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
 				, minifyMode      = "package"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 						
 			try {
@@ -50,6 +52,7 @@
 				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
 				, minifyMode      = "package"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 			try {
 				cfstatic.renderIncludes();
@@ -71,6 +74,7 @@
 				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
 				, minifyMode      = "all"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 			
 			try {
@@ -91,6 +95,7 @@
 				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
 				, minifyMode      = "all"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 			
 			try {
@@ -112,6 +117,7 @@
 				cfstatic.init(
 					  staticDirectory = rootDir
 					, staticUrl       = "/any/old/thing"
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
 				);
 							
 			} catch ( "org.cfstatic.util.YuiCompressor.badJs" e ) {
@@ -134,6 +140,7 @@
 				cfstatic.init(
 					  staticDirectory = rootDir
 					, staticUrl       = "/any/old/thing"
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
 				);
 			} catch ( "org.cfstatic.missingDependency" e ) {
 				failed = true;
@@ -159,6 +166,7 @@
 				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
 				, minifyMode      = "all"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 
 			minFolder      = rootDir & 'min';
@@ -172,6 +180,7 @@
 				, staticUrl         = "/any/old/thing"
 				, minifyMode        = "all"
 				, downloadExternals = true
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 			expectedFolder = rootDir & 'expectedOutput/withExternals';
 			
@@ -191,6 +200,7 @@
 				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
 				, minifyMode      = "package"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 
 			minFolder      = rootDir & 'min';
@@ -310,6 +320,28 @@
 				, includeAllByDefault = false
 			);
 			AssertEquals( "", cfstatic.renderIncludes() );
+		</cfscript>	
+	</cffunction>
+
+	<cffunction name="t15_renderIncludes_shouldOnlyRenderIncludedFilesAndTheirDependencies" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/standardFolders/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'selected_css_includes_file_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "file"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+			cfstatic.include('/css/less/testing.less');
+
+			renderedOutput = cfstatic.renderIncludes('css');
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
 		</cfscript>	
 	</cffunction>
 
