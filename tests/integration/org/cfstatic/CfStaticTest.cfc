@@ -357,7 +357,7 @@
 			cfstatic.init(
 				  staticDirectory = rootDir
 				, staticUrl       = "/assets"
-				, minifyMode      = "file"
+				, minifyMode      = "package"
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 				, debugPassword   = "thisIsATest"
 			);
@@ -368,7 +368,57 @@
 
 			renderedOutput = cfstatic.renderIncludes();
 			structDelete(url, 'doNotLetMxUnitDebugScrewTests');
-			
+
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>	
+	</cffunction>
+
+	<cffunction name="t17_renderIncludes_shouldOnlyRenderJs_whenOnlyJsRequested" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/simpleAllMode/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'js_only_includes_all_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "all"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			cfstatic.include('/css/someFolder/')
+			        .include('/js/core/');
+
+			renderedOutput = cfstatic.renderIncludes('js');
+
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>	
+	</cffunction>
+
+	<cffunction name="t18_renderIncludes_shouldOnlyRenderCss_whenOnlyCssRequested" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/simpleAllMode/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'css_only_includes_all_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "all"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			cfstatic.include('/css/someFolder/')
+			        .include('/js/core/');
+
+			renderedOutput = cfstatic.renderIncludes('css');
+
 			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
 		</cfscript>	
 	</cffunction>
