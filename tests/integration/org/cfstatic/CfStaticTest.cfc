@@ -398,6 +398,31 @@
 		</cfscript>	
 	</cffunction>
 
+	<cffunction name="t18_renderIncludes_shouldOnlyRenderCss_whenOnlyCssRequested" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/simpleAllMode/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'css_only_includes_all_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "all"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			cfstatic.include('/css/someFolder/')
+			        .include('/js/core/');
+
+			renderedOutput = cfstatic.renderIncludes('css');
+
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>	
+	</cffunction>
+
 
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
