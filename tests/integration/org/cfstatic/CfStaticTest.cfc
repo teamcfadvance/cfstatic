@@ -345,6 +345,34 @@
 		</cfscript>	
 	</cffunction>
 
+	<cffunction name="t16_renderIncludes_shouldRenderSourceFiles_whenDebugKeyAndPasswordFoundInUrl" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/standardFolders/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'selected_raw_includes_package_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "file"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				, debugPassword   = "thisIsATest"
+			);
+			url.doNotLetMxUnitDebugScrewTests = "thisIsATest";
+
+			cfstatic.include('/css/someFolder/')
+			        .include('/js/core/');
+
+			renderedOutput = cfstatic.renderIncludes();
+			structDelete(url, 'doNotLetMxUnitDebugScrewTests');
+			
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>	
+	</cffunction>
+
 
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
