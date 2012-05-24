@@ -457,7 +457,28 @@
 
 	<cffunction name="t20_renderIncludes_shouldUseConfiguredCharset" returntype="void">
 		<cfscript>
-			fail("t20_renderIncludes_shouldUseConfiguredCharset not yet implemented")
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var dataToInclude  = StructNew();
+
+			rootDir &= 'goodFiles/standardFolders/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_package_mode_utf16.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "package"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				, outputCharset   = "utf-16"
+			);
+			dataToInclude['someKey']          = ListToArray("1,2,3,4,7,8,9");
+			dataToInclude.anotherKey          = StructNew();
+			dataToInclude.anotherKey['fubar'] = "hello world";
+			dataToInclude.yetAnotherKey       = false;
+
+			renderedOutput = cfstatic.includeData( dataToInclude ).renderIncludes();
+			AssertEqualsCase( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
 		</cfscript>	
 	</cffunction>
 
