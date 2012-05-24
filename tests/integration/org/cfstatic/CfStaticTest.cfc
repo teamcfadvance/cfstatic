@@ -451,7 +451,13 @@
 
 			renderedOutput = cfstatic.renderIncludes();
 
-			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+			AssertEqualsCase( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="t20_renderIncludes_shouldUseConfiguredCharset" returntype="void">
+		<cfscript>
+			fail("t20_renderIncludes_shouldUseConfiguredCharset not yet implemented")
 		</cfscript>	
 	</cffunction>
 
