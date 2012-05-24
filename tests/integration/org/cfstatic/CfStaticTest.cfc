@@ -423,6 +423,38 @@
 		</cfscript>	
 	</cffunction>
 
+	<cffunction name="t19_renderIncludes_shouldRenderJsVariablesBeforeJsIncludes_whenIncludeDataUsed" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var dataToInclude  = StructNew();
+
+			rootDir &= 'goodFiles/simpleAllMode/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_plus_data_all_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "all"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			dataToInclude['someKey']          = ListToArray("1,2,3,4,7,8,9");
+			dataToInclude.anotherKey          = StructNew();
+			dataToInclude.anotherKey['fubar'] = "hello world";
+			dataToInclude.yetAnotherKey       = false;
+
+			cfstatic.includeData( dataToInclude )
+			        .include('/css/someFolder/')
+			        .include('/js/core/');
+
+			renderedOutput = cfstatic.renderIncludes();
+
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>	
+	</cffunction>
+
 
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">

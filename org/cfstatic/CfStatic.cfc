@@ -615,7 +615,7 @@
 				return "";
 			}
 
-			return '<script type="text/javascript">var cfrequest = #SerializeJson(data)#</script>' & $newline();
+			return '<script type="text/javascript" charset="#_getOutputCharset()#">var cfrequest = #SerializeJson(data)#</script>' & $newline();
 		</cfscript>
     </cffunction>
 
