@@ -482,7 +482,32 @@
 		</cfscript>	
 	</cffunction>
 
-	<cffunction name="t21_settingJavaScopeToApplication_shouldCacheJavaLoadersInApplicationScope" returntype="void">
+	<cffunction name="t21_javaLoaders_shouldBeCachedInSessionScopeByDefault" returntype="void">
+		<cfscript>
+			if( StructKeyExists(server, '_cfstaticJavaloaders') ){
+				server['_theOldSwitcheroo'] = server['_cfstaticJavaloaders'];
+			}
+
+			StructDelete(application, '_cfstaticJavaloaders');
+			StructDelete(server     , '_cfstaticJavaloaders');
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+			);
+			AssertFalse( StructKeyExists( application, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were loaded into the application scope, even when told to be put in the server scope" );
+			Assert( StructKeyExists( server, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were not loaded into the server scope, even when asked" );
+			Assert( StructCount( server['_cfstaticJavaloaders'] ), "The javaloaders for CfStatic were not loaded into the server scope" );
+		
+			
+			if( StructKeyExists(server, '_theOldSwitcheroo') ){
+				server['_cfstaticJavaloaders'] = server['_theOldSwitcheroo'];
+				StructDelete(server, '_theOldSwitcheroo');
+			}
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="t22_settingJavaScopeToApplication_shouldCacheJavaLoadersInApplicationScope" returntype="void">
 		<cfscript>
 			if( StructKeyExists(server, '_cfstaticJavaloaders') ){
 				server['_theOldSwitcheroo'] = server['_cfstaticJavaloaders'];
