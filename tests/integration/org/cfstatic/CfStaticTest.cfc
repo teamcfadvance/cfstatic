@@ -547,7 +547,9 @@
 		<cfif DirectoryExists(dir)>
 			<cfdirectory action="list" directory="#dir#" name="files" />
 			<cfloop query="files">
-			     <cffile action="delete" file="#directory#/#name#" />
+				<cfif ListFindNoCase('js,css', ListLast(name, '.'))>
+			    	<cffile action="delete" file="#directory#/#name#" />
+			    </cfif>
 			</cfloop>
 		</cfif>
 
