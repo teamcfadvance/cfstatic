@@ -58,6 +58,10 @@
 
 			if ( not fileIsGlobal ) {
 				for( i=1; i LTE ArrayLen(globals); i++ ){
+					if ( not FileExists( globals[i] ) ) {
+						$throw( "org.cfstatic.util.LessCompiler.missingGlobal", "Could not find LESS global, '#globals[i]#'" );
+					}
+
 					relative = $calculateRelativePath( arguments.filePath, globals[i] );
 					imports = ListAppend( imports, "@import url('#relative#');", $newLine() );
 				}

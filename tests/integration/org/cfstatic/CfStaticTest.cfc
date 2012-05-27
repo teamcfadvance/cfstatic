@@ -560,6 +560,30 @@
 		</cfscript>	
 	</cffunction>
 
+	<cffunction name="t24_settingLessGlobals_shouldThrowError_whenOneOrMoreOfTheGlobalsDoesNotExist" returntype="void">
+		<cfscript>
+			var minFolder      = "";
+			var expectedFolder = "";
+			var failed         = false;
+			
+			rootDir &= 'goodFiles/lessIncludesTest/';
+
+			try {
+				cfstatic.init(
+					  staticDirectory = rootDir
+					, staticUrl       = "/any/old/thing"
+					, minifyMode      = "all"
+					, lessGlobals     = ExpandPath(rootDir & 'css/lessGlobals/global1.less') & ',/non/existing/less/file.less'
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				);
+			} catch( "org.cfstatic.util.LessCompiler.missingGlobal" e ) {
+				failed = ( e.message EQ "Could not find LESS global, '/non/existing/less/file.less'" );
+			}
+
+			Assert( failed, "CfStatic did not throw an appropriate error when an invalid LESS global was supplied");
+		</cfscript>	
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
