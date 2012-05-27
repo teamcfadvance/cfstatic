@@ -484,24 +484,24 @@
 
 	<cffunction name="t21_javaLoaders_shouldBeCachedInSessionScopeByDefault" returntype="void">
 		<cfscript>
-			if( StructKeyExists(server, '_cfstaticJavaloaders') ){
-				server['_theOldSwitcheroo'] = server['_cfstaticJavaloaders'];
+			if( StructKeyExists(server, '_cfstaticJavaloaders_v2') ){
+				server['_theOldSwitcheroo'] = server['_cfstaticJavaloaders_v2'];
 			}
 
-			StructDelete(application, '_cfstaticJavaloaders');
-			StructDelete(server     , '_cfstaticJavaloaders');
+			StructDelete(application, '_cfstaticJavaloaders_v2');
+			StructDelete(server     , '_cfstaticJavaloaders_v2');
 
 			cfstatic.init(
 				  staticDirectory = rootDir
 				, staticUrl       = "/assets"
 			);
-			AssertFalse( StructKeyExists( application, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were loaded into the application scope, even when told to be put in the server scope" );
-			Assert( StructKeyExists( server, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were not loaded into the server scope, even when asked" );
-			Assert( StructCount( server['_cfstaticJavaloaders'] ), "The javaloaders for CfStatic were not loaded into the server scope" );
+			AssertFalse( StructKeyExists( application, '_cfstaticJavaloaders_v2' ), "The javaloaders for CfStatic were loaded into the application scope, even when told to be put in the server scope" );
+			Assert( StructKeyExists( server, '_cfstaticJavaloaders_v2' ), "The javaloaders for CfStatic were not loaded into the server scope, even when asked" );
+			Assert( StructCount( server['_cfstaticJavaloaders_v2'] ), "The javaloaders for CfStatic were not loaded into the server scope" );
 		
 			
 			if( StructKeyExists(server, '_theOldSwitcheroo') ){
-				server['_cfstaticJavaloaders'] = server['_theOldSwitcheroo'];
+				server['_cfstaticJavaloaders_v2'] = server['_theOldSwitcheroo'];
 				StructDelete(server, '_theOldSwitcheroo');
 			}
 		</cfscript>
@@ -509,12 +509,12 @@
 
 	<cffunction name="t22_settingJavaScopeToApplication_shouldCacheJavaLoadersInApplicationScope" returntype="void">
 		<cfscript>
-			if( StructKeyExists(server, '_cfstaticJavaloaders') ){
-				server['_theOldSwitcheroo'] = server['_cfstaticJavaloaders'];
+			if( StructKeyExists(server, '_cfstaticJavaloaders_v2') ){
+				server['_theOldSwitcheroo'] = server['_cfstaticJavaloaders_v2'];
 			}
 
-			StructDelete(application, '_cfstaticJavaloaders');
-			StructDelete(server     , '_cfstaticJavaloaders');
+			StructDelete(application, '_cfstaticJavaloaders_v2');
+			StructDelete(server     , '_cfstaticJavaloaders_v2');
 
 			cfstatic.init(
 				  staticDirectory = rootDir
@@ -522,13 +522,13 @@
 				, javaLoaderScope = "application"
 			);
 
-			AssertFalse( StructKeyExists( server, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were loaded into the server scope, even when told to be put in the application scope" );
-			Assert( StructKeyExists( application, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were not loaded into the application scope, even when asked" );
-			Assert( StructCount( application['_cfstaticJavaloaders'] ), "The javaloaders for CfStatic were not loaded into the application scope" );
+			AssertFalse( StructKeyExists( server, '_cfstaticJavaloaders_v2' ), "The javaloaders for CfStatic were loaded into the server scope, even when told to be put in the application scope" );
+			Assert( StructKeyExists( application, '_cfstaticJavaloaders_v2' ), "The javaloaders for CfStatic were not loaded into the application scope, even when asked" );
+			Assert( StructCount( application['_cfstaticJavaloaders_v2'] ), "The javaloaders for CfStatic were not loaded into the application scope" );
 		
 			
 			if( StructKeyExists(server, '_theOldSwitcheroo') ){
-				server['_cfstaticJavaloaders'] = server['_theOldSwitcheroo'];
+				server['_cfstaticJavaloaders_v2'] = server['_theOldSwitcheroo'];
 				StructDelete(server, '_theOldSwitcheroo');
 			}
 		</cfscript>	
@@ -589,6 +589,28 @@
 		</cfscript>	
 	</cffunction>
 
+	<cffunction name="t25_coffeescript_shouldBeCompiledToJs" returntype="void">
+		<cfscript>
+			var minFolder = "";
+			var expectedFolder = "";
+			
+			rootDir &= 'goodFiles/coffee-script/';
+
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/any/old/thing"
+				, minifyMode      = "all"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			minFolder      = rootDir & 'min';
+			expectedFolder = rootDir & 'expectedOutput';
+			
+			_assertFoldersAreEqual(expectedFolder, minFolder);
+		</cfscript>	
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
@@ -610,6 +632,14 @@
 
 		<!--- compiled less files --->
 		<cfdirectory action="list" directory="#rootDir#" filter="*.less.css" recurse="true" name="files" />
+		<cfloop query="files">
+			<cfif type EQ "file">
+				<cffile action="delete" file="#directory#/#name#" />
+			</cfif>
+		</cfloop>
+
+		<!--- compiled coffee-script files--->
+		<cfdirectory action="list" directory="#rootDir#" filter="*.coffee.js" recurse="true" name="files" />
 		<cfloop query="files">
 			<cfif type EQ "file">
 				<cffile action="delete" file="#directory#/#name#" />

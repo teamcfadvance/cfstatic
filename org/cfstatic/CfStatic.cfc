@@ -159,8 +159,9 @@
 <!--- private methods --->
 	<cffunction name="_processStaticFiles" access="private" returntype="void" output="false" hint="I call all the methods that do the grunt work of cfstatic (processing all the file metadata, caching relationships and compiling files)">
 		<cfscript>
-			// compile any less css files before having them picked up by the css packager
+			// compile any LESS and coffee-script files before having them picked up by the packagers
 			_compileLess();
+			_compileCoffeeScript();
 
 			// process the directories to calculate all file metadata and dependencies
 			_setJsPackages			( _packageDirectory( $listAppend(_getRootDirectory(), _getJsDirectory(), '/' )	, _getJsUrl(), _getMinifiedUrl(), 'js') );
@@ -318,17 +319,19 @@
 
 		<cfscript>
 			var jlScope = server;
+			var jlScopeKey = "_cfstaticJavaLoaders_v2";
 			if ( arguments.javaLoaderScope EQ 'application' ){
 			    jlScope = application;
 			}
 
-			if( not StructKeyExists(jlScope, '_cfstaticJavaloaders') ){
-				jlScope['_cfstaticJavaloaders'] = _loadJavaLoaders();
+			if( not StructKeyExists(jlScope, jlScopeKey) ){
+				jlScope[jlScopeKey] = _loadJavaLoaders();
 			}
 
-			_setYuiCompressor ( CreateObject('component','org.cfstatic.util.YuiCompressor' ).init( jlScope['_cfstaticJavaloaders'].yui  ) );
-			_setLessCompiler  ( CreateObject('component','org.cfstatic.util.LessCompiler'  ).init( jlScope['_cfstaticJavaloaders'].less ) );
-			_setCssImageParser( CreateObject('component','org.cfstatic.util.CssImageParser').init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
+			_setYuiCompressor         ( CreateObject('component','org.cfstatic.util.YuiCompressor'       ).init( jlScope[jlScopeKey].yui                                      ) );
+			_setLessCompiler          ( CreateObject('component','org.cfstatic.util.LessCompiler'        ).init( jlScope[jlScopeKey].less                                     ) );
+			_setCoffeeScriptCompiler  ( CreateObject('component','org.cfstatic.util.CoffeeScriptCompiler').init( jlScope[jlScopeKey].coffee                                   ) );
+			_setCssImageParser        ( CreateObject('component','org.cfstatic.util.CssImageParser'      ).init( _getCssUrl(), $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ) ) );
 		</cfscript>
 	</cffunction>
 
@@ -336,14 +339,17 @@
 		<cfscript>
 			var jarsForYui          = ArrayNew(1);
 			var jarsForLess         = ArrayNew(1);
+			var jarsForCoffee       = ArrayNew(1);
 			var cfstaticJavaloaders = StructNew();
 
-			jarsForYui[1]  = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.7.jar');
-			jarsForYui[2]  = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
-			jarsForLess[1] = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.3.0.jar');
+			jarsForYui[1]    = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.7.jar');
+			jarsForYui[2]    = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
+			jarsForLess[1]   = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.3.0.jar');
+			jarsForCoffee[1] = ExpandPath('/org/cfstatic/lib/jcoffeescript/jcoffeescript-1.3.3.jar');
 
-			cfstaticJavaloaders.yui  = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui  );
-			cfstaticJavaloaders.less = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess );
+			cfstaticJavaloaders.yui    = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui    );
+			cfstaticJavaloaders.less   = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForLess   );
+			cfstaticJavaloaders.coffee = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForCoffee );
 
 		 	return cfstaticJavaloaders;
 		</cfscript>
@@ -387,6 +393,31 @@
 					needsCompiling = ( not fileExists(target) or lastModified LT globalsModified or lastModified LT $fileLastModified(file) );
 					if ( needsCompiling ){
 						compiled = _getLesscompiler().compile( file, _getLessGlobals() );
+
+						$fileWrite( target, compiled, _getOutputCharset() );
+					}
+				}
+			}
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_compileCoffeeScript" access="public" returntype="void" output="false">
+		<cfscript>
+			var jsDir           = $listAppend(_getRootdirectory(), _getJsdirectory(), '/');
+			var files           = $directoryList(jsDir, '*.coffee');
+			var i               = 0;
+			var file            = "";
+			var target          = "";
+			var compiled        = "";
+			var needsCompiling  = "";
+
+			for(i=1; i LTE files.recordCount; i++){
+				file = $listAppend(files.directory[i], files.name[i], '/');
+				if ( $shouldFileBeIncluded( file, _getIncludePattern(), _getExcludePattern() ) ){
+					target         = file & '.js';
+					needsCompiling = ( not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file) );
+					if ( needsCompiling ){
+						compiled = _getCoffeeScriptCompiler().compile( file );
 
 						$fileWrite( target, compiled, _getOutputCharset() );
 					}
@@ -811,6 +842,14 @@
 	</cffunction>
 	<cffunction name="_getLessCompiler" access="private" returntype="any" output="false">
 		<cfreturn _lessCompiler />
+	</cffunction>
+
+	<cffunction name="_getCoffeeScriptCompiler" access="private" returntype="any" output="false">
+		<cfreturn _CoffeeScriptCompiler>
+	</cffunction>
+	<cffunction name="_setCoffeeScriptCompiler" access="private" returntype="void" output="false">
+		<cfargument name="CoffeeScriptCompiler" type="any" required="true" />
+		<cfset _CoffeeScriptCompiler = arguments.CoffeeScriptCompiler />
 	</cffunction>
 
 	<cffunction name="_setCssImageParser" access="private" returntype="void" output="false">
