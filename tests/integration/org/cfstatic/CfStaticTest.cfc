@@ -538,15 +538,20 @@
 		<cfscript>
 			var minFolder = "";
 			var expectedFolder = "";
+			var globals = "";
 			
 			rootDir &= 'goodFiles/lessIncludesTest/';
+
+			globals = ListAppend( globals, ExpandPath(rootDir & 'css/less/globals/global1.less') );
+			globals = ListAppend( globals, ExpandPath(rootDir & 'css/less/globals/global2.less') );
+			globals = ListAppend( globals, ExpandPath(rootDir & 'globals/more.less') );
 
 			try {
 				cfstatic.init(
 					  staticDirectory = rootDir
 					, staticUrl       = "/any/old/thing"
 					, minifyMode      = "all"
-					, lessGlobals     = ExpandPath(rootDir & 'css/lessGlobals/global1.less') & ',' & ExpandPath(rootDir & 'css/lessGlobals/global2.less')
+					, lessGlobals     =  globals
 					, debugKey        = "doNotLetMxUnitDebugScrewTests"
 				);
 			} catch( "org.cfstatic.util.LessCompiler.badLESS" e ) {
@@ -573,7 +578,7 @@
 					  staticDirectory = rootDir
 					, staticUrl       = "/any/old/thing"
 					, minifyMode      = "all"
-					, lessGlobals     = ExpandPath(rootDir & 'css/lessGlobals/global1.less') & ',/non/existing/less/file.less'
+					, lessGlobals     = ExpandPath(rootDir & 'css/less/globals/global1.less') & ',/non/existing/less/file.less'
 					, debugKey        = "doNotLetMxUnitDebugScrewTests"
 				);
 			} catch( "org.cfstatic.util.LessCompiler.missingGlobal" e ) {

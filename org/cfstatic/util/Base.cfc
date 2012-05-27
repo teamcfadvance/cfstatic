@@ -359,7 +359,7 @@
 			}
 			
 			if ( pathStart EQ 0 ) {
-				return "./#relativePathArray[ArrayLen(relativePathArray)]#";
+				ArrayAppend( finalPath, "." );
 			}
 
 			/* Build the prefix for the relative path (../../etc.) */
@@ -369,7 +369,9 @@
 
 			/* Build the relative path */
 			for ( i = pathStart; i LTE ArrayLen(relativePathArray); i=i+1 ) {
-				ArrayAppend( finalPath, relativePathArray[i] );
+				if ( i ) {
+					ArrayAppend( finalPath, relativePathArray[i] );
+				}
 			}
 
 			return ArrayToList( finalPath, "/" );
