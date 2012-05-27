@@ -534,6 +534,32 @@
 		</cfscript>	
 	</cffunction>
 
+	<cffunction name="t23_settingLessGlobals_shouldHaveThemIncludedWithAllLessFiles" returntype="void">
+		<cfscript>
+			var minFolder = "";
+			var expectedFolder = "";
+			
+			rootDir &= 'goodFiles/lessIncludesTest/';
+
+			try {
+				cfstatic.init(
+					  staticDirectory = rootDir
+					, staticUrl       = "/any/old/thing"
+					, minifyMode      = "all"
+					, lessGlobals     = ExpandPath(rootDir & 'css/lessGlobals/global1.less') & ',' & ExpandPath(rootDir & 'css/lessGlobals/global2.less')
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				);
+			} catch( "org.cfstatic.util.LessCompiler.badLESS" e ) {
+				fail( "CfStatic failed to include global LESS files" );
+			}
+
+			minFolder      = rootDir & 'min';
+			expectedFolder = rootDir & 'expectedOutput';
+			
+			_assertFoldersAreEqual(expectedFolder, minFolder);
+		</cfscript>	
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />

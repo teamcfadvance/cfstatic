@@ -85,6 +85,12 @@
 			return lastModified;
 		</cfscript>
 	</cffunction>
+
+	<cffunction name="$fileDelete" access="private" returntype="void" output="false">
+		<cfargument name="path" type="string" required="true" />
+
+		<cffile action="delete" file="#arguments.path#" />
+	</cffunction>
 	
 	<cffunction name="$reSearch" access="private" returntype="struct" output="false" hint="I perform a Regex search and return a struct of arrays containing pattern match information. Each key represents the position of a match, i.e. $1, $2, etc. Each key contains an array of matches.">
 		<cfargument name="regex"	type="string"	required="true" />
@@ -331,6 +337,43 @@
 
 	<cffunction name="$newline" access="private" returntype="string" output="false">
 		<cfreturn Chr(13) & Chr(10) />
+	</cffunction>
+
+	<cffunction name="$calculateRelativePath" access="private" returntype="string" output="false">
+		<cfargument name="basePath"     type="string" required="true" />
+		<cfargument name="relativePath" type="string" required="true" />
+
+		<cfscript>
+			var basePathArray     = ListToArray( GetDirectoryFromPath( arguments.basePath ), "\/" );
+			var relativePathArray = ListToArray( arguments.relativePath, "\/" );
+			var finalPath         = ArrayNew(1);
+			var pathStart         = 0;
+			var i                 = 0;
+
+			/* Define the starting path (path in common) */
+			for (i = 1; i LTE ArrayLen(basePathArray); i = i + 1) {
+				if (basePathArray[i] NEQ relativePathArray[i]) {
+					pathStart = i;
+					break;
+				}
+			}
+			
+			if ( pathStart EQ 0 ) {
+				return "./#relativePathArray[ArrayLen(relativePathArray)]#";
+			}
+
+			/* Build the prefix for the relative path (../../etc.) */
+			for ( i = ArrayLen(basePathArray) - pathStart; i GTE 0; i=i-1 ) {
+				ArrayAppend( finalPath, ".." );
+			}
+
+			/* Build the relative path */
+			for ( i = pathStart; i LTE ArrayLen(relativePathArray); i=i+1 ) {
+				ArrayAppend( finalPath, relativePathArray[i] );
+			}
+
+			return ArrayToList( finalPath, "/" );
+		</cfscript>
 	</cffunction>
 
 <!--- accessors --->

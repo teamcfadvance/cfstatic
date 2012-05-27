@@ -14,41 +14,56 @@
 	</cffunction>
 	
 	<cffunction name="compile" access="public" returntype="string" output="false">
-		<cfargument name="filePath" type="string" required="true" />
-		
+		<cfargument name="filePath"    type="string" required="true"             />
+		<cfargument name="lessGlobals" type="string" required="false" default="" />
+
 		<cfscript>
 			var file     = "";
 			var compiled = "";
+			var tmpFile  = getDirectoryFromPath( arguments.filePath ) & CreateUuid() & '.less';
+			var content  = _injectLessGlobalsAsImports( arguments.filePath, arguments.lessGlobals );
 			
-			// ensure file has no special chars that LESS chokes on
-			_cleanFile(arguments.filePath);
-
-			// load a java file object for the less engine
-			file = CreateObject('java', 'java.io.File').init( arguments.filePath );
+			$fileWrite( tmpFile, content  );		
+			file = CreateObject('java', 'java.io.File').init( tmpFile );
 
 			// attempt less compilation
 			try {
 				compiled = _getLessEngine().compile( file );				
 			} catch( any e ){
-				$throw('org.cfstatic.util.LessCompiler.badLESS', e.message, e.detail);
+				file = "";
+				$fileDelete( tmpFile );
+				$throw(  type    = 'org.cfstatic.util.LessCompiler.badLESS'
+					   , message = "LESS error when compiling #ListLast(arguments.filePath, '/\')#. Message: #e.message#"
+					   , detail  = e.detail );
 			}
 
 			// cleanup and return
 			file = "";
+			$fileDelete( tmpFile );
 			return compiled;
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="_cleanFile" access="private" returntype="void" output="false" hint="I ensure the file does not have any special characters that the LESS engine might choke on">
-		<cfargument name="file" type="string" required="true" hint="Full path to the file to clean"/>
+<!--- private utility --->
+	<cffunction name="_injectLessGlobalsAsImports" access="private" returntype="string" output="false">
+		<cfargument name="filePath"    type="string" required="true" />
+		<cfargument name="lessGlobals" type="string" required="true" />
+
 		<cfscript>
-			var lastModified = $fileLastModified(arguments.file);
+			var globals      = ListToArray( arguments.lessGlobals );
+			var relative     = "";
+			var imports      = "";
+			var fileIsGlobal = ListFindNoCase( arguments.lessGlobals, arguments.filePath );
+			var i            = 0;
 
-			// simply read and write the file using CF, should clean it up enough for LESS
-			$fileWrite( arguments.file, $fileRead(arguments.file) );
+			if ( not fileIsGlobal ) {
+				for( i=1; i LTE ArrayLen(globals); i++ ){
+					relative = $calculateRelativePath( arguments.filePath, globals[i] );
+					imports = ListAppend( imports, "@import url('#relative#');", $newLine() );
+				}
+			}
 
-			// set the original last modified date back
-			FileSetLastModified( arguments.file, lastModified );
+			return imports & $newline() & $fileRead( arguments.filePath );
 		</cfscript>
 	</cffunction>
 

@@ -52,7 +52,7 @@
 		<cfargument name="excludePattern"      type="string"  required="false" default=""        hint="Regex pattern indicating css and javascript files to be excluded from CfStatic's processing. Defaults to blank (exclude none)" />
 		<cfargument name="outputCharset"       type="string"  required="false" default="utf-8"   hint="Character set to use when writing outputted minified files" />
 		<cfargument name="javaLoaderScope"     type="string"  required="false" default="server"  hint="The scope in which instances of JavaLoader libraries for the compilers should be persisted, either 'application' or 'server' (default is 'server' to prevent JavaLoader memory leaks)" />
-
+		<cfargument name="lessGlobals"         type="string"  required="false" default=""        hint="Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list" />
 		<cfscript>
 			// if we are given a relative or mapped path, ensure we have the full path
 			if(directoryExists(ExpandPath(arguments.staticDirectory))){
@@ -83,6 +83,7 @@
 			_setIncludePattern      ( arguments.includePattern      );
 			_setExcludePattern      ( arguments.excludePattern      );
 			_setOutputCharset       ( arguments.outputCharset       );
+			_setLessGlobals         ( arguments.lessGlobals         );
 
 			// instantiate any compilers we are using and compile the static resources
 			_loadCompilers( javaLoaderScope = arguments.javaLoaderScope );
@@ -368,19 +369,23 @@
 
 	<cffunction name="_compileLess" access="public" returntype="void" output="false">
 		<cfscript>
-			var cssDir = $listAppend(_getRootdirectory(), _getCssdirectory(), '/');
-			var files  = $directoryList(cssDir, '*.less');
-			var i      = 0;
-			var file   = "";
-			var target = "";
+			var cssDir         = $listAppend(_getRootdirectory(), _getCssdirectory(), '/');
+			var files          = $directoryList(cssDir, '*.less');
+			var i              = 0;
+			var file           = "";
+			var target         = "";
+			var compiled       = "";
+			var needsCompiling = "";
 
 			for(i=1; i LTE files.recordCount; i++){
 				file = $listAppend(files.directory[i], files.name[i], '/');
 				if ( $shouldFileBeIncluded( file, _getIncludePattern(), _getExcludePattern() ) ){
 					target = file & '.css';
+					needsCompiling = ( not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file) );
+					if ( needsCompiling ){
+						compiled = _getLesscompiler().compile( file, _getLessGlobals() );
 
-					if(not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file)){
-						$fileWrite( target, _getLesscompiler().compile( file ), _getOutputCharset() );
+						$fileWrite( target, compiled, _getOutputCharset() );
 					}
 				}
 			}
@@ -870,5 +875,13 @@
 	<cffunction name="_setOutputCharset" access="private" returntype="void" output="false">
 		<cfargument name="outputCharset" type="any" required="true" />
 		<cfset _outputCharset = arguments.outputCharset />
+	</cffunction>
+
+	<cffunction name="_getLessGlobals" access="private" returntype="string" output="false">
+		<cfreturn _LessGlobals>
+	</cffunction>
+	<cffunction name="_setLessGlobals" access="private" returntype="void" output="false">
+		<cfargument name="LessGlobals" type="string" required="true" />
+		<cfset _LessGlobals = arguments.LessGlobals />
 	</cffunction>
 </cfcomponent>
