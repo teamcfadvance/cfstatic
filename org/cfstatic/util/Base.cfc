@@ -36,10 +36,11 @@
 	<cffunction name="$directoryClean" access="private" returntype="void" output="false" hint="I delete all the files in a directory">
 		<cfargument name="directory" type="string" required="true"/>
 		<cfargument name="excludeFiles" type="string" required="false" default="" hint="list of filenames to ignore in the cleaning" />
+		<cfargument name="fileTypes" type="string" required="false" default="" />
 
 		<cfset var files = $directoryList( directory=arguments.directory, recurse=false ) />
 		<cfloop query="files">
-			<cfif files.type EQ 'File' and not ListFind(arguments.excludeFiles, files.name)>
+			<cfif files.type EQ 'File' and not ListFind(arguments.excludeFiles, files.name) and (not Len(arguments.fileTypes) or ListFindNoCase(arguments.fileTypes, ListLast(files.name, '.')))>
 				<cffile action="delete" file="#files.directory#/#files.name#" />
 			</cfif>
 		</cfloop>

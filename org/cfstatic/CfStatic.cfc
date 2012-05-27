@@ -436,7 +436,7 @@
 				$fileWrite(filePath, content.toString(), _getOutputCharset() );
 			}
 
-			$directoryClean( directory=_getOutputDirectory(), excludeFiles=ListAppend( _getJsPackages().getMinifiedFileName(), _getCssPackages().getMinifiedFileName() ) );
+			$directoryClean( directory=_getOutputDirectory(), excludeFiles=ListAppend( _getJsPackages().getMinifiedFileName(), _getCssPackages().getMinifiedFileName() ), fileTypes="css,js" );
 		</cfscript>
 	</cffunction>
 
@@ -494,7 +494,7 @@
 				fileList = ListAppend(fileList, package.getMinifiedFileName());
 			}
 
-			$directoryClean( directory=_getOutputDirectory(), excludeFiles=fileList );
+			$directoryClean( directory=_getOutputDirectory(), excludeFiles=fileList, fileTypes="css,js" );
 		</cfscript>
 	</cffunction>
 
@@ -551,7 +551,7 @@
 				}
 			}
 
-			$directoryClean( directory=_getOutputDirectory(), excludeFiles=fileList );
+			$directoryClean( directory=_getOutputDirectory(), excludeFiles=fileList, fileTypes="js,css" );
 		</cfscript>
 	</cffunction>
 
