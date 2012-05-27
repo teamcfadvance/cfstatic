@@ -369,19 +369,22 @@
 
 	<cffunction name="_compileLess" access="public" returntype="void" output="false">
 		<cfscript>
-			var cssDir         = $listAppend(_getRootdirectory(), _getCssdirectory(), '/');
-			var files          = $directoryList(cssDir, '*.less');
-			var i              = 0;
-			var file           = "";
-			var target         = "";
-			var compiled       = "";
-			var needsCompiling = "";
+			var cssDir          = $listAppend(_getRootdirectory(), _getCssdirectory(), '/');
+			var files           = $directoryList(cssDir, '*.less');
+			var globalsModified = _getLessGlobalsLastModified();
+			var i               = 0;
+			var file            = "";
+			var target          = "";
+			var compiled        = "";
+			var needsCompiling  = "";
+			var lastModified    = "";
 
 			for(i=1; i LTE files.recordCount; i++){
 				file = $listAppend(files.directory[i], files.name[i], '/');
 				if ( $shouldFileBeIncluded( file, _getIncludePattern(), _getExcludePattern() ) ){
-					target = file & '.css';
-					needsCompiling = ( not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file) );
+					target         = file & '.css';
+					lastModified   = $fileLastModified(target);
+					needsCompiling = ( not fileExists(target) or lastModified LT globalsModified or lastModified LT $fileLastModified(file) );
 					if ( needsCompiling ){
 						compiled = _getLesscompiler().compile( file, _getLessGlobals() );
 
@@ -883,5 +886,22 @@
 	<cffunction name="_setLessGlobals" access="private" returntype="void" output="false">
 		<cfargument name="LessGlobals" type="string" required="true" />
 		<cfset _LessGlobals = arguments.LessGlobals />
+	</cffunction>
+	<cffunction name="_getLessGlobalsLastModified" access="private" returntype="date" output="false">
+		<cfscript>
+			var globals      = ListToArray( _getLessGlobals() );
+			var lastModified = "1900-01-01";
+			var fileModified = "";
+			var i            = 0;
+
+			for( i=1; i LTE ArrayLen(globals); i++ ) {
+				fileModified = $fileLastModified( globals[i] );
+				if ( fileModified GT lastModified ){
+					lastModified = fileModified;
+				}
+			}
+
+			return lastModified;
+		</cfscript>
 	</cffunction>
 </cfcomponent>
