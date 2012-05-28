@@ -6,7 +6,7 @@
 			super.setup();
 			cfstatic = createObject('component', 'org.cfstatic.CfStatic');
 			rootDir = _getResourcePath();
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="teardown" access="public" returntype="void" output="false">
@@ -31,18 +31,18 @@
 				, minifyMode      = "package"
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
-						
+
 			try {
 				cfstatic.renderIncludes();
-				
+
 			} catch ( "cfstatic.Package.badConfig" e ) {
 				failed = true;
-			}			
-			
-			Assert(failed);
-		</cfscript>	
+			}
+
+			super.Assert(failed);
+		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="t02_cfstatic_shouldThrowError_whenMixedIeConstraintInPackage" returntype="void">
 		<cfscript>
 			var failed = false;
@@ -56,13 +56,13 @@
 			);
 			try {
 				cfstatic.renderIncludes();
-				
+
 			} catch ( "cfstatic.Package.badConfig" e ) {
 				failed = true;
 			}
-			
-			Assert(failed);
-		</cfscript>	
+
+			super.Assert(failed);
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t03_cfstatic_shouldThrowError_whenMixedMediaAndUsingMinifyAllMode" returntype="void">
@@ -76,17 +76,17 @@
 				, minifyMode      = "all"
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
-			
+
 			try {
 				cfstatic.renderIncludes();
 			} catch ( "cfstatic.PackageCollection.badConfig" e ) {
 				failed = true;
-			}				
-			Assert(failed);
-			
-		</cfscript>	
+			}
+			super.Assert(failed);
+
+		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="t04_cfstatic_shouldThrowError_whenMixedIeConstraintAndUsingMinifyAllMode" returntype="void">
 		<cfscript>
 			var failed = false;
@@ -97,16 +97,16 @@
 				, minifyMode      = "all"
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
-			
+
 			try {
 				cfstatic.renderIncludes();
-				
+
 			} catch ( "cfstatic.PackageCollection.badConfig" e ) {
 				failed = true;
-			}			
-			
-			Assert(failed);
-		</cfscript>	
+			}
+
+			super.Assert(failed);
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t05_cfstatic_shouldThrowError_whenCompilingBadJavaScript" returntype="void">
@@ -119,15 +119,15 @@
 					, staticUrl       = "/any/old/thing"
 					, debugKey        = "doNotLetMxUnitDebugScrewTests"
 				);
-							
+
 			} catch ( "org.cfstatic.util.YuiCompressor.badJs" e ) {
 				failed = true;
 
 				AssertEquals("There was an error compressing your javascript: 'Error at line 10 (char 18): syntax error'. Please see the error detail for the problematic javascript source.", e.message);
-			}			
-			
-			Assert(failed);
-		</cfscript>	
+			}
+
+			super.Assert(failed);
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t06_cfstatic_shouldThrowError_whenMissingDependencies" returntype="void">
@@ -135,7 +135,7 @@
 			var failed = false;
 
 			rootDir &= 'badFiles/missingDependencies/';
-			
+
 			try {
 				cfstatic.init(
 					  staticDirectory = rootDir
@@ -146,19 +146,19 @@
 				failed = true;
 
 				AssertEquals("CFStatic Error: Could not find local dependency.", e.message);
-				Assert(find("The dependency, '/core/layout.less', could not be found or downloaded.", e.detail) EQ 1);
-				Assert(find("/css/other/somePage.less.css", e.detail));
-			}			
-			
-			Assert(failed);
-		</cfscript>	
+				super.Assert(find("The dependency, '/core/layout.less', could not be found or downloaded.", e.detail) EQ 1);
+				super.Assert(find("/css/other/somePage.less.css", e.detail));
+			}
+
+			super.Assert(failed);
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t07_cfstatic_shouldConcatenateAndMinifyAllFilesToOne_whenInAllMinifyMode" returntype="void">
 		<cfscript>
 			var minFolder = "";
 			var expectedFolder = "";
-			
+
 			rootDir &= 'goodFiles/simpleAllMode/';
 
 
@@ -171,9 +171,9 @@
 
 			minFolder      = rootDir & 'min';
 			expectedFolder = rootDir & 'expectedOutput/withoutExternals';
-			
+
 			_assertFoldersAreEqual(expectedFolder, minFolder);
-			
+
 			_cleanUpMinifiedFiles();
 			cfstatic.init(
 				  staticDirectory   = rootDir
@@ -183,7 +183,7 @@
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 			expectedFolder = rootDir & 'expectedOutput/withExternals';
-			
+
 			_assertFoldersAreEqual(expectedFolder, minFolder);
 		</cfscript>
 	</cffunction>
@@ -192,7 +192,7 @@
 		<cfscript>
 			var minFolder = "";
 			var expectedFolder = "";
-			
+
 			rootDir &= 'goodFiles/standardFolders/';
 
 
@@ -205,9 +205,9 @@
 
 			minFolder      = rootDir & 'min';
 			expectedFolder = rootDir & 'expectedOutput/packageMode';
-			
+
 			_assertFoldersAreEqual(expectedFolder, minFolder);
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t09_cfstatic_shoulThrowFriendlyErrorWhenBadLESSSyntax" returntype="void">
@@ -220,13 +220,13 @@
 					  staticDirectory = rootDir
 					, staticUrl       = "/any/old/thing"
 				);
-							
+
 			} catch ( "org.cfstatic.util.LessCompiler.badLESS" e ) {
 				failed = true;
 			}
-			
-			Assert(failed);
-		</cfscript>	
+
+			super.Assert(failed);
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t10_renderIncludes_shouldOutputAllIncludes_whenIncludeNeverCalledInAllMode" returntype="void">
@@ -268,7 +268,7 @@
 			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="t12_renderIncludes_shouldOutputAllIncludes_whenIncludeNeverCalledInFileMode" returntype="void">
 		<cfscript>
 			var renderedOutput = "";
@@ -305,7 +305,7 @@
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 			renderedOutput = cfstatic.renderIncludes();
-			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );			
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
 		</cfscript>
 	</cffunction>
 
@@ -320,7 +320,7 @@
 				, includeAllByDefault = false
 			);
 			AssertEquals( "", cfstatic.renderIncludes() );
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t15_renderIncludes_shouldOnlyRenderIncludedFilesAndTheirDependencies" returntype="void">
@@ -342,7 +342,7 @@
 
 			renderedOutput = cfstatic.renderIncludes('css');
 			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t16_renderIncludes_shouldRenderSourceFiles_whenDebugKeyAndPasswordFoundInUrl" returntype="void">
@@ -370,7 +370,7 @@
 			structDelete(url, 'doNotLetMxUnitDebugScrewTests');
 
 			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t17_renderIncludes_shouldOnlyRenderJs_whenOnlyJsRequested" returntype="void">
@@ -395,7 +395,7 @@
 			renderedOutput = cfstatic.renderIncludes('js');
 
 			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t18_renderIncludes_shouldOnlyRenderCss_whenOnlyCssRequested" returntype="void">
@@ -420,7 +420,7 @@
 			renderedOutput = cfstatic.renderIncludes('css');
 
 			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t19_renderIncludes_shouldRenderJsVariablesBeforeJsIncludes_whenIncludeDataUsed" returntype="void">
@@ -479,7 +479,7 @@
 
 			renderedOutput = cfstatic.includeData( dataToInclude ).renderIncludes();
 			AssertEqualsCase( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t21_javaLoaders_shouldBeCachedInSessionScopeByDefault" returntype="void">
@@ -496,10 +496,10 @@
 				, staticUrl       = "/assets"
 			);
 			AssertFalse( StructKeyExists( application, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were loaded into the application scope, even when told to be put in the server scope" );
-			Assert( StructKeyExists( server, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were not loaded into the server scope, even when asked" );
-			Assert( StructCount( server['_cfstaticJavaloaders'] ), "The javaloaders for CfStatic were not loaded into the server scope" );
-		
-			
+			super.Assert( StructKeyExists( server, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were not loaded into the server scope, even when asked" );
+			super.Assert( StructCount( server['_cfstaticJavaloaders'] ), "The javaloaders for CfStatic were not loaded into the server scope" );
+
+
 			if( StructKeyExists(server, '_theOldSwitcheroo') ){
 				server['_cfstaticJavaloaders'] = server['_theOldSwitcheroo'];
 				StructDelete(server, '_theOldSwitcheroo');
@@ -523,15 +523,15 @@
 			);
 
 			AssertFalse( StructKeyExists( server, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were loaded into the server scope, even when told to be put in the application scope" );
-			Assert( StructKeyExists( application, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were not loaded into the application scope, even when asked" );
-			Assert( StructCount( application['_cfstaticJavaloaders'] ), "The javaloaders for CfStatic were not loaded into the application scope" );
-		
-			
+			super.Assert( StructKeyExists( application, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were not loaded into the application scope, even when asked" );
+			super.Assert( StructCount( application['_cfstaticJavaloaders'] ), "The javaloaders for CfStatic were not loaded into the application scope" );
+
+
 			if( StructKeyExists(server, '_theOldSwitcheroo') ){
 				server['_cfstaticJavaloaders'] = server['_theOldSwitcheroo'];
 				StructDelete(server, '_theOldSwitcheroo');
 			}
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t23_settingLessGlobals_shouldHaveThemIncludedWithAllLessFiles" returntype="void">
@@ -539,7 +539,7 @@
 			var minFolder = "";
 			var expectedFolder = "";
 			var globals = "";
-			
+
 			rootDir &= 'goodFiles/lessIncludesTest/';
 
 			globals = ListAppend( globals, ExpandPath(rootDir & 'css/less/globals/global1.less') );
@@ -560,9 +560,9 @@
 
 			minFolder      = rootDir & 'min';
 			expectedFolder = rootDir & 'expectedOutput';
-			
+
 			_assertFoldersAreEqual(expectedFolder, minFolder);
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t24_settingLessGlobals_shouldThrowError_whenOneOrMoreOfTheGlobalsDoesNotExist" returntype="void">
@@ -570,7 +570,7 @@
 			var minFolder      = "";
 			var expectedFolder = "";
 			var failed         = false;
-			
+
 			rootDir &= 'goodFiles/lessIncludesTest/';
 
 			try {
@@ -585,8 +585,8 @@
 				failed = ( e.message EQ "Could not find LESS global, '/non/existing/less/file.less'" );
 			}
 
-			Assert( failed, "CfStatic did not throw an appropriate error when an invalid LESS global was supplied");
-		</cfscript>	
+			super.Assert( failed, "CfStatic did not throw an appropriate error when an invalid LESS global was supplied");
+		</cfscript>
 	</cffunction>
 
 <!--- private helpers --->
@@ -597,7 +597,7 @@
 	<cffunction name="_cleanUpMinifiedFiles" access="private" returntype="void" output="false">
 		<cfset var dir   = rootDir & 'min' />
 		<cfset var files = "" />
-		
+
 		<!--- min files --->
 		<cfif DirectoryExists(dir)>
 			<cfdirectory action="list" directory="#dir#" name="files" />
@@ -633,7 +633,7 @@
 			<cfset file1 = ListAppend(arguments.folder1, files1.name, '/') />
 			<cfset file2 = _findEquivalentFileThatMayHaveDifferentTimestamp(files1.name, ValueList(files2.name)) />
 
-			<cfset Assert( file2 NEQ "", "The two folders did not contain the same files. Folder 1: #ValueList(files1.name)#. Folder 2: #ValueList(files2.name)#") />
+			<cfset super.Assert( file2 NEQ "", "The two folders did not contain the same files. Folder 1: #ValueList(files1.name)#. Folder 2: #ValueList(files2.name)#") />
 			<cfset file2 = ListAppend( arguments.folder2, file2 , '/' ) />
 			<cfset AssertEquals( _fileCheckSum(file1), _fileCheckSum(file2), 'The checksums of the #files1.name# files were not equal') />
 		</cfloop>
@@ -641,13 +641,13 @@
 
 	<cffunction name="_fileChecksum" access="private" returntype="string" output="false">
 		<cfargument name="filePath" type="string" required="true" />
-		
+
 		<cfreturn Hash( _fileRead( arguments.filePath ) ) />
 	</cffunction>
 
 	<cffunction name="_fileRead" access="private" returntype="string" output="false">
 		<cfargument name="filePath" type="string" required="true" />
-		
+
 		<cfset var content = "" />
 		<cffile action="read" file="#arguments.filePath#" variable="content" />
 
@@ -686,5 +686,5 @@
 
 		<cfreturn _removeNewLines( _removeTimeStampFromFileNames( arguments.renderedOutput ) ) />
 	</cffunction>
-	
+
 </cfcomponent>
