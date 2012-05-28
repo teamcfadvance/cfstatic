@@ -885,7 +885,7 @@
 	</cffunction>
 	<cffunction name="_setLessGlobals" access="private" returntype="void" output="false">
 		<cfargument name="LessGlobals" type="string" required="true" />
-		<cfset _LessGlobals = arguments.LessGlobals />
+		<cfset _LessGlobals = $normalizeUnixAndWindowsPaths( arguments.LessGlobals ) />
 	</cffunction>
 	<cffunction name="_getLessGlobalsLastModified" access="private" returntype="date" output="false">
 		<cfscript>
