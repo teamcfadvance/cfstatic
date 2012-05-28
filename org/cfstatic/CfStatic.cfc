@@ -419,7 +419,7 @@
 					if ( needsCompiling ){
 						compiled = _getCoffeeScriptCompiler().compile( file );
 
-						$fileWrite( target, compiled, _getOutputCharset() );
+						$fileWrite( target, Trim(compiled), _getOutputCharset() );
 					}
 				}
 			}

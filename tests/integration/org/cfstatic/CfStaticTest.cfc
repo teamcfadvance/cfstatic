@@ -591,23 +591,22 @@
 
 	<cffunction name="t25_coffeescript_shouldBeCompiledToJs" returntype="void">
 		<cfscript>
-			var minFolder = "";
+			var jsFolder       = "";
 			var expectedFolder = "";
 			
 			rootDir &= 'goodFiles/coffee-script/';
 
-
 			cfstatic.init(
 				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
-				, minifyMode      = "all"
+				, minifyMode      = "none"
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 
-			minFolder      = rootDir & 'min';
+			jsFolder       = rootDir & 'js';
 			expectedFolder = rootDir & 'expectedOutput';
 			
-			_assertFoldersAreEqual(expectedFolder, minFolder);
+			_assertFoldersAreEqual(expectedFolder, jsFolder);
 		</cfscript>	
 	</cffunction>
 
@@ -639,7 +638,7 @@
 		</cfloop>
 
 		<!--- compiled coffee-script files--->
-		<cfdirectory action="list" directory="#rootDir#" filter="*.coffee.js" recurse="true" name="files" />
+		<cfdirectory action="list" directory="#rootDir#/js" filter="*.coffee.js" recurse="true" name="files" />
 		<cfloop query="files">
 			<cfif type EQ "file">
 				<cffile action="delete" file="#directory#/#name#" />
@@ -655,17 +654,29 @@
 		<cfset var files2 = "" />
 		<cfset var file1 = "" />
 		<cfset var file2 = "" />
+		<cfset var subDir = "" />
 
-		<cfdirectory action="list" directory="#arguments.folder1#" name="files1"/>
-		<cfdirectory action="list" directory="#arguments.folder2#" name="files2"/>
+		<cfif DirectoryExists( ExpandPath( arguments.folder1 ) )>
+			<cfset arguments.folder1 = ExpandPath( arguments.folder1 ) />
+		</cfif>
+		<cfif DirectoryExists( ExpandPath( arguments.folder2 ) )>
+			<cfset arguments.folder2 = ExpandPath( arguments.folder2 ) />
+		</cfif>
+
+		<cfdirectory action="list" directory="#arguments.folder1#" name="files1" recurse="true" />
+		<cfdirectory action="list" directory="#arguments.folder2#" name="files2" recurse="true" />
 
 		<cfloop query="files1">
-			<cfset file1 = ListAppend(arguments.folder1, files1.name, '/') />
-			<cfset file2 = _findEquivalentFileThatMayHaveDifferentTimestamp(files1.name, ValueList(files2.name)) />
+			<cfif files1.type EQ 'file'>
+				<cfset file1 = ListAppend(files1.directory, files1.name, '/') />
+				<cfset file2 = _findEquivalentFileThatMayHaveDifferentTimestamp(files1.name, ValueList(files2.name)) />
 
-			<cfset Assert( file2 NEQ "", "The two folders did not contain the same files. Folder 1: #ValueList(files1.name)#. Folder 2: #ValueList(files2.name)#") />
-			<cfset file2 = ListAppend( arguments.folder2, file2 , '/' ) />
-			<cfset AssertEquals( _fileCheckSum(file1), _fileCheckSum(file2), 'The checksums of the #files1.name# files were not equal') />
+				<cfset Assert( file2 NEQ "", "The two folders did not contain the same files. Folder 1: #ValueList(files1.name)#. Folder 2: #ValueList(files2.name)#") />
+				<cfset subFolder = ReplaceNoCase( files1.directory, folder1, '' ) />
+				<cfset file2 = ListAppend( arguments.folder2 & subFolder, file2 , '/' ) />
+
+				<cfset AssertEquals( _fileCheckSum(file1), _fileCheckSum(file2), 'The checksums of the #files1.name# files were not equal') />
+			</cfif>
 		</cfloop>
 	</cffunction>
 
