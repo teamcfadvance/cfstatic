@@ -609,7 +609,7 @@
 		</cfif>
 
 		<!--- compiled less files --->
-		<cfdirectory action="list" directory="#rootDir#" filter="*.less.css" recurse="true" name="files" />
+		<cfdirectory action="list" directory="#ExpandPath(rootDir)#" filter="*.less.css" recurse="true" name="files" />
 		<cfloop query="files">
 			<cfif type EQ "file">
 				<cffile action="delete" file="#directory#/#name#" />

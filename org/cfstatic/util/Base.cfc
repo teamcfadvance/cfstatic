@@ -13,23 +13,25 @@
 		<cfargument name="detail"		type="string" required="false" />
 		<cfargument name="errorCode"	type="string" required="false" />
 		<cfargument name="extendedInfo"	type="string" required="false" />
-		
+
 		<cfthrow attributeCollection="#arguments#" />
 	</cffunction>
-	
+
 	<cffunction name="$directoryList" access="private" returntype="query" output="false" hint="I return a query of files and subdirectories for a given directory">
 		<cfargument name="directory"	type="string" required="true"					/>
 		<cfargument name="filter"		type="string" required="false"	default="*.*"	/>
 		<cfargument name="recurse"		type="boolean" required="false"	default="true"	/>
-		
-		<cfset var result = "" />
-		
-		<cfdirectory	action="list"
-						directory="#arguments.directory#"
-						filter="#arguments.filter#"
-						recurse="#arguments.recurse#"
-						name="result" />
-							
+
+		<cfset var result = QueryNew('') />
+
+		<cfif DirectoryExists( arguments.directory )>
+			<cfdirectory	action="list"
+							directory="#arguments.directory#"
+							filter="#arguments.filter#"
+							recurse="#arguments.recurse#"
+							name="result" />
+		</cfif>
+
 		<cfreturn result />
 	</cffunction>
 
@@ -45,10 +47,10 @@
 			</cfif>
 		</cfloop>
 	</cffunction>
-	
+
 	<cffunction name="$fileRead" access="private" returntype="string" output="false" hint="I return the content of the given file (path)">
 		<cfargument name="path" type="string" required="true" />
-	
+
 		<cfset var content = "" />
 		<cffile action="read" file="#arguments.path#" variable="content" />
 		<cfreturn content />
@@ -57,7 +59,7 @@
 	<cffunction name="$fileReadBinary" access="private" returntype="string" output="false" hint="I return the content of the given file (path)">
 		<cfargument name="path" type="string" required="true" />
 		<cfargument name="convertToBase64" type="boolean" required="false" default="false" />
-	
+
 		<cfset var content = "" />
 		<cffile action="readBinary" file="#arguments.path#" variable="content" />
 		<cfif arguments.convertToBase64>
@@ -66,18 +68,18 @@
 			<cfreturn content />
 		</cfif>
 	</cffunction>
-	
+
 	<cffunction name="$fileWrite" access="private" returntype="void" output="false" hint="I write the passed content to the given file (path)">
 		<cfargument name="path"    type="string" required="true" />
 		<cfargument name="content" type="string" required="true" />
 		<cfargument name="charset" type="string" required="false" default="utf-8" />
-	
+
 		<cffile action="write" file="#arguments.path#" output="#arguments.content#" addnewline="false" charset="#arguments.charset#" />
 	</cffunction>
 
 	<cffunction name="$fileLastModified" access="private" returntype="date" output="false" hint="I return the last modified date of the given file (path)">
 		<cfargument name="filePath" type="string" required="true" />
-	
+
 		<cfscript>
 			var jFile			= CreateObject("java", "java.io.File").init( arguments.filePath );
 			var lastmodified	= CreateObject("java","java.util.Date").init( jFile.lastModified() );
@@ -91,17 +93,17 @@
 
 		<cffile action="delete" file="#arguments.path#" />
 	</cffunction>
-	
+
 	<cffunction name="$reSearch" access="private" returntype="struct" output="false" hint="I perform a Regex search and return a struct of arrays containing pattern match information. Each key represents the position of a match, i.e. $1, $2, etc. Each key contains an array of matches.">
 		<cfargument name="regex"	type="string"	required="true" />
 		<cfargument name="text"		type="string"	required="true" />
-		
+
 		<cfscript>
 			var final 	= StructNew();
 			var pos		= 1;
 			var result	= ReFindNoCase( arguments.regex, arguments.text, pos, true );
 			var i		= 0;
-			
+
 			while( ArrayLen(result.pos) GT 1 ) {
 				for(i=2; i LTE ArrayLen(result.pos); i++){
 					if(not StructKeyExists(final, '$#i-1#')){
@@ -116,7 +118,7 @@
 			return final;
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="$isUrl" access="private" returntype="boolean" output="false" hint="I return whether or not the passed string is a url (based on a very crude regex, do not use for any stringent url checking)">
 		<cfargument name="stringToCheck" type="string" required="true" />
 		<cfscript>
@@ -124,18 +126,18 @@
 			return ReFindNoCase(URLRegEx, stringToCheck);
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="$httpGet" access="private" returntype="string" output="false" hint="I attempt to get and return the content of the passed url over http.">
 		<cfargument name="url" type="string" required="true" />
-		
+
 		<cfhttp url="#arguments.url#" method="get" />
 		<cfreturn cfhttp.filecontent />
 	</cffunction>
-	
+
 	<cffunction name="$listDeleteLast" access="private" returntype="string" output="false" hint="I delete the last member of the passed string, returning the result of the deletion.">
 		<cfargument name="list" type="string" required="true" />
 		<cfargument name="delimiter" type="string" required="false" default="," />
-		
+
 		<cfscript>
 			if(not Len(list)){
 				return "";
@@ -148,7 +150,7 @@
 		<cfargument name="list" type="string" required="true" />
 		<cfargument name="value" type="string" required="true" />
 		<cfargument name="delimiter" type="string" required="false" default="," />
-		
+
 		<cfscript>
 			if( Right(arguments.list, Len(arguments.delimiter)) eq arguments.delimiter ){
 				arguments.list = Left( arguments.list, Len(arguments.list) - Len(arguments.delimiter ));
@@ -164,32 +166,32 @@
 		<cfargument name="media" type="string" required="true" />
 		<cfargument name="ieConditional" type="string" required="false" default="" />
 		<cfargument name="charset" type="string" required="false" default="utf-8" />
-				
+
 		<cfreturn $renderIeConditional('<link rel="stylesheet" href="#arguments.src#" media="#arguments.media#" charset="#arguments.charset#" />', arguments.ieConditional) & $newline() />
 	</cffunction>
-	
+
 	<cffunction name="$renderJsInclude" access="private" returntype="string" output="false" hint="I return the html nevessary to include the given javascript file">
 		<cfargument name="src" type="string" required="true" />
 		<cfargument name="ieConditional" type="string" required="false" default="" />
 		<cfargument name="charset" type="string" required="false" default="utf-8" />
-		
+
 		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#arguments.src#" charset="#arguments.charset#"></script>', arguments.ieConditional ) & $newline() />
 	</cffunction>
-	
+
 	<cffunction name="$generateCacheBuster" access="private" returntype="string" output="false" hint="I return a cachebuster string for a given date">
 		<cfargument name="dateLastModified" type="date" required="false" default="#Now()#" />
-		
+
 		<cfreturn DateFormat(arguments.dateLastModified, 'yyyymmdd') & TimeFormat(arguments.dateLastModified, 'hhmmss') />
 	</cffunction>
-	
+
 	<cffunction name="$renderIeConditional" access="private" returntype="string" output="false" hint="I wrap an html include string with IE conditional statements when necessary, returning the result">
 		<cfargument name="include" type="string" required="true" />
 		<cfargument name="ieConditional" type="string" required="true" />
-		
+
 		<cfif Len(Trim(arguments.ieConditional))>
 			<cfreturn '<!--[if #arguments.ieConditional#]>#arguments.include#<![endif]-->' />
 		</cfif>
-		
+
 		<cfreturn arguments.include />
 	</cffunction>
 
@@ -199,46 +201,46 @@
 			if(_getUseJavaLoader()){
 				return _getJavaLoader().create(arguments.className);
 			}
-			
+
 			return CreateObject('java', arguments.className);
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="$arrayRemoveDuplicates" access="private" returntype="array" output="false" hint="I remove duplicate elements from an array">
 		<cfargument name="theArray" type="array" required="true" />
-		
+
 		<cfscript>
 			var noDupes	= StructNew();
 			var i		= ArrayLen(arguments.theArray);
-			
+
 			for(i=i; i GT 0; i--){
 				noDupes[ arguments.theArray[i] ] = "";
 			}
-			
+
 			return StructKeyArray(noDupes);
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="$arrayMerge" access="private" returntype="array" output="false" hint="I add all the elemnts of one array to another, returning the result">
 		<cfargument name="arr1" type="array" required="true" />
 		<cfargument name="arr2" type="array" required="true" />
-		
+
 		<cfscript>
 			var i = 0;
-			
+
 			for(i=1; i LTE ArrayLen(arguments.arr2); i++){
 				ArrayAppend(arguments.arr1, arguments.arr2[i]);
 			}
-			
+
 			return arr1;
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="$overloadedArguments" access="private" returntype="any" output="false" hint="I allow simple function overloading in CF.">
 		<cfargument name="typeCombinations" type="array"  required="true" hint="An array of comma separated lists indicating acceptable types of arguments" />
 		<cfargument name="variableMappings" type="array"  required="true" hint="For each type combination there must be a corresponding variable mapping. i.e. a variable name for each of the typed arguments." />
 		<cfargument name="args"             type="struct" required="true" hint="The arguments themselves" />
-		
+
 		<cfscript>
 			var i        = "";
 			var n        = "";
@@ -247,21 +249,21 @@
 			var type     = "";
 			var matched  = "";
 			var result   = StructNew();
-			
+
 			if(ArrayLen(arguments.typeCombinations) NEQ ArrayLen(arguments.variableMappings)){
 				$throw('$overloadedArguments.mismatchedMappings');
 			}
-			
+
 			for(i=1; i LTE ArrayLen(arguments.typeCombinations); i++){
 				combo    = ListToArray(arguments.typeCombinations[i]);
 				varnames = ListToArray(arguments.variableMappings[i]);
-				
+
 				if(ArrayLen(combo) NEQ ArrayLen(varnames)){
 					$throw('$overloadedArguments.mismatchedMappings');
 				}
-				
+
 				if(ArrayLen(combo) EQ StructCount(arguments.args)){
-					matched = true;	
+					matched = true;
 					for(n=1; n LTE ArrayLen(combo); n++){
 						type = combo[n];
 						if(not StructKeyExists(arguments.args, n) or not $isType(arguments.args[n], type)){
@@ -274,17 +276,17 @@
 						}
 						break;
 					}
-				}	
+				}
 			}
-			
+
 			return result;
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="$isType" access="private" returntype="boolean" output="false" hint="I return true when the passed variable is of the type, 'type'; false otherwise">
 		<cfargument name="variable" type="any" required="true" />
 		<cfargument name="type"     type="string" required="true" />
-		
+
 		<cfscript>
 			switch(arguments.type){
 				case 'any':
@@ -314,7 +316,14 @@
 	<cffunction name="$normalizeUnixAndWindowsPaths" access="private" returntype="string" output="false">
 		<cfargument name="path" type="string" required="true" />
 
-		<cfreturn Replace( arguments.path, '\', '/', 'all' ) />
+		<cfscript>
+		 	var normalized = Replace( arguments.path, '\', '/', 'all' );
+
+		 	// fix for openBD where expandPath is adding double slashes in inappropriate places
+		 	normalized = Left( normalized, 2 ) & Replace( Right( normalized, Len(normalized)-2), '//', '/', 'all' );
+
+		 	return normalized;
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="$shouldFileBeIncluded" access="private" returntype="boolean" output="false">
@@ -357,7 +366,7 @@
 					break;
 				}
 			}
-			
+
 			if ( pathStart EQ 0 ) {
 				ArrayAppend( finalPath, "." );
 			}
