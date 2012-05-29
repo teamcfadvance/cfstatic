@@ -386,7 +386,7 @@
 			var lastModified    = "";
 
 			for(i=1; i LTE files.recordCount; i++){
-				file = $listAppend(files.directory[i], files.name[i], '/');
+				file = $normalizeUnixAndWindowsPaths( $listAppend( files.directory[i], files.name[i], '/') );
 				if ( $shouldFileBeIncluded( file, _getIncludePattern(), _getExcludePattern() ) ){
 					target         = file & '.css';
 					lastModified   = $fileLastModified(target);
@@ -412,7 +412,7 @@
 			var needsCompiling  = "";
 
 			for(i=1; i LTE files.recordCount; i++){
-				file = $listAppend(files.directory[i], files.name[i], '/');
+				file = $normalizeUnixAndWindowsPaths( $listAppend(files.directory[i], files.name[i], '/') );
 				if ( $shouldFileBeIncluded( file, _getIncludePattern(), _getExcludePattern() ) ){
 					target         = file & '.js';
 					needsCompiling = ( not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file) );
