@@ -453,7 +453,11 @@
 
 			renderedOutput = cfstatic.renderIncludes();
 
-			AssertEqualsCase( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+			if ( _isBlueDragon() ) {
+				AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+			} else {
+				AssertEqualsCase( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+			}
 		</cfscript>
 	</cffunction>
 
@@ -480,7 +484,12 @@
 			dataToInclude.yetAnotherKey       = false;
 
 			renderedOutput = cfstatic.includeData( dataToInclude ).renderIncludes();
-			AssertEqualsCase( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+
+			if( _isBlueDragon() ){
+				AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+			} else {
+				AssertEqualsCase( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+			}
 		</cfscript>
 	</cffunction>
 
