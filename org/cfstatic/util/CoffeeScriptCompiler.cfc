@@ -7,6 +7,8 @@
 				super._setJavaLoader(arguments.javaloader);
 			}
 
+			_setCoffeeScriptEngine( $loadJavaClass('org.jcoffeescript.JCoffeeScriptCompiler') );
+
 			return this;
 		</cfscript>
 	</cffunction>
@@ -19,7 +21,7 @@
 			var compileBare = Right( arguments.filePath, 11 ) EQ 'bare.coffee';
 
 			try {
-				return _getCoffeeScriptEngine( compileBare ).compile( fileContent );
+				return _getCoffeeScriptEngine().compile( fileContent, compileBare );
 			} catch ( any e ) {
 				$throw( 'org.cfstatic.util.CoffeeScriptCompiler.badCoffee', 'There was a problem with your coffee-script file, #ListLast(arguments.filePath, "\/")#. Message: #e.message#', e.detail );
 			}
@@ -29,6 +31,12 @@
 <!--- private utility --->
 	<cffunction name="_getCoffeeScriptEngine" access="private" returntype="any" output="false">
 		<cfargument name="bare" type="boolean" required="false" default="false" />
-		<cfreturn $loadJavaClass('org.jcoffeescript.JCoffeeScriptCompiler').init( javacast("Boolean", arguments.bare) ) />
+		<cfreturn _coffeeScriptEngine />
+	</cffunction>
+
+	<cffunction name="_setCoffeeScriptEngine" access="private" returntype="void" output="false">
+		<cfargument name="coffeeScriptEngine" type="any" required="true" />
+
+		<cfset _coffeeScriptEngine = arguments.coffeeScriptEngine />
 	</cffunction>
 </cfcomponent>
