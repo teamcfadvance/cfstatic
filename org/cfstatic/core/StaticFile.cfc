@@ -70,7 +70,7 @@
 				}
 			}
 			
-			return final;
+			return _bubbleSort( final );
 		</cfscript>
 	</cffunction>
 
@@ -200,6 +200,30 @@
 
 	<cffunction name="_isLocal" access="private" returntype="boolean" output="false" hint="Returns whether or not the file is a local file">
 		<cfreturn not $isUrl( getPath() ) />
+	</cffunction>
+
+	<cffunction name="_bubbleSort" access="private" returntype="array" output="false">
+		<cfargument name="fileArray" type="array" required="true" />
+
+		<cfscript>
+			var sortingHappened = false;
+			var i               = 0;
+			var tmp             = "";
+
+			while( sortingHappened ) {
+				sortingHappened = false;
+				for( i=1; i LT ArrayLen(arguments.fileArray); i++ ) {
+					if( arguments.fileArray[i].getPath() GT arguments.fileArray[i+1].getPath() ) {
+						sortingHappened          = true;
+						tmp                      = arguments.fileArray[i];
+						arguments.fileArray[i]   = arguments.fileArray[i+1];
+						arguments.fileArray[i+1] = tmp;
+					}
+				}
+			}
+
+			return arguments.fileArray;
+		</cfscript>
 	</cffunction>
 	
 <!--- accessors --->

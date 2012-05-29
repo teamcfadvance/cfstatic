@@ -245,7 +245,6 @@
 			var i				= 0;
 
 			// first, add any *internal* dependencies
-			ArraySort( dependencies, 'text' );
 			for( i=1; i LTE ArrayLen(dependencies); i++ ){
 				if(dependencies[i].getPackageName() EQ _getPackageName()){
 					_addFileToOrderedList( dependencies[i].getPath() );
