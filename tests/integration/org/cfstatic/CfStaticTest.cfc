@@ -163,7 +163,6 @@
 
 			rootDir &= 'goodFiles/simpleAllMode/';
 
-
 			cfstatic.init(
 				  staticDirectory = rootDir
 				, staticUrl       = "/any/old/thing"
@@ -177,6 +176,7 @@
 			_assertFoldersAreEqual(expectedFolder, minFolder);
 
 			_cleanUpMinifiedFiles();
+
 			cfstatic.init(
 				  staticDirectory   = rootDir
 				, staticUrl         = "/any/old/thing"
@@ -650,8 +650,8 @@
 		<cfset var files = "" />
 
 		<!--- min files --->
-		<cfif DirectoryExists(dir)>
-			<cfdirectory action="list" directory="#dir#" name="files" />
+		<cfif DirectoryExists(ExpandPath(dir))>
+			<cfdirectory action="list" directory="#ExpandPath(dir)#" name="files" />
 			<cfloop query="files">
 				<cfif ListFindNoCase('js,css', ListLast(name, '.'))>
 			    	<cffile action="delete" file="#directory#/#name#" />
