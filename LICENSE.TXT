@@ -32,3 +32,5 @@ The Yahoo! Inc. YIU Compressor, v2.4.6 http://developer.yahoo.com/yui/compressor
 Less CSS Compiler, http://lesscss.org/
 Less CSS Compiler for Java by Asual, http://www.asual.com/lesscss/
 JavaLoader v1.0 by Mark Mandel, http://www.compoundtheory.com/?action=javaloader.index (Common Public License Version 1.0)
+CoffeeScript https://github.com/jashkenas/coffee-script/blob/master/LICENSE
+jCoffeeScript https://github.com/DominicWatson/jcoffeescript/blob/master/LICENSE
