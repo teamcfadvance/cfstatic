@@ -657,12 +657,14 @@
 		</cfloop>
 
 		<!--- compiled coffee-script files--->
-		<cfdirectory action="list" directory="#ExpandPath(rootDir)#/js" filter="*.coffee.js" recurse="true" name="files" />
-		<cfloop query="files">
-			<cfif type EQ "file">
-				<cffile action="delete" file="#directory#/#name#" />
-			</cfif>
-		</cfloop>
+		<cfif DirectoryExists( ExpandPath( rootDir & '/js') )>
+			<cfdirectory action="list" directory="#ExpandPath(rootDir)#/js" filter="*.coffee.js" recurse="true" name="files" />
+			<cfloop query="files">
+				<cfif type EQ "file">
+					<cffile action="delete" file="#directory#/#name#" />
+				</cfif>
+			</cfloop>
+		</cfif>
 	</cffunction>
 
 	<cffunction name="_assertFoldersAreEqual" access="private" returntype="void" output="false">
