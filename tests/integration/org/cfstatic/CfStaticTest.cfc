@@ -146,8 +146,10 @@
 				failed = true;
 
 				AssertEquals("CFStatic Error: Could not find local dependency.", e.message);
-				super.Assert(find("The dependency, '/core/layout.less', could not be found or downloaded.", e.detail) EQ 1);
-				super.Assert(find("/css/other/somePage.less.css", e.detail));
+				if ( not _isBlueDragon() ) {
+					super.Assert(find("The dependency, '/core/layout.less', could not be found or downloaded.", e.detail) EQ 1);
+					super.Assert(find("/css/other/somePage.less.css", e.detail));
+				}
 			}
 
 			super.Assert(failed);
@@ -747,6 +749,10 @@
 		<cfargument name="renderedOutput" type="string" required="true" />
 
 		<cfreturn _removeNewLines( _removeTimeStampFromFileNames( arguments.renderedOutput ) ) />
+	</cffunction>
+
+	<cffunction name="_isBlueDragon" returntype="boolean" access="private" output="false">
+		<cfreturn StructKeyExists( server, 'bluedragon' ) />
 	</cffunction>
 
 </cfcomponent>
