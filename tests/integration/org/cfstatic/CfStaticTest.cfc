@@ -591,7 +591,7 @@
 		<cfscript>
 			var jsFolder       = "";
 			var expectedFolder = "";
-			
+
 			rootDir &= 'goodFiles/coffee-script/';
 
 			cfstatic.init(
@@ -603,16 +603,16 @@
 
 			jsFolder       = rootDir & 'js';
 			expectedFolder = rootDir & 'expectedOutput';
-			
+
 			_assertFoldersAreEqual(expectedFolder, jsFolder);
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="t26_coffeescript_shouldNotCompileWithAnonymousFunctionWrapper_whenFileNameIsLikeBareDotCoffee" returntype="void">
 		<cfscript>
 			var jsFolder       = "";
 			var expectedFolder = "";
-			
+
 			rootDir &= 'goodFiles/coffee-script-with-bareness/';
 
 			cfstatic.init(
@@ -624,9 +624,9 @@
 
 			jsFolder       = rootDir & 'js';
 			expectedFolder = rootDir & 'expectedOutput';
-			
+
 			_assertFoldersAreEqual(expectedFolder, jsFolder);
-		</cfscript>	
+		</cfscript>
 	</cffunction>
 
 <!--- private helpers --->
@@ -657,7 +657,7 @@
 		</cfloop>
 
 		<!--- compiled coffee-script files--->
-		<cfdirectory action="list" directory="#rootDir#/js" filter="*.coffee.js" recurse="true" name="files" />
+		<cfdirectory action="list" directory="#ExpandPath(rootDir)#/js" filter="*.coffee.js" recurse="true" name="files" />
 		<cfloop query="files">
 			<cfif type EQ "file">
 				<cffile action="delete" file="#directory#/#name#" />
