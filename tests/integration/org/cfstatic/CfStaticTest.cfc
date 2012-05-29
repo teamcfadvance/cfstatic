@@ -235,7 +235,7 @@
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
-			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
 
 			rootDir &= 'goodFiles/simpleAllMode/';
 
@@ -255,7 +255,7 @@
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
-			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
 
 			rootDir &= 'goodFiles/standardFolders/';
 
@@ -275,7 +275,7 @@
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
-			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
 
 			rootDir &= 'goodFiles/standardFolders/';
 
@@ -295,7 +295,7 @@
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
-			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
 
 			rootDir &= 'goodFiles/standardFolders/';
 
@@ -329,7 +329,7 @@
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
-			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
 
 			rootDir &= 'goodFiles/standardFolders/';
 
@@ -351,7 +351,7 @@
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
-			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
 
 			rootDir &= 'goodFiles/standardFolders/';
 
@@ -379,7 +379,7 @@
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
-			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
 
 			rootDir &= 'goodFiles/simpleAllMode/';
 
@@ -404,7 +404,7 @@
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
-			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
 
 			rootDir &= 'goodFiles/simpleAllMode/';
 
@@ -429,7 +429,7 @@
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
-			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
 			var dataToInclude  = StructNew();
 
 			rootDir &= 'goodFiles/simpleAllMode/';
@@ -461,7 +461,7 @@
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
-			var outputHtmlRoot = rootDir & 'renderedIncludes/';
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
 			var dataToInclude  = StructNew();
 
 			rootDir &= 'goodFiles/standardFolders/';
