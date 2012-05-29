@@ -610,6 +610,27 @@
 		</cfscript>	
 	</cffunction>
 
+	<cffunction name="t26_coffeescript_shouldNotCompileWithAnonymousFunctionWrapper_whenFileNameIsLikeBareDotCoffee" returntype="void">
+		<cfscript>
+			var jsFolder       = "";
+			var expectedFolder = "";
+			
+			rootDir &= 'goodFiles/coffee-script-with-bareness/';
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/any/old/thing"
+				, minifyMode      = "none"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			jsFolder       = rootDir & 'js';
+			expectedFolder = rootDir & 'expectedOutput';
+			
+			_assertFoldersAreEqual(expectedFolder, jsFolder);
+		</cfscript>	
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
