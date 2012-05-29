@@ -723,8 +723,7 @@
 
 		<cfset var content = "" />
 		<cffile action="read" file="#arguments.filePath#" variable="content" />
-
-		<cfreturn content />
+		<cfreturn Replace(content, Chr(13), '', 'all') />
 	</cffunction>
 
 	<cffunction name="_findEquivalentFileThatMayHaveDifferentTimestamp" access="private" returntype="string" output="false">
