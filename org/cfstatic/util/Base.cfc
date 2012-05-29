@@ -316,14 +316,7 @@
 	<cffunction name="$normalizeUnixAndWindowsPaths" access="private" returntype="string" output="false">
 		<cfargument name="path" type="string" required="true" />
 
-		<cfscript>
-		 	var normalized = Replace( arguments.path, '\', '/', 'all' );
-
-		 	// fix for openBD where expandPath is adding double slashes in inappropriate places
-		 	normalized = Left( normalized, 2 ) & Replace( Right( normalized, Len(normalized)-2), '//', '/', 'all' );
-
-		 	return normalized;
-		</cfscript>
+		<cfreturn Replace( arguments.path, '\', '/', 'all' ) />
 	</cffunction>
 
 	<cffunction name="$shouldFileBeIncluded" access="private" returntype="boolean" output="false">
