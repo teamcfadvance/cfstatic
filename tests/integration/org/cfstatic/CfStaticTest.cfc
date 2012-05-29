@@ -472,7 +472,7 @@
 				, staticUrl       = "/assets"
 				, minifyMode      = "package"
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
-				, outputCharset   = "utf-16"
+				, outputCharset   = "ISO-8859-1"
 			);
 			dataToInclude['someKey']          = ListToArray("1,2,3,4,7,8,9");
 			dataToInclude.anotherKey          = StructNew();
