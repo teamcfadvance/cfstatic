@@ -484,24 +484,23 @@
 
 	<cffunction name="t21_javaLoaders_shouldBeCachedInSessionScopeByDefault" returntype="void">
 		<cfscript>
-			if( StructKeyExists(server, '_cfstaticJavaloaders') ){
-				server['_theOldSwitcheroo'] = server['_cfstaticJavaloaders'];
+			if( StructKeyExists(server, '_cfstaticJavaloaders_v2') ){
+				server['_theOldSwitcheroo'] = server['_cfstaticJavaloaders_v2'];
 			}
 
-			StructDelete(application, '_cfstaticJavaloaders');
-			StructDelete(server     , '_cfstaticJavaloaders');
+			StructDelete(application, '_cfstaticJavaloaders_v2');
+			StructDelete(server     , '_cfstaticJavaloaders_v2');
 
 			cfstatic.init(
 				  staticDirectory = rootDir
 				, staticUrl       = "/assets"
 			);
-			AssertFalse( StructKeyExists( application, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were loaded into the application scope, even when told to be put in the server scope" );
-			super.Assert( StructKeyExists( server, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were not loaded into the server scope, even when asked" );
-			super.Assert( StructCount( server['_cfstaticJavaloaders'] ), "The javaloaders for CfStatic were not loaded into the server scope" );
-
+			AssertFalse( StructKeyExists( application, '_cfstaticJavaloaders_v2' ), "The javaloaders for CfStatic were loaded into the application scope, even when told to be put in the server scope" );
+			super.Assert( StructKeyExists( server, '_cfstaticJavaloaders_v2' ), "The javaloaders for CfStatic were not loaded into the server scope, even when asked" );
+			super.Assert( StructCount( server['_cfstaticJavaloaders_v2'] ), "The javaloaders for CfStatic were not loaded into the server scope" );
 
 			if( StructKeyExists(server, '_theOldSwitcheroo') ){
-				server['_cfstaticJavaloaders'] = server['_theOldSwitcheroo'];
+				server['_cfstaticJavaloaders_v2'] = server['_theOldSwitcheroo'];
 				StructDelete(server, '_theOldSwitcheroo');
 			}
 		</cfscript>
@@ -509,12 +508,12 @@
 
 	<cffunction name="t22_settingJavaScopeToApplication_shouldCacheJavaLoadersInApplicationScope" returntype="void">
 		<cfscript>
-			if( StructKeyExists(server, '_cfstaticJavaloaders') ){
-				server['_theOldSwitcheroo'] = server['_cfstaticJavaloaders'];
+			if( StructKeyExists(server, '_cfstaticJavaloaders_v2') ){
+				server['_theOldSwitcheroo'] = server['_cfstaticJavaloaders_v2'];
 			}
 
-			StructDelete(application, '_cfstaticJavaloaders');
-			StructDelete(server     , '_cfstaticJavaloaders');
+			StructDelete(application, '_cfstaticJavaloaders_v2');
+			StructDelete(server     , '_cfstaticJavaloaders_v2');
 
 			cfstatic.init(
 				  staticDirectory = rootDir
@@ -522,13 +521,12 @@
 				, javaLoaderScope = "application"
 			);
 
-			AssertFalse( StructKeyExists( server, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were loaded into the server scope, even when told to be put in the application scope" );
-			super.Assert( StructKeyExists( application, '_cfstaticJavaloaders' ), "The javaloaders for CfStatic were not loaded into the application scope, even when asked" );
-			super.Assert( StructCount( application['_cfstaticJavaloaders'] ), "The javaloaders for CfStatic were not loaded into the application scope" );
-
+			AssertFalse( StructKeyExists( server, '_cfstaticJavaloaders_v2' ), "The javaloaders for CfStatic were loaded into the server scope, even when told to be put in the application scope" );
+			super.Assert( StructKeyExists( application, '_cfstaticJavaloaders_v2' ), "The javaloaders for CfStatic were not loaded into the application scope, even when asked" );
+			super.Assert( StructCount( application['_cfstaticJavaloaders_v2'] ), "The javaloaders for CfStatic were not loaded into the application scope" );
 
 			if( StructKeyExists(server, '_theOldSwitcheroo') ){
-				server['_cfstaticJavaloaders'] = server['_theOldSwitcheroo'];
+				server['_cfstaticJavaloaders_v2'] = server['_theOldSwitcheroo'];
 				StructDelete(server, '_theOldSwitcheroo');
 			}
 		</cfscript>
@@ -589,6 +587,48 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t25_coffeescript_shouldBeCompiledToJs" returntype="void">
+		<cfscript>
+			var jsFolder       = "";
+			var expectedFolder = "";
+			
+			rootDir &= 'goodFiles/coffee-script/';
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/any/old/thing"
+				, minifyMode      = "none"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			jsFolder       = rootDir & 'js';
+			expectedFolder = rootDir & 'expectedOutput';
+			
+			_assertFoldersAreEqual(expectedFolder, jsFolder);
+		</cfscript>	
+	</cffunction>
+
+	<cffunction name="t26_coffeescript_shouldNotCompileWithAnonymousFunctionWrapper_whenFileNameIsLikeBareDotCoffee" returntype="void">
+		<cfscript>
+			var jsFolder       = "";
+			var expectedFolder = "";
+			
+			rootDir &= 'goodFiles/coffee-script-with-bareness/';
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/any/old/thing"
+				, minifyMode      = "none"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			jsFolder       = rootDir & 'js';
+			expectedFolder = rootDir & 'expectedOutput';
+			
+			_assertFoldersAreEqual(expectedFolder, jsFolder);
+		</cfscript>	
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
@@ -615,6 +655,14 @@
 				<cffile action="delete" file="#directory#/#name#" />
 			</cfif>
 		</cfloop>
+
+		<!--- compiled coffee-script files--->
+		<cfdirectory action="list" directory="#rootDir#/js" filter="*.coffee.js" recurse="true" name="files" />
+		<cfloop query="files">
+			<cfif type EQ "file">
+				<cffile action="delete" file="#directory#/#name#" />
+			</cfif>
+		</cfloop>
 	</cffunction>
 
 	<cffunction name="_assertFoldersAreEqual" access="private" returntype="void" output="false">
@@ -625,17 +673,29 @@
 		<cfset var files2 = "" />
 		<cfset var file1 = "" />
 		<cfset var file2 = "" />
+		<cfset var subDir = "" />
 
-		<cfdirectory action="list" directory="#arguments.folder1#" name="files1"/>
-		<cfdirectory action="list" directory="#arguments.folder2#" name="files2"/>
+		<cfif DirectoryExists( ExpandPath( arguments.folder1 ) )>
+			<cfset arguments.folder1 = ExpandPath( arguments.folder1 ) />
+		</cfif>
+		<cfif DirectoryExists( ExpandPath( arguments.folder2 ) )>
+			<cfset arguments.folder2 = ExpandPath( arguments.folder2 ) />
+		</cfif>
+
+		<cfdirectory action="list" directory="#arguments.folder1#" name="files1" recurse="true" />
+		<cfdirectory action="list" directory="#arguments.folder2#" name="files2" recurse="true" />
 
 		<cfloop query="files1">
-			<cfset file1 = ListAppend(arguments.folder1, files1.name, '/') />
-			<cfset file2 = _findEquivalentFileThatMayHaveDifferentTimestamp(files1.name, ValueList(files2.name)) />
+			<cfif files1.type EQ 'file'>
+				<cfset file1 = ListAppend(files1.directory, files1.name, '/') />
+				<cfset file2 = _findEquivalentFileThatMayHaveDifferentTimestamp(files1.name, ValueList(files2.name)) />
 
-			<cfset super.Assert( file2 NEQ "", "The two folders did not contain the same files. Folder 1: #ValueList(files1.name)#. Folder 2: #ValueList(files2.name)#") />
-			<cfset file2 = ListAppend( arguments.folder2, file2 , '/' ) />
-			<cfset AssertEquals( _fileCheckSum(file1), _fileCheckSum(file2), 'The checksums of the #files1.name# files were not equal') />
+				<cfset super.Assert( file2 NEQ "", "The two folders did not contain the same files. Folder 1: #ValueList(files1.name)#. Folder 2: #ValueList(files2.name)#") />
+				<cfset subFolder = ReplaceNoCase( files1.directory, folder1, '' ) />
+				<cfset file2 = ListAppend( arguments.folder2 & subFolder, file2 , '/' ) />
+
+				<cfset AssertEquals( _fileCheckSum(file1), _fileCheckSum(file2), 'The checksums of the #files1.name# files were not equal') />
+			</cfif>
 		</cfloop>
 	</cffunction>
 
