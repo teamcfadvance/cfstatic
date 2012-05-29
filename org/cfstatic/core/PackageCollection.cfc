@@ -298,11 +298,13 @@
 
 	<cffunction name="_orderPackages" access="private" returntype="void" output="false" hint="I calculate the order of packages, based on their dependencies. I cache this order locally.">
 		<cfscript>
-			var packages	= _getPackages();
-			var package		= "";
+			var packages = StructKeyArray( _getPackages() );
+			var i		 = "";
 
-			for( package in packages ){
-				_addPackageToOrderedList( package );
+			ArraySort( packages, 'text' );
+
+			for( i=1; i LTE ArrayLen(packages); i=i+1 ){
+				_addPackageToOrderedList( packages[i] );
 			}
 		</cfscript>
 	</cffunction>
@@ -316,6 +318,8 @@
 			var i				= 0;
 
 			// first, add any *internal* dependencies
+			ArraySort( dependencies, 'text' );
+
 			for( i=1; i LTE ArrayLen(dependencies); i++ ){
 				_addPackageToOrderedList( dependencies[i] );
 			}
