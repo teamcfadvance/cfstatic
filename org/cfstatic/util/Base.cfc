@@ -379,6 +379,20 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="$uniqueList" access="private" returntype="string" output="false">
+		<cfargument name="list" type="string" required="true" />
+
+		<cfscript>
+			var listStruct = StructNew();
+			var i          = 1;
+			for( i=1; i LTE ListLen(arguments.list); i++ ){
+				listStruct[ ListGetAt(arguments.list, i) ] = 0;
+			}
+
+			return StructKeyList( listStruct );
+		</cfscript>
+	</cffunction>
+
 <!--- accessors --->
 	<cffunction name="_setJavaLoader" access="private" returntype="void" output="false">
 		<cfargument name="javaLoader" required="true" type="any" />

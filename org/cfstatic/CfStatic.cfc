@@ -160,6 +160,7 @@
 	<cffunction name="_processStaticFiles" access="private" returntype="void" output="false" hint="I call all the methods that do the grunt work of cfstatic (processing all the file metadata, caching relationships and compiling files)">
 		<cfscript>
 			// compile any LESS and coffee-script files before having them picked up by the packagers
+			_scanForImportedLessFiles();
 			_compileLess();
 			_compileCoffeeScript();
 
@@ -926,9 +927,54 @@
 		<cfargument name="LessGlobals" type="string" required="true" />
 		<cfset _LessGlobals = $normalizeUnixAndWindowsPaths( arguments.LessGlobals ) />
 	</cffunction>
+	<cffunction name="_scanForImportedLessFiles" access="private" returntype="any" output="false">
+		<cfscript>
+			var cssDir        = $listAppend(_getRootdirectory(), _getCssdirectory(), '/');
+			var files         = $directoryList(cssDir, '*.less');
+			var i             = 0;
+			var file          = "";
+			var imports       = "";
+			var importStruct  = "";
+
+
+			for( i=1; i LTE files.recordCount; i++ ){
+				file    = $normalizeUnixAndWindowsPaths( $listAppend( files.directory[i], files.name[i], '/') );
+				imports = ListAppend( imports, _readLessImports( file ) );
+			}
+
+			_lessImports = $uniqueList( imports );
+		</cfscript>
+	</cffunction>
+	<cffunction name="_readLessImports" access="private" returntype="string" output="false">
+		<cfargument name="filePath" type="string" required="true" />
+
+		<cfscript>
+			var searchResults = "";
+			var imports       = "";
+			var importPath    = "";
+			var i             = 0;
+
+			if ( fileExists( arguments.filePath ) ){
+				searchResults = $reSearch( '@import url\((.+?)\)', $fileRead( arguments.filePath ) );
+
+				if ( StructKeyExists( searchResults, "$1" ) ) {
+					for( i=1; i LTE ArrayLen(searchResults.$1); i++){
+						importPath = Replace( searchResults.$1[i], '"', '', 'all' );
+						importPath = Replace( importPath, "'", '', 'all' );
+						importPath = getDirectoryFromPath(arguments.filePath) & Trim(importPath);
+						imports = ListAppend(imports, importPath);
+						imports = ListAppend(imports, _readLessImports(importPath));
+					}
+				}
+			}
+
+			return imports;
+		</cfscript>
+	</cffunction>
+
 	<cffunction name="_getLessGlobalsLastModified" access="private" returntype="date" output="false">
 		<cfscript>
-			var globals      = ListToArray( _getLessGlobals() );
+			var globals      = ListToArray( _getLessGlobals() & _lessImports );
 			var lastModified = "1900-01-01";
 			var fileModified = "";
 			var i            = 0;
