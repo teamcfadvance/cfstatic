@@ -390,7 +390,7 @@
 				if ( $shouldFileBeIncluded( file, _getIncludePattern(), _getExcludePattern() ) ){
 					target         = file & '.css';
 					lastModified   = $fileLastModified(target);
-					needsCompiling = ( not fileExists(target) or lastModified LT globalsModified or lastModified LT $fileLastModified(file) );
+					needsCompiling = ( _getForceCompilation() or not fileExists(target) or lastModified LT globalsModified or lastModified LT $fileLastModified(file) );
 					if ( needsCompiling ){
 						compiled = _getLesscompiler().compile( file, _getLessGlobals() );
 
@@ -415,7 +415,7 @@
 				file = $normalizeUnixAndWindowsPaths( $listAppend(files.directory[i], files.name[i], '/') );
 				if ( $shouldFileBeIncluded( file, _getIncludePattern(), _getExcludePattern() ) ){
 					target         = file & '.js';
-					needsCompiling = ( not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file) );
+					needsCompiling = ( _getForceCompilation() or not fileExists(target) or $fileLastModified(target) LT $fileLastModified(file) );
 					if ( needsCompiling ){
 						compiled = _getCoffeeScriptCompiler().compile( file );
 
