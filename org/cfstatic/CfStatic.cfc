@@ -931,6 +931,7 @@
 		<cfscript>
 			var cssDir        = $listAppend(_getRootdirectory(), _getCssdirectory(), '/');
 			var files         = $directoryList(cssDir, '*.less');
+			var globals       = ListToArray( _getLessGlobals() );
 			var i             = 0;
 			var file          = "";
 			var imports       = "";
@@ -940,6 +941,10 @@
 			for( i=1; i LTE files.recordCount; i++ ){
 				file    = $normalizeUnixAndWindowsPaths( $listAppend( files.directory[i], files.name[i], '/') );
 				imports = ListAppend( imports, _readLessImports( file ) );
+			}
+
+			for( i=1; i LTE ArrayLen(globals); i++ ) {
+				imports = ListAppend( imports, _readLessImports( globals[i] ) );
 			}
 
 			_lessImports = $uniqueList( imports );
@@ -974,7 +979,7 @@
 
 	<cffunction name="_getLessGlobalsLastModified" access="private" returntype="date" output="false">
 		<cfscript>
-			var globals      = ListToArray( _getLessGlobals() & _lessImports );
+			var globals      = ListToArray( ListAppend(_getLessGlobals(), _lessImports) );
 			var lastModified = "1900-01-01";
 			var fileModified = "";
 			var i            = 0;
