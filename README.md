@@ -13,6 +13,7 @@ Key features:
 
 * Minifies your files for you using YuiCompressor
 * Compiles your LESS CSS for you
+* Compiles your CoffeeScript for you
 * Dependency configuration through JavaDoc style documentation
 * Easy, zero-code, switching between inclusion of raw source files and minified files
 * Small API, only 4 public methods (including the constructor)
