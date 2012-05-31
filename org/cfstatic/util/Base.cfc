@@ -393,6 +393,16 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="$ensureFullDirectoryPath" access="private" returntype="string" output="false">
+		<cfargument name="dir" type="string" required="true" />
+		<cfscript>
+			if ( directoryExists( ExpandPath( arguments.dir ) ) ) {
+				return ExpandPath( arguments.dir );
+			}
+			return arguments.dir;
+		</cfscript>
+	</cffunction>
+
 <!--- accessors --->
 	<cffunction name="_setJavaLoader" access="private" returntype="void" output="false">
 		<cfargument name="javaLoader" required="true" type="any" />

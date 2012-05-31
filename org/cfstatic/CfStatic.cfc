@@ -20,19 +20,21 @@
 		_includePattern      = ".*";
 		_excludePattern      = "";
 		_outputCharset       = "utf-8";
+		_javaLoaderScope     = "server";
+		_lessGlobals         = "";
 
-		_jsPackages			= "";
-		_cssPackages		= "";
-		_yuiCompressor		= "";
-		_lessCompiler		= "";
-		_cssImageParser		= "";
-		_includeMapping		= StructNew();
-		_includeMapping.js	= StructNew();
-		_includeMapping.css	= StructNew();
+		_jsPackages			 = "";
+		_cssPackages		 = "";
+		_yuiCompressor		 = "";
+		_lessCompiler		 = "";
+		_cssImageParser		 = "";
+		_includeMapping		 = StructNew();
+		_includeMapping.js	 = StructNew();
+		_includeMapping.css	 = StructNew();
 	</cfscript>
 
 <!--- constructor --->
-	<cffunction name="init" access="public" returntype="CfStatic" output="false" hint="I am the constructor for CfStatic. Pass in your CfStatic configuration options to me.">
+	<cffunction name="init" access="public" returntype="any" output="false" hint="I am the constructor for CfStatic. Pass in your CfStatic configuration options to me.">
 		<cfargument name="staticDirectory"     type="string"  required="true"                    hint="Full path to the directoy in which static files reside" />
 		<cfargument name="staticUrl"           type="string"  required="true"                    hint="Url that maps to the static directory" />
 		<cfargument name="jsDirectory"         type="string"  required="false" default="js"      hint="Relative path to the directoy in which javascript files reside. Relative to static path." />
@@ -53,77 +55,61 @@
 		<cfargument name="outputCharset"       type="string"  required="false" default="utf-8"   hint="Character set to use when writing outputted minified files" />
 		<cfargument name="javaLoaderScope"     type="string"  required="false" default="server"  hint="The scope in which instances of JavaLoader libraries for the compilers should be persisted, either 'application' or 'server' (default is 'server' to prevent JavaLoader memory leaks)" />
 		<cfargument name="lessGlobals"         type="string"  required="false" default=""        hint="Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list" />
+
 		<cfscript>
-			// if we are given a relative or mapped path, ensure we have the full path
-			if(directoryExists(ExpandPath(arguments.staticDirectory))){
-				arguments.staticDirectory = ExpandPath(arguments.staticDirectory);
-			}
+			var rootDir = $normalizeUnixAndWindowsPaths( $ensureFullDirectoryPath( arguments.staticDirectory ) );
 
-			// ensure easy windows / unix compatibility
-			arguments.staticDirectory = $normalizeUnixAndWindowsPaths( arguments.staticDirectory );
+			_setRootDirectory      ( rootDir                                                          );
+			_setJsDirectory        ( arguments.jsDirectory                                            );
+			_setCssDirectory       ( arguments.cssDirectory                                           );
+			_setOutputDirectory    ( $listAppend(rootDir            , arguments.outputDirectory, '/') );
+			_setJsUrl              ( $listAppend(arguments.staticUrl, arguments.jsDirectory    , '/') );
+			_setCssUrl             ( $listAppend(arguments.staticUrl, arguments.cssDirectory   , '/') );
+			_setMinifiedUrl        ( $listAppend(arguments.staticUrl, arguments.outputDirectory, '/') );
+			_setMinifyMode         ( arguments.minifyMode                                             );
+			_setDownloadExternals  ( arguments.downloadExternals                                      );
+			_setDebugAllowed       ( arguments.debugAllowed                                           );
+			_setDebugKey           ( arguments.debugKey                                               );
+			_setDebugPassword      ( arguments.debugPassword                                          );
+			_setForceCompilation   ( arguments.forceCompilation                                       );
+			_setCheckForUpdates    ( arguments.checkForUpdates                                        );
+			_setAddCacheBusters    ( arguments.addCacheBusters                                        );
+			_setIncludeAllByDefault( arguments.includeAllByDefault                                    );
+			_setEmbedCssImages     ( arguments.embedCssImages                                         );
+			_setIncludePattern     ( arguments.includePattern                                         );
+			_setExcludePattern     ( arguments.excludePattern                                         );
+			_setOutputCharset      ( arguments.outputCharset                                          );
+			_setLessGlobals        ( arguments.lessGlobals                                            );
 
-			// set config options
-			_setRootDirectory		( arguments.staticDirectory );
-			_setJsDirectory			( arguments.jsDirectory		);
-			_setCssDirectory		( arguments.cssDirectory	);
-			_setOutputDirectory		( $listAppend(arguments.staticDirectory, arguments.outputDirectory, '/') );
-			_setJsUrl				( $listAppend(arguments.staticUrl,		arguments.jsDirectory, '/')		);
-			_setCssUrl				( $listAppend(arguments.staticUrl,		arguments.cssDirectory, '/')	);
-			_setMinifiedUrl			( $listAppend(arguments.staticUrl,		arguments.outputDirectory, '/')	);
-			_setMinifyMode			( arguments.minifyMode 			);
-			_setDownloadExternals	( arguments.downloadExternals	);
-			_setDebugAllowed		( arguments.debugAllowed		);
-			_setDebugKey			( arguments.debugKey			);
-			_setDebugPassword		( arguments.debugPassword		);
-			_setForceCompilation	( arguments.forceCompilation	);
-			_setCheckForUpdates		( arguments.checkForUpdates		);
-			_setAddCacheBusters		( arguments.addCacheBusters     );
-			_setIncludeAllByDefault ( arguments.includeAllByDefault );
-			_setEmbedCssImages      ( arguments.embedCssImages      );
-			_setIncludePattern      ( arguments.includePattern      );
-			_setExcludePattern      ( arguments.excludePattern      );
-			_setOutputCharset       ( arguments.outputCharset       );
-			_setLessGlobals         ( arguments.lessGlobals         );
-
-			// instantiate any compilers we are using and compile the static resources
 			_loadCompilers( javaLoaderScope = arguments.javaLoaderScope );
 			_processStaticFiles();
 
-			// return reference to self
 			return this;
 		</cfscript>
 	</cffunction>
 
 <!--- public methods --->
-	<cffunction name="include" access="public" returntype="CfStatic" output="false" hint="I am the include() method. Call me on each request to specify that a static resource should be included in the requested page. I return a reference to the cfstatic object and can therefore be chained. e.g. cfstatic.include('/css/core/').include('/css/homepage/homepage.css');">
+	<cffunction name="include" access="public" returntype="any" output="false" hint="I am the include() method. Call me on each request to specify that a static resource should be included in the requested page. I return a reference to the cfstatic object and can therefore be chained. e.g. cfstatic.include('/css/core/').include('/css/homepage/homepage.css');">
 		<cfargument name="resource" type="string" required="true" hint="A url path, relative to the base static url, specifiying a static file or entire static package. e.g. '/css/core/layout.css' to include a single file, or '/css/core/' to include all files in the core css package." />
+
 		<cfscript>
-			// we do not do any calculation here, simply build an array of resources. We calculate dependencies, min files, etc. in renderIncludes()
 			var includes = _getRequestIncludes();
 
-			// add .css to .less includes
-			if(ListLast(arguments.resource, '.') EQ 'less'){
-				arguments.resource = arguments.resource & '.css';
-			}
+			ArrayAppend( includes, _appendCompiledFileTypeToLessAndCoffeeIncludes( arguments.resource ) );
 
-			ArrayAppend(includes, arguments.resource);
+			_setRequestIncludes( includes );
 
-			_setRequestIncludes(includes);
-
-			return this; // so that we can chain includes
+			return _chainable();
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="includeData" access="public" returntype="CfStatic" output="false" hint="I am the includeData() method. Call me on each request to make ColdFusion data available to your javascript code. Data passed in to this method (as a struct) will be output as a global javascript variable named 'cfrequest'. So, if you pass in a structure like so: {siteroot='/mysite/', dataurl='/mysite/getdata'}, you will have 'cfrequest.siteroot' and cfrequest.dataurl as variables available to any javascript files included with cfstatic.">
+	<cffunction name="includeData" access="public" returntype="any" output="false" hint="I am the includeData() method. Call me on each request to make ColdFusion data available to your javascript code. Data passed in to this method (as a struct) will be output as a global javascript variable named 'cfrequest'. So, if you pass in a structure like so: {siteroot='/mysite/', dataurl='/mysite/getdata'}, you will have 'cfrequest.siteroot' and cfrequest.dataurl as variables available to any javascript files included with cfstatic.">
 		<cfargument name="data" type="struct" required="true" hint="Data to be outputted as javascript variables. All keys in this structure will then be available to your javascript, in an object named 'cfrequest'." />
 
 		<cfscript>
-			var currentData = _getRequestData();
+			StructAppend( _getRequestData(), arguments.data );
 
-			StructAppend(currentData, arguments.data);
-			_setRequestData(currentData);
-
-			return this; // so that we can chain includes
+			return _chainable();
 		</cfscript>
     </cffunction>
 
@@ -698,6 +684,25 @@
 				_processStaticFiles();
 			}
 		</cfscript>
+    </cffunction>
+
+    <cffunction name="_appendCompiledFileTypeToLessAndCoffeeIncludes" access="private" returntype="string" output="false">
+    	<cfargument name="includedFile" type="string" required="true" />
+
+    	<cfscript>
+    		var ext = ListLast( arguments.includedFile, '.' );
+
+    		switch( ext ){
+    			case "less"   : return arguments.includedFile & '.css';
+    			case "coffee" : return arguments.includedFile & '.js';
+    		}
+
+    		return arguments.includedFile;
+    	</cfscript>
+    </cffunction>
+
+    <cffunction name="_chainable" access="private" returntype="any" output="false">
+    	<cfreturn this />
     </cffunction>
 
 <!--- plain old instance property accessors (private) --->
