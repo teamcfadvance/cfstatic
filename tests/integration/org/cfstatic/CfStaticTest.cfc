@@ -340,7 +340,8 @@
 				, minifyMode      = "file"
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
-			cfstatic.include('/css/less/testing.less');
+			cfstatic.include('/css/core/')
+			        .include('/css/another.css');
 
 			renderedOutput = cfstatic.renderIncludes('css');
 			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
