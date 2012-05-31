@@ -1,5 +1,5 @@
 CFStatic is a framework for the inclusion and packaging of CSS and JavaScript files for CFML 
-applications by Dominic Watson (http://fusion.dominicwatson.co.uk/).
+applications.
 
 CFStatic takes care of:
 -----------------------
