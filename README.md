@@ -5,6 +5,7 @@ CFStatic takes care of:
 -----------------------
 
 * Minifying your CSS and JavaScript
+* Compiling your CoffeeScript and LESS CSS
 * Including your CSS and JavaScript in the correct order, with all dependencies satisfied
 * Adding sensible cachebusters to CSS image paths and CSS and JavaScript includes
 
