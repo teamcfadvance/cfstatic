@@ -94,8 +94,9 @@
 
 		<cfscript>
 			var includes = _getRequestIncludes();
+			var include  = _appendFileTypesToSpecialIncludes( arguments.resource );
 
-			ArrayAppend( includes, _appendCompiledFileTypeToLessAndCoffeeIncludes( arguments.resource ) );
+			ArrayAppend( includes, include );
 
 			_setRequestIncludes( includes );
 
@@ -114,61 +115,83 @@
     </cffunction>
 
 	<cffunction name="renderIncludes" access="public" returntype="string" output="false" hint="I am the renderIncludes() method. I return the html required for including all the static resources needed for the requested page. If no includes have been specified, I include *all* static resources.">
-		<cfargument name="type" type="string" required="false" hint="Either 'js' or 'css'. the type of include to render. If I am not specified, the method will render both css and javascript (css first)" />
+		<cfargument name="type"      type="string"  required="false" hint="Either 'js' or 'css'. the type of include to render. If I am not specified, the method will render both css and javascript (css first)" />
 		<cfargument name="debugMode" type="boolean" required="false" default="#_getDebugAllowed() and StructKeyExists(url, _getDebugKey()) and url[_getDebugKey()] EQ _getDebugPassword()#" hint="Whether or not to render the source files (as opposed to the compiled files). You should use the debug url parameter (see cfstatic config options) rather than manually setting this argument, but it is included here should you need it." />
 
 		<cfscript>
-			var str				= $getStringBuffer();
-			var minification 	= iif(arguments.debugMode, DE('none'), DE(_getMinifyMode()));
-			var filters			= "";
+			var filters    = "";
+			var buffer     = $getStringBuffer();
+			var renderCss  = not StructKeyExists( arguments, 'type' ) or arguments.type eq 'css';
+			var renderJs   = not StructKeyExists( arguments, 'type' ) or arguments.type eq 'js';
+			var minifyMode = iif( arguments.debugMode, DE('none'), DE( _getMinifyMode() ) );
 
-			if( not StructKeyExists(arguments, 'type') OR arguments.type EQ 'css' ){
-				filters = _getRequestIncludeFilters( type = 'css' );
+			if ( renderCss ) {
+				filters = _getRequestIncludeFilters( 'css' );
 
-				if( (ArrayLen(filters.packages) + ArrayLen(filters.files)) or _getIncludeAllByDefault() ){
-					str.append( _getCssPackages().renderincludes( minification, _getDownloadExternals(), filters.packages, filters.files, _getOutputCharset() ) );
+				if ( _anythingToRender( filters ) ) {
+					buffer.append( _getCssPackages().renderincludes(
+						  minification      = minifyMode
+						, includePackages   = filters.packages
+						, includeFiles      = filters.files
+						, downloadExternals = _getDownloadexternals()
+						, charset           = _getOutputCharset()
+					) );
 				}
 			}
-			if( not StructKeyExists(arguments, 'type') OR arguments.type EQ 'js' ){
-				str.append( _renderRequestData() );
 
-				filters = _getRequestIncludeFilters( type = 'js' );
-				if( (ArrayLen(filters.packages) + ArrayLen(filters.files)) or _getIncludeAllByDefault() ){
-					str.append( _getJsPackages().renderincludes( minification, _getDownloadExternals(), filters.packages, filters.files, _getOutputCharset() ) );
+			if ( renderJs ) {
+				filters = _getRequestIncludeFilters( 'js' );
+
+				buffer.append( _renderRequestData() );
+				if ( _anythingToRender( filters ) ) {
+					buffer.append( _getJsPackages().renderincludes(
+						  minification      = minifyMode
+						, includePackages   = filters.packages
+						, includeFiles      = filters.files
+						, downloadExternals = _getDownloadexternals()
+						, charset           = _getOutputCharset()
+					) );
 				}
 			}
 
-			return str.toString();
+			return buffer.toString();
 		</cfscript>
 	</cffunction>
 
 <!--- private methods --->
 	<cffunction name="_processStaticFiles" access="private" returntype="void" output="false" hint="I call all the methods that do the grunt work of cfstatic (processing all the file metadata, caching relationships and compiling files)">
 		<cfscript>
-			// compile any LESS and coffee-script files before having them picked up by the packagers
+			var jsDir  = $listAppend( _getRootDirectory(), _getJsDirectory() , '/' );
+			var cssDir = $listAppend( _getRootDirectory(), _getCssDirectory(), '/' );
+
 			_scanForImportedLessFiles();
 			_compileLess();
 			_compileCoffeeScript();
 
-			// process the directories to calculate all file metadata and dependencies
-			_setJsPackages			( _packageDirectory( $listAppend(_getRootDirectory(), _getJsDirectory(), '/' )	, _getJsUrl(), _getMinifiedUrl(), 'js') );
-			_setCssPackages			( _packageDirectory( $listAppend(_getRootDirectory(), _getCssDirectory(), '/' ), _getCssUrl(), _getMinifiedUrl(), 'css') );
+			_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js'  ) );
+			_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css' ) );
 
-			// calculate mappings between include paths and minified files and their dependencies (used to speed up includes)
 			_calculateMappings();
 
-			// compile files
-			_compile();
+			_compileCssAndJavascript();
 		</cfscript>
 	</cffunction>
 
 	<cffunction name="_packageDirectory" access="private" returntype="org.cfstatic.core.PackageCollection" output="false" hint="I take a directory and return a processed PackageCollection object (with stored metadata about the packages and files within it)">
-		<cfargument name="rootDirectory"	type="string" required="true" />
-		<cfargument name="rootUrl"			type="string" required="true" />
-		<cfargument name="minifiedUrl"		type="string" required="true" />
-		<cfargument name="fileType"			type="string" required="true" />
+		<cfargument name="rootDirectory" type="string" required="true" />
+		<cfargument name="rootUrl"       type="string" required="true" />
+		<cfargument name="minifiedUrl"   type="string" required="true" />
+		<cfargument name="fileType"      type="string" required="true" />
 
-		<cfreturn CreateObject('component', 'org.cfstatic.core.PackageCollection').init( arguments.rootDirectory, arguments.rootUrl, arguments.minifiedUrl, arguments.fileType, _getAddCacheBusters(), _getIncludePattern(), _getExcludePattern() ) />
+		<cfreturn CreateObject('component', 'org.cfstatic.core.PackageCollection').init(
+			  rootDirectory  = arguments.rootDirectory
+			, rootUrl        = arguments.rootUrl
+			, minifiedUrl    = arguments.minifiedUrl
+			, fileType       = arguments.fileType
+			, cacheBust      = _getAddCacheBusters()
+			, includePattern = _getIncludePattern()
+			, excludePattern = _getExcludePattern()
+		) />
 	</cffunction>
 
 	<cffunction name="_calculateMappings" access="private" returntype="void" output="false" hint="I calculate the include mappings. The mappings are a quick referenced storage of a given 'include' string that a coder might use to include a package or file that is mapped to the resultant set of packages and files that it might need to include given its dependencies. These mappings then negate the need to calculate dependencies on every request (making cfstatic super fast).">
@@ -193,7 +216,7 @@
 			for(type=1; type LTE 2; type++){
 				mappings = StructNew();
 
-				if(types[type] EQ 'js'){
+				if ( types[type] EQ 'js' ) {
 					collection	= _getJsPackages();
 					rootDir		= _getJsDirectory();
 				} else {
@@ -207,7 +230,7 @@
 					package = collection.getPackage(packages[i]);
 
 					// figure out the include name that coder will use to include it
-					if(packages[i] EQ "external"){
+					if ( packages[i] EQ "external" ) {
 						include = "external";
 					} else {
 						include = "/#rootDir##packages[i]#";
@@ -239,7 +262,7 @@
 						file = package.getStaticFile(files[n]);
 
 						// figure out the include name that coder will use to include the file
-						if(packages[i] EQ "external"){
+						if ( packages[i] EQ "external" ) {
 							include = files[n];
 							pkgInclude = "external";
 						} else {
@@ -285,7 +308,7 @@
 
 			// loop over the includes and add their precalculated mappings of lists of dependencies, etc.
 			for(i=1; i LTE ArrayLen(includes); i++){
-				if(StructKeyExists(mappings, includes[i])){
+				if ( StructKeyExists(mappings, includes[i]) ) {
 					filters.packages = $arrayMerge( filters.packages, mappings[includes[i]].packages );
 					filters.files = $arrayMerge( filters.files, mappings[includes[i]].files );
 				}
@@ -308,7 +331,7 @@
 			    jlScope = application;
 			}
 
-			if( not StructKeyExists(jlScope, jlScopeKey) ){
+			if ( not StructKeyExists(jlScope, jlScopeKey) ) {
 				jlScope[jlScopeKey] = _loadJavaLoaders();
 			}
 
@@ -339,7 +362,7 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="_compile" access="private" returntype="void" output="false" hint="I instantiate the compiling of static files, using different methods depending on the value of the 'minifyMode' config option (passed to the constructor)">
+	<cffunction name="_compileCssAndJavascript" access="private" returntype="void" output="false" hint="I instantiate the compiling of static files, using different methods depending on the value of the 'minifyMode' config option (passed to the constructor)">
 		<cfscript>
 			switch(_getMinifyMode()){
 				case 'file':
@@ -423,7 +446,7 @@
 			var fileName	= "";
 
 			// js
-			if( _compilationNecessary(_getJsPackages() ) ){
+			if ( _compilationNecessary(_getJsPackages() ) ) {
 				packages		= _getJsPackages().getOrdered();
 				for(i=1; i LTE ArrayLen(packages); i++){
 					if ( _getDownloadexternals() OR packages[i] NEQ 'external' ) {
@@ -443,7 +466,7 @@
 
 			// css
 			content		= $getStringBuffer();
-			if( _compilationNecessary(_getCssPackages() ) ){
+			if ( _compilationNecessary(_getCssPackages() ) ) {
 				packages		= _getCssPackages().getOrdered();
 				for(i=1; i LTE ArrayLen(packages); i++){
 					package		= _getCssPackages().getPackage(packages[i]);
@@ -481,7 +504,7 @@
 			for(i=1; i LTE ArrayLen(packages); i++){
 				content			= $getStringBuffer();
 				package		= _getJsPackages().getPackage(packages[i]);
-				if( (_getDownloadexternals() OR packages[i] NEQ 'external') AND _compilationNecessary( package ) ){
+				if ( ( _getDownloadexternals() OR packages[i] NEQ 'external' ) AND _compilationNecessary( package ) ) {
 
 					files			= package.getOrdered();
 					for(n=1; n LTE ArrayLen(files); n++){
@@ -502,7 +525,7 @@
 			for(i=1; i LTE ArrayLen(packages); i++){
 				content			= $getStringBuffer();
 				package		= _getCssPackages().getPackage(packages[i]);
-				if( ( _compilationNecessary( package ) ) AND (_getDownloadexternals() OR packages[i] NEQ 'external') ){
+				if ( ( _compilationNecessary( package ) ) AND ( _getDownloadexternals() OR packages[i] NEQ 'external' ) ) {
 					files			= package.getOrdered();
 					for(n=1; n LTE ArrayLen(files); n++){
 						file		= package.getStaticFile( files[n] );
@@ -538,12 +561,12 @@
 			packages		= _getJsPackages().getOrdered();
 			for(i=1; i LTE ArrayLen(packages); i++){
 				package			= _getJsPackages().getPackage(packages[i]);
-				if(_getDownloadexternals() OR packages[i] NEQ 'external'){
+				if ( _getDownloadexternals() OR packages[i] NEQ 'external' ) {
 					files			= package.getOrdered();
 					for(n=1; n LTE ArrayLen(files); n++){
 						file		= package.getStaticFile( files[n] );
 
-						if(  _compilationNecessary( file ) ){
+						if ( _compilationNecessary( file ) ) {
 							content		= _compileJsFile( file );
 							fileName	= file.getMinifiedFileName();
 							filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
@@ -557,13 +580,13 @@
 			// css
 			packages		= _getCssPackages().getOrdered();
 			for(i=1; i LTE ArrayLen(packages); i++){
-				if(_getDownloadexternals() OR packages[i] NEQ 'external'){
+				if ( _getDownloadexternals() OR packages[i] NEQ 'external' ) {
 					package			= _getCssPackages().getPackage(packages[i]);
 					files			= package.getOrdered();
 					for(n=1; n LTE ArrayLen(files); n++){
 						file		= package.getStaticFile( files[n] );
 
-						if(  _compilationNecessary( file ) ){
+						if ( _compilationNecessary( file ) ) {
 							content		= _compileCssFile( file );
 							fileName	= file.getMinifiedFileName();
 							filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
@@ -583,7 +606,7 @@
 
 		<cfscript>
 			// if the file is minified already, just return its content
-			if( arguments.file.getProperty('minified', 'false', 'string') ){
+			if ( arguments.file.getProperty('minified', 'false', 'string') ) {
 				return arguments.file.getContent();
 			}
 
@@ -599,7 +622,7 @@
 			var content = arguments.file.getContent();
 
 			// compress using yui compressor (if not already minified)
-			if( not arguments.file.getProperty('minified', 'false', 'string') ){
+			if ( not arguments.file.getProperty('minified', 'false', 'string') ) {
 				content = _getYuiCompressor().compressCss( content );
 			}
 
@@ -617,12 +640,12 @@
 			var minFile = $listAppend(_getOutputDirectory(), arguments.collectionPackageOrFile.getMinifiedFileName(), '/');
 
 			// if we've been told to, we ought to...
-			if( _getForceCompilation() ){
+			if ( _getForceCompilation() ) {
 				return true;
 			}
 
 			// if the minified file does not exist already we ought to compile
-			if(not fileExists(minFile)){
+			if ( not fileExists(minFile) ) {
 				return true;
 			}
 
@@ -634,7 +657,7 @@
 	<cffunction name="_renderRequestData" access="private" returntype="string" output="false" hint="I render any data set for the request as a javascript variable">
 		<cfscript>
 			var data = _getRequestData();
-			if(StructIsEmpty(data)){
+			if ( StructIsEmpty(data) ) {
 				return "";
 			}
 
@@ -648,7 +671,7 @@
 	</cffunction>
 	<cffunction name="_getRequestIncludes" access="private" returntype="array" output="false" hint="I get the array of includes for this request">
 		<cfscript>
-			if(not StructKeyExists(request, '_cfstaticIncludes')){
+			if ( not StructKeyExists(request, '_cfstaticIncludes') ) {
 				_setupRequest();
 			}
 
@@ -662,7 +685,7 @@
     </cffunction>
 	<cffunction name="_getRequestData" access="private" returntype="struct" output="false" hint="I get the structure of data to be rendered as javascript variables for this request">
     	<cfscript>
-    		if(not StructKeyExists(request, '_cfstaticData')){
+    		if ( not StructKeyExists(request, '_cfstaticData') ) {
 				_setupRequest();
 			}
 
@@ -677,13 +700,13 @@
 			_setRequestData( StructNew() );
 
 			// check whether or not we should try to recompile
-			if(_getCheckForUpdates()){
+			if ( _getCheckForUpdates() ) {
 				_processStaticFiles();
 			}
 		</cfscript>
     </cffunction>
 
-    <cffunction name="_appendCompiledFileTypeToLessAndCoffeeIncludes" access="private" returntype="string" output="false">
+    <cffunction name="_appendFileTypesToSpecialIncludes" access="private" returntype="string" output="false">
     	<cfargument name="includedFile" type="string" required="true" />
 
     	<cfscript>
@@ -700,6 +723,12 @@
 
     <cffunction name="_chainable" access="private" returntype="any" output="false">
     	<cfreturn this />
+    </cffunction>
+
+    <cffunction name="_anythingToRender" access="private" returntype="boolean" output="false">
+    	<cfargument name="filters" type="struct" required="true" />
+
+    	<cfreturn _getIncludeAllByDefault() or ArrayLen( filters.packages ) or ArrayLen( filters.files ) />
     </cffunction>
 
 <!--- plain old instance property accessors (private) --->
