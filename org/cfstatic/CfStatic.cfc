@@ -118,7 +118,7 @@
 		<cfargument name="debugMode" type="boolean" required="false" default="#_getDebugAllowed() and StructKeyExists(url, _getDebugKey()) and url[_getDebugKey()] EQ _getDebugPassword()#" hint="Whether or not to render the source files (as opposed to the compiled files). You should use the debug url parameter (see cfstatic config options) rather than manually setting this argument, but it is included here should you need it." />
 
 		<cfscript>
-			var str				= CreateObject("java","java.lang.StringBuffer");
+			var str				= $getStringBuffer();
 			var minification 	= iif(arguments.debugMode, DE('none'), DE(_getMinifyMode()));
 			var filters			= "";
 
@@ -416,7 +416,7 @@
 			var package		= "";
 			var files		= "";
 			var file		= "";
-			var content		= CreateObject("java","java.lang.StringBuffer");
+			var content		= $getStringBuffer();
 			var i			= "";
 			var n			= "";
 			var filePath	= "";
@@ -442,7 +442,7 @@
 			}
 
 			// css
-			content		= CreateObject("java","java.lang.StringBuffer");
+			content		= $getStringBuffer();
 			if( _compilationNecessary(_getCssPackages() ) ){
 				packages		= _getCssPackages().getOrdered();
 				for(i=1; i LTE ArrayLen(packages); i++){
@@ -479,7 +479,7 @@
 			// js
 			packages		= _getJsPackages().getOrdered();
 			for(i=1; i LTE ArrayLen(packages); i++){
-				content			= CreateObject("java","java.lang.StringBuffer");
+				content			= $getStringBuffer();
 				package		= _getJsPackages().getPackage(packages[i]);
 				if( (_getDownloadexternals() OR packages[i] NEQ 'external') AND _compilationNecessary( package ) ){
 
@@ -500,7 +500,7 @@
 			// css
 			packages		= _getCssPackages().getOrdered();
 			for(i=1; i LTE ArrayLen(packages); i++){
-				content			= CreateObject("java","java.lang.StringBuffer");
+				content			= $getStringBuffer();
 				package		= _getCssPackages().getPackage(packages[i]);
 				if( ( _compilationNecessary( package ) ) AND (_getDownloadexternals() OR packages[i] NEQ 'external') ){
 					files			= package.getOrdered();

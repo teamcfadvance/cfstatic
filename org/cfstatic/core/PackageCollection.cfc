@@ -43,7 +43,7 @@
 		<cfargument name="includeExternals" type="boolean" required="false" default="true" hint="Whether or not to download external dependencies and include them in the returned collection string" />
 
 		<cfscript>
-			var str			= createObject("java","java.lang.StringBuffer");
+			var str			= $getStringBuffer();
 			var packages	= getOrdered();
 			var i			= 0;
 
@@ -65,7 +65,7 @@
 		<cfargument name="charset"      type="string" required="false" default="utf-8" />
 
 		<cfscript>
-			var str			=  CreateObject("java","java.lang.StringBuffer");
+			var str			=  $getStringBuffer();
 			var included    = false;
 			var minify		= "";
 			var packages	= "";

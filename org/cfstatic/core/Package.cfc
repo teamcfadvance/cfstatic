@@ -72,7 +72,7 @@
 
 	<cffunction name="getContent" access="public" returntype="string" output="false" hint="I return the content of all the static files within this package (in the correct order)">
 		<cfscript>
-			var str		= CreateObject("java","java.lang.StringBuffer");
+			var str		= $getStringBuffer();
 			var files	= getOrdered();
 			var i		= 0;
 
@@ -98,7 +98,7 @@
 
 			switch(arguments.minification){
 				case 'none': case 'file':
-					str = CreateObject("java","java.lang.StringBuffer");
+					str = $getStringBuffer();
 					files = getOrdered();
 					for(i=1; i LTE ArrayLen(files); i++){
 						if(not ArrayLen(arguments.includeFiles) or arguments.includeFiles.contains(JavaCast('string', files[i]))){

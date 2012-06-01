@@ -403,6 +403,10 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="$getStringBuffer" access="private" returntype="any" output="false">
+		<cfreturn CreateObject("java","java.lang.StringBuffer") />
+	</cffunction>
+
 <!--- accessors --->
 	<cffunction name="_setJavaLoader" access="private" returntype="void" output="false">
 		<cfargument name="javaLoader" required="true" type="any" />
