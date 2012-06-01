@@ -263,21 +263,18 @@
 
 						// setup the mapping structure for it
 						mappings[include] = StructNew();
-						mappings[include].packages = ArrayNew(1);
+						mappings[include].packages = mappings[pkgInclude].packages;
 						mappings[include].files    = ArrayNew(1);
-
-						// add the package to the mapping when we are in package mode
-						if ( _getMinifyMode() EQ 'package' ){
-							mappings[include].packages = mappings[pkgInclude].packages;
-						}
 
 						// add the file itself
 						ArrayAppend( mappings[include].files, files[n]);
+						ArrayAppend( mappings[pkgInclude].files, files[n]);
 
 						// add all the file's dependencies
 						dependencies = file.getDependencies( recursive = true );
 						for(x=1; x LTE ArrayLen(dependencies); x++){
 							ArrayAppend( mappings[include].files, dependencies[x].getPath() );
+							ArrayAppend( mappings[pkgInclude].files, dependencies[x].getPath() );
 						}
 					}
 				}
