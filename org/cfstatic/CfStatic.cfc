@@ -171,7 +171,7 @@
 			_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js'  ) );
 			_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css' ) );
 
-			_calculateMappings();
+			_cacheIncludeMappings();
 
 			_compileCssAndJavascript();
 		</cfscript>
@@ -194,103 +194,94 @@
 		) />
 	</cffunction>
 
-	<cffunction name="_calculateMappings" access="private" returntype="void" output="false" hint="I calculate the include mappings. The mappings are a quick referenced storage of a given 'include' string that a coder might use to include a package or file that is mapped to the resultant set of packages and files that it might need to include given its dependencies. These mappings then negate the need to calculate dependencies on every request (making cfstatic super fast).">
+	<cffunction name="_cacheIncludeMappings" access="private" returntype="void" output="false" hint="I calculate the include mappings. The mappings are a quick referenced storage of a given 'include' string that a coder might use to include a package or file that is mapped to the resultant set of packages and files that it might need to include given its dependencies. These mappings then negate the need to calculate dependencies on every request (making cfstatic super fast).">
 		<cfscript>
-			var collection		= "";
-			var packages		= "";
-			var package			= "";
-			var files			= "";
-			var file			= "";
-			var dependencies	= "";
-			var i				= "";
-			var n				= "";
-			var x				= "";
-			var type			= "";
-			var rootDir			= "";
-			var types			= ListToArray("js,css");
-			var mappings		= StructNew();
-			var include			= "";
-			var pkgInclude		= "";
+			var jsPackages  = _getJsPackages().getOrdered();
+			var cssPackages = _getCssPackages().getOrdered();
+			var mappings    = StructNew();
+			var i           = 0;
 
-			// silly little loop to repeat code for both js and css
-			for(type=1; type LTE 2; type++){
-				mappings = StructNew();
-
-				if ( types[type] EQ 'js' ) {
-					collection	= _getJsPackages();
-					rootDir		= _getJsDirectory();
-				} else {
-					collection	= _getCssPackages();
-					rootDir		= _getCssDirectory();
-				}
-
-				// loop over packages in our js or css package collection
-				packages = collection.getOrdered();
-				for(i=1; i LTE ArrayLen(packages); i++){
-					package = collection.getPackage(packages[i]);
-
-					// figure out the include name that coder will use to include it
-					if ( packages[i] EQ "external" ) {
-						include = "external";
-					} else {
-						include = "/#rootDir##packages[i]#";
-					}
-
-					// setup the mapping structure for it
-					mappings[include] = StructNew();
-					mappings[include].packages = ArrayNew(1);
-					mappings[include].files = ArrayNew(1);
-
-					// add the package itself to the list of packages for the include
-					ArrayAppend( mappings[include].packages, packages[i]);
-
-					// get the packages dependency packages and add them to the list of packages
-					dependencies = package.getDependencies( recursive = true );
-					for(n=1; n LTE ArrayLen(dependencies); n++){
-						ArrayAppend( mappings[include].packages, dependencies[n]);
-					}
-				}
-
-				// finish calculating all the package mappings before looping over them all again
-				// to calculate the file mappings (we can make use of the already figured out package mappings, follow?)
-				for(i=1; i LTE ArrayLen(packages); i++){
-					package = collection.getPackage(packages[i]);
-					files = package.getOrdered();
-
-					// loop over the package files
-					for(n=1; n LTE ArrayLen(files); n++){
-						file = package.getStaticFile(files[n]);
-
-						// figure out the include name that coder will use to include the file
-						if ( packages[i] EQ "external" ) {
-							include = files[n];
-							pkgInclude = "external";
-						} else {
-							include = "/#rootDir##packages[i]##ListLast(files[n], '/')#";
-							pkgInclude = "/#rootDir##packages[i]#";
-						}
-
-						// setup the mapping structure for it
-						mappings[include] = StructNew();
-						mappings[include].packages = mappings[pkgInclude].packages;
-						mappings[include].files    = ArrayNew(1);
-
-						// add the file itself
-						ArrayAppend( mappings[include].files, files[n]);
-						ArrayAppend( mappings[pkgInclude].files, files[n]);
-
-						// add all the file's dependencies
-						dependencies = file.getDependencies( recursive = true );
-						for(x=1; x LTE ArrayLen(dependencies); x++){
-							ArrayAppend( mappings[include].files, dependencies[x].getPath() );
-							ArrayAppend( mappings[pkgInclude].files, dependencies[x].getPath() );
-						}
-					}
-				}
-
-				// finally, persist the mappings for the life of this object
-				_setIncludeMappings( mappings, types[type] );
+			for( i=1; i LTE ArrayLen( jsPackages ); i=i+1 ){
+				mappings = _getIncludeMappingsForPackage( jsPackages[i], 'js', mappings );
 			}
+			_setIncludeMappings( mappings, 'js' );
+
+			mappings = StructNew();
+			for( i=1; i LTE ArrayLen( cssPackages ); i=i+1 ){
+				mappings = _getIncludeMappingsForPackage( cssPackages[i], 'css', mappings );
+			}
+			_setIncludeMappings( mappings, 'css' );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_getIncludeMappingsForPackage" access="private" returntype="struct" output="false">
+		<cfargument name="packageName" type="string" required="true" />
+		<cfargument name="packageType" type="string" required="true" />
+		<cfargument name="mappings"    type="struct" required="true" />
+
+		<cfscript>
+			var package      = _getPackage( arguments.packageName, arguments.packageType );
+			var include      = arguments.packageName;
+			var rootDir      = iif( arguments.packageType EQ 'css', DE( _getCssDirectory() ), DE( _getJsDirectory() ) );
+			var dependencies = package.getDependencies( recursive=true );
+			var files        = package.getOrdered();
+			var i            = 0;
+
+			if ( include NEQ 'externals' ) {
+				include = '/' & rootDir & include;
+			}
+
+			mappings[ include ]          = StructNew();
+			mappings[ include ].packages = ArrayNew(1);
+			mappings[ include ].files    = ArrayNew(1);
+
+			ArrayAppend( mappings[ include ].packages, packageName );
+
+			for( i=1; i LTE ArrayLen(dependencies); i++ ){
+				ArrayAppend( mappings[ include ].packages, dependencies[i] );
+			}
+
+			for( i=1; i LTE ArrayLen( files ); i++ ){
+				mappings = _getIncludeMappingsForFile(
+					  filePath   = files[i]
+					, file       = package.getStaticFile( files[i] )
+					, pkgInclude = include
+					, mappings   = mappings
+				);
+			}
+
+			return mappings;
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_getIncludeMappingsForFile" access="private" returntype="struct" output="false">
+		<cfargument name="filePath"   type="string" required="true" />
+		<cfargument name="file"       type="any"    required="true" />
+		<cfargument name="pkgInclude" type="string" required="true" />
+		<cfargument name="mappings"   type="struct" required="true" />
+
+		<cfscript>
+			var include      = filePath;
+			var dependencies = file.getDependencies( recursive = true );
+			var i            = 1;
+
+			if ( pkgInclude NEQ 'externals' ) {
+				include = pkgInclude & ListLast( include, '/' );
+			}
+
+			mappings[include]          = StructNew();
+			mappings[include].packages = mappings[pkgInclude].packages;
+			mappings[include].files    = ArrayNew(1);
+
+			ArrayAppend( mappings[include].files   , filePath );
+			ArrayAppend( mappings[pkgInclude].files, filePath );
+
+			for( i=1; i LTE ArrayLen( dependencies ); i++ ){
+				ArrayAppend( mappings[include].files   , dependencies[i].getPath() );
+				ArrayAppend( mappings[pkgInclude].files, dependencies[i].getPath() );
+			}
+
+			return mappings;
 		</cfscript>
 	</cffunction>
 
@@ -858,6 +849,22 @@
 	</cffunction>
 	<cffunction name="_getCssPackages" access="private" returntype="org.cfstatic.core.PackageCollection" output="false">
 		<cfreturn _cssPackages />
+	</cffunction>
+
+	<cffunction name="_getPackage" access="private" returntype="any" output="false">
+		<cfargument name="packageName" type="string" required="true" />
+		<cfargument name="packageType" type="string" required="true" />
+
+		<cfscript>
+			var pkgCollection = "";
+			if ( arguments.packageType EQ 'css' ) {
+				pkgCollection = _getCssPackages();
+			} else {
+				pkgCollection = _getJsPackages();
+			}
+
+			return pkgCollection.getPackage( arguments.packageName );
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="_setYuiCompressor" access="private" returntype="void" output="false">
