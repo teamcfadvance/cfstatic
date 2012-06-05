@@ -641,6 +641,28 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t27_cfstatic_shouldThrowError_whenOutputFolderDoesNotExistAndCannotBeCreated" returntype="void">
+		<cfscript>
+			var failed = false;
+
+			try {
+				cfstatic.init(
+					  staticDirectory = "/nonexistant/dir/"
+					, staticUrl       = "/any/old/thing"
+					, minifyMode      = "none"
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				);
+
+			} catch ( "org.cfstatic.CfStatic.badOutputDir" e ) {
+				if ( e.message EQ "The output directory, '/nonexistant/dir/min', does not exist and could not be created by CfStatic." ) {
+					failed = true;
+				}
+			}
+
+			super.Assert( failed, "CfStatic did not throw an appropriate error when the output directory could not be created." );
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
@@ -654,10 +676,9 @@
 		<cfif DirectoryExists(ExpandPath(dir))>
 			<cfdirectory action="list" directory="#ExpandPath(dir)#" name="files" />
 			<cfloop query="files">
-				<cfif ListFindNoCase('js,css', ListLast(name, '.'))>
-			    	<cffile action="delete" file="#directory#/#name#" />
-			    </cfif>
+		    	<cffile action="delete" file="#directory#/#name#" />
 			</cfloop>
+			<cfdirectory action="delete" directory="#ExpandPath(dir)#" />
 		</cfif>
 
 		<!--- compiled less files --->

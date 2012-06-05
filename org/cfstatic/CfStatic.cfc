@@ -740,7 +740,21 @@
 
 	<cffunction name="_setOutputDirectory" access="private" returntype="void" output="false">
 		<cfargument name="outputDirectory" required="true" type="string" />
-		<cfset _outputDirectory = arguments.outputDirectory />
+
+		<cfscript>
+			if ( not directoryExists( arguments.outputDirectory ) ) {
+				try {
+					$directoryCreate( arguments.outputDirectory );
+				} catch( "java.io.IOException" e ) {
+					$throw(  type    = "org.cfstatic.CfStatic.badOutputDir"
+					       , message = "The output directory, '#arguments.outputDirectory#', does not exist and could not be created by CfStatic."
+					       , detail  = e.detail
+					);
+				}
+			}
+
+			_outputDirectory = arguments.outputDirectory;
+		</cfscript>
 	</cffunction>
 	<cffunction name="_getOutputDirectory" access="private" returntype="string" output="false">
 		<cfreturn _outputDirectory />
