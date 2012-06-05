@@ -48,6 +48,12 @@
 		</cfloop>
 	</cffunction>
 
+	<cffunction name="$directoryCreate" access="public" returntype="any" output="false">
+		<cfargument name="directory" type="string" required="true" />
+
+		<cfdirectory action="create" directory="#arguments.directory#" />
+	</cffunction>
+
 	<cffunction name="$fileRead" access="private" returntype="string" output="false" hint="I return the content of the given file (path)">
 		<cfargument name="path" type="string" required="true" />
 
