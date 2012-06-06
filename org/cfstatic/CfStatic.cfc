@@ -57,31 +57,31 @@
 		<cfargument name="lessGlobals"         type="string"  required="false" default=""        hint="Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list" />
 
 		<cfscript>
-			var rootDir = $normalizeUnixAndWindowsPaths( $ensureFullDirectoryPath( arguments.staticDirectory ) );
+			var rootDir = $normalizeUnixAndWindowsPaths( $ensureFullDirectoryPath( staticDirectory ) );
 
-			_setRootDirectory      ( rootDir                                                          );
-			_setJsDirectory        ( arguments.jsDirectory                                            );
-			_setCssDirectory       ( arguments.cssDirectory                                           );
-			_setOutputDirectory    ( $listAppend(rootDir            , arguments.outputDirectory, '/') );
-			_setJsUrl              ( $listAppend(arguments.staticUrl, arguments.jsDirectory    , '/') );
-			_setCssUrl             ( $listAppend(arguments.staticUrl, arguments.cssDirectory   , '/') );
-			_setMinifiedUrl        ( $listAppend(arguments.staticUrl, arguments.outputDirectory, '/') );
-			_setMinifyMode         ( arguments.minifyMode                                             );
-			_setDownloadExternals  ( arguments.downloadExternals                                      );
-			_setDebugAllowed       ( arguments.debugAllowed                                           );
-			_setDebugKey           ( arguments.debugKey                                               );
-			_setDebugPassword      ( arguments.debugPassword                                          );
-			_setForceCompilation   ( arguments.forceCompilation                                       );
-			_setCheckForUpdates    ( arguments.checkForUpdates                                        );
-			_setAddCacheBusters    ( arguments.addCacheBusters                                        );
-			_setIncludeAllByDefault( arguments.includeAllByDefault                                    );
-			_setEmbedCssImages     ( arguments.embedCssImages                                         );
-			_setIncludePattern     ( arguments.includePattern                                         );
-			_setExcludePattern     ( arguments.excludePattern                                         );
-			_setOutputCharset      ( arguments.outputCharset                                          );
-			_setLessGlobals        ( arguments.lessGlobals                                            );
+			_setRootDirectory      ( rootDir                                      );
+			_setJsDirectory        ( jsDirectory                                  );
+			_setCssDirectory       ( cssDirectory                                 );
+			_setOutputDirectory    ( $listAppend(rootDir  , outputDirectory, '/') );
+			_setJsUrl              ( $listAppend(staticUrl, jsDirectory    , '/') );
+			_setCssUrl             ( $listAppend(staticUrl, cssDirectory   , '/') );
+			_setMinifiedUrl        ( $listAppend(staticUrl, outputDirectory, '/') );
+			_setMinifyMode         ( minifyMode                                   );
+			_setDownloadExternals  ( downloadExternals                            );
+			_setDebugAllowed       ( debugAllowed                                 );
+			_setDebugKey           ( debugKey                                     );
+			_setDebugPassword      ( debugPassword                                );
+			_setForceCompilation   ( forceCompilation                             );
+			_setCheckForUpdates    ( checkForUpdates                              );
+			_setAddCacheBusters    ( addCacheBusters                              );
+			_setIncludeAllByDefault( includeAllByDefault                          );
+			_setEmbedCssImages     ( embedCssImages                               );
+			_setIncludePattern     ( includePattern                               );
+			_setExcludePattern     ( excludePattern                               );
+			_setOutputCharset      ( outputCharset                                );
+			_setLessGlobals        ( lessGlobals                                  );
 
-			_loadCompilers( javaLoaderScope = arguments.javaLoaderScope );
+			_loadCompilers( javaLoaderScope = javaLoaderScope );
 			_processStaticFiles();
 
 			return this;
@@ -94,7 +94,7 @@
 
 		<cfscript>
 			var includes = _getRequestIncludes();
-			var include  = _appendFileTypesToSpecialIncludes( arguments.resource );
+			var include  = _appendFileTypesToSpecialIncludes( resource );
 
 			ArrayAppend( includes, include );
 
@@ -108,7 +108,7 @@
 		<cfargument name="data" type="struct" required="true" hint="Data to be outputted as javascript variables. All keys in this structure will then be available to your javascript, in an object named 'cfrequest'." />
 
 		<cfscript>
-			StructAppend( _getRequestData(), arguments.data );
+			StructAppend( _getRequestData(), data );
 
 			return _chainable();
 		</cfscript>
@@ -121,9 +121,9 @@
 		<cfscript>
 			var filters    = "";
 			var buffer     = $getStringBuffer();
-			var renderCss  = not StructKeyExists( arguments, 'type' ) or arguments.type eq 'css';
-			var renderJs   = not StructKeyExists( arguments, 'type' ) or arguments.type eq 'js';
-			var minifyMode = iif( arguments.debugMode, DE('none'), DE( _getMinifyMode() ) );
+			var renderCss  = not StructKeyExists( arguments, 'type' ) or type eq 'css';
+			var renderJs   = not StructKeyExists( arguments, 'type' ) or type eq 'js';
+			var minifyMode = iif( debugMode, DE('none'), DE( _getMinifyMode() ) );
 
 			if ( renderCss ) {
 				filters = _getRequestIncludeFilters( 'css' );
@@ -184,10 +184,10 @@
 		<cfargument name="fileType"      type="string" required="true" />
 
 		<cfreturn CreateObject('component', 'org.cfstatic.core.PackageCollection').init(
-			  rootDirectory  = arguments.rootDirectory
-			, rootUrl        = arguments.rootUrl
-			, minifiedUrl    = arguments.minifiedUrl
-			, fileType       = arguments.fileType
+			  rootDirectory  = rootDirectory
+			, rootUrl        = rootUrl
+			, minifiedUrl    = minifiedUrl
+			, fileType       = fileType
 			, cacheBust      = _getAddCacheBusters()
 			, includePattern = _getIncludePattern()
 			, excludePattern = _getExcludePattern()
@@ -220,9 +220,9 @@
 		<cfargument name="mappings"    type="struct" required="true" />
 
 		<cfscript>
-			var package      = _getPackage( arguments.packageName, arguments.packageType );
-			var include      = arguments.packageName;
-			var rootDir      = iif( arguments.packageType EQ 'css', DE( _getCssDirectory() ), DE( _getJsDirectory() ) );
+			var package      = _getPackage( packageName, packageType );
+			var include      = packageName;
+			var rootDir      = iif( packageType EQ 'css', DE( _getCssDirectory() ), DE( _getJsDirectory() ) );
 			var dependencies = package.getDependencies( recursive=true );
 			var files        = package.getOrdered();
 			var i            = 0;
@@ -290,23 +290,22 @@
 
 		<cfscript>
 			var includes		= _getRequestIncludes();
-			var mappings		= _getIncludeMappings( arguments.type );
+			var mappings		= _getIncludeMappings( type );
 			var filters			= StructNew();
 			var i				= 0;
 
 			filters.packages	= ArrayNew(1);
 			filters.files		= ArrayNew(1);
 
-			// loop over the includes and add their precalculated mappings of lists of dependencies, etc.
-			for(i=1; i LTE ArrayLen(includes); i++){
-				if ( StructKeyExists(mappings, includes[i]) ) {
+			for( i=1; i LTE ArrayLen(includes); i++ ){
+				if ( StructKeyExists( mappings, includes[i] ) ) {
 					filters.packages = $arrayMerge( filters.packages, mappings[includes[i]].packages );
-					filters.files = $arrayMerge( filters.files, mappings[includes[i]].files );
+					filters.files    = $arrayMerge( filters.files   , mappings[includes[i]].files    );
 				}
 			}
 
 			filters.packages = $arrayRemoveDuplicates( filters.packages );
-			filters.files = $arrayRemoveDuplicates( filters.files );
+			filters.files    = $arrayRemoveDuplicates( filters.files    );
 
 			return filters;
 		</cfscript>
@@ -316,14 +315,15 @@
 		<cfargument name="javaLoaderScope" type="string" required="false" default="server" hint="The scope should the compilers be persisted">
 
 		<cfscript>
-			var jlScope = server;
+			var jlScope    = server;
 			var jlScopeKey = "_cfstaticJavaLoaders_v2";
-			if ( arguments.javaLoaderScope EQ 'application' ){
+
+			if ( javaLoaderScope EQ 'application' ){
 			    jlScope = application;
 			}
 
-			if ( not StructKeyExists(jlScope, jlScopeKey) ) {
-				jlScope[jlScopeKey] = _loadJavaLoaders();
+			if ( not StructKeyExists( jlScope, jlScopeKey ) ) {
+				jlScope[ jlScopeKey ] = _loadJavaLoaders();
 			}
 
 			_setYuiCompressor         ( CreateObject('component','org.cfstatic.util.YuiCompressor'       ).init( jlScope[jlScopeKey].yui                                      ) );
@@ -383,7 +383,7 @@
 			var needsCompiling  = "";
 			var lastModified    = "";
 
-			for(i=1; i LTE files.recordCount; i++){
+			for( i=1; i LTE files.recordCount; i++ ){
 				file = $normalizeUnixAndWindowsPaths( $listAppend( files.directory[i], files.name[i], '/') );
 				if ( $shouldFileBeIncluded( file, _getIncludePattern(), _getExcludePattern() ) ){
 					target         = file & '.css';
@@ -409,7 +409,7 @@
 			var compiled        = "";
 			var needsCompiling  = "";
 
-			for(i=1; i LTE files.recordCount; i++){
+			for( i=1; i LTE files.recordCount; i++ ){
 				file = $normalizeUnixAndWindowsPaths( $listAppend(files.directory[i], files.name[i], '/') );
 				if ( $shouldFileBeIncluded( file, _getIncludePattern(), _getExcludePattern() ) ){
 					target         = file & '.js';
@@ -436,41 +436,41 @@
 			var filePath	= "";
 			var fileName	= "";
 
-			// js
 			if ( _compilationNecessary(_getJsPackages() ) ) {
-				packages		= _getJsPackages().getOrdered();
-				for(i=1; i LTE ArrayLen(packages); i++){
+				packages = _getJsPackages().getOrdered();
+				for( i=1; i LTE ArrayLen( packages ); i++ ){
 					if ( _getDownloadexternals() OR packages[i] NEQ 'external' ) {
-						package		= _getJsPackages().getPackage(packages[i]);
-						files			= package.getOrdered();
-						for(n=1; n LTE ArrayLen(files); n++){
-							file		= package.getStaticFile( files[n] );
+						package = _getJsPackages().getPackage(packages[i]);
+						files	= package.getOrdered();
+
+						for( n=1; n LTE ArrayLen(files); n++ ){
+							file = package.getStaticFile( files[n] );
 							content.append( _compileJsFile( file ) );
 						}
 					}
 				}
 
-				fileName	= _getJsPackages().getMinifiedFileName();
-				filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-				$fileWrite(filePath, content.toString(), _getOutputCharset() );
+				fileName = _getJsPackages().getMinifiedFileName();
+				filePath = $listAppend( _getOutputDirectory(), filename, '/' );
+				$fileWrite( filePath, content.toString(), _getOutputCharset() );
 			}
 
-			// css
-			content		= $getStringBuffer();
+			content	= $getStringBuffer();
 			if ( _compilationNecessary(_getCssPackages() ) ) {
-				packages		= _getCssPackages().getOrdered();
-				for(i=1; i LTE ArrayLen(packages); i++){
-					package		= _getCssPackages().getPackage(packages[i]);
-					files		= package.getOrdered();
-					for(n=1; n LTE ArrayLen(files); n++){
-						file		= package.getStaticFile( files[n] );
+				packages = _getCssPackages().getOrdered();
+				for( i=1; i LTE ArrayLen(packages); i++ ){
+					package	= _getCssPackages().getPackage(packages[i]);
+					files	= package.getOrdered();
+
+					for( n=1; n LTE ArrayLen(files); n++ ){
+						file = package.getStaticFile( files[n] );
 						content.append( _compileCssFile( file ) );
 					}
 				}
 
-				fileName	= _getCssPackages().getMinifiedFileName();
-				filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-				$fileWrite(filePath, content.toString(), _getOutputCharset() );
+				fileName = _getCssPackages().getMinifiedFileName();
+				filePath = $listAppend( _getOutputDirectory(), filename, '/' );
+				$fileWrite( filePath, content.toString(), _getOutputCharset() );
 			}
 
 			$directoryClean( directory=_getOutputDirectory(), excludeFiles=ListAppend( _getJsPackages().getMinifiedFileName(), _getCssPackages().getMinifiedFileName() ), fileTypes="css,js" );
@@ -479,56 +479,57 @@
 
 	<cffunction name="_compilePackages" access="private" returntype="void" output="false" hint="I compile all the js and css files into a single file per package (directory containing files)">
 		<cfscript>
-			var packages		= "";
-			var package			= "";
-			var files			= "";
-			var file 			= "";
-			var content			= "";
-			var i				= "";
-			var n				= "";
-			var filePath		= "";
-			var fileName		= "";
-			var fileList        = "";
+			var packages = "";
+			var package  = "";
+			var files    = "";
+			var file     = "";
+			var content  = "";
+			var i        = "";
+			var n        = "";
+			var filePath = "";
+			var fileName = "";
+			var fileList = "";
 
-			// js
-			packages		= _getJsPackages().getOrdered();
-			for(i=1; i LTE ArrayLen(packages); i++){
-				content			= $getStringBuffer();
-				package		= _getJsPackages().getPackage(packages[i]);
+			packages = _getJsPackages().getOrdered();
+			for( i=1; i LTE ArrayLen(packages); i++ ){
+				content = $getStringBuffer();
+				package = _getJsPackages().getPackage( packages[i] );
+
 				if ( ( _getDownloadexternals() OR packages[i] NEQ 'external' ) AND _compilationNecessary( package ) ) {
+					files = package.getOrdered();
 
-					files			= package.getOrdered();
-					for(n=1; n LTE ArrayLen(files); n++){
-						file		= package.getStaticFile( files[n] );
+					for( n=1; n LTE ArrayLen(files); n++ ){
+						file = package.getStaticFile( files[n] );
 						content.append( _compileJsFile( file ) );
 					}
 
-					fileName	= package.getMinifiedFileName();
-					filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
+					fileName = package.getMinifiedFileName();
+					filePath = $listAppend( _getOutputDirectory(), filename, '/' );
 					$fileWrite(filePath, content.toString(), _getOutputCharset() );
 				}
 
-				fileList = ListAppend(fileList, package.getMinifiedFileName());
+				fileList = ListAppend( fileList, package.getMinifiedFileName() );
 			}
 
-			// css
-			packages		= _getCssPackages().getOrdered();
-			for(i=1; i LTE ArrayLen(packages); i++){
-				content			= $getStringBuffer();
-				package		= _getCssPackages().getPackage(packages[i]);
+			packages = _getCssPackages().getOrdered();
+			for( i=1; i LTE ArrayLen(packages); i++ ){
+				content = $getStringBuffer();
+				package	= _getCssPackages().getPackage(packages[i]);
+
 				if ( ( _compilationNecessary( package ) ) AND ( _getDownloadexternals() OR packages[i] NEQ 'external' ) ) {
-					files			= package.getOrdered();
-					for(n=1; n LTE ArrayLen(files); n++){
-						file		= package.getStaticFile( files[n] );
+					files = package.getOrdered();
+
+					for( n=1; n LTE ArrayLen(files); n++ ){
+						file = package.getStaticFile( files[n] );
 						content.append( _compileCssFile( file ) );
 					}
 
-					fileName	= package.getMinifiedFileName();
-					filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-					$fileWrite(filePath, content.toString(), _getOutputCharset() );
+					fileName = package.getMinifiedFileName();
+					filePath = $listAppend( _getOutputDirectory(), filename, '/' );
+					$fileWrite( filePath, content.toString(), _getOutputCharset() );
 				}
 
-				fileList = ListAppend(fileList, package.getMinifiedFileName());
+				fileList = ListAppend( fileList, package.getMinifiedFileName() );
 			}
 
 			$directoryClean( directory=_getOutputDirectory(), excludeFiles=fileList, fileTypes="css,js" );
@@ -537,53 +538,53 @@
 
 	<cffunction name="_compileFiles" access="private" returntype="void" output="false" hint="I compile all the js and css files, compiling each single source file as a single compiled file.">
 		<cfscript>
-			var packages	= "";
-			var package		= "";
-			var files		= "";
-			var file		= "";
-			var content		= "";
-			var i			= "";
-			var n			= "";
-			var filePath	= "";
-			var fileName	= "";
-			var fileList    = "";
+			var packages = "";
+			var package  = "";
+			var files    = "";
+			var file     = "";
+			var content  = "";
+			var i        = "";
+			var n        = "";
+			var filePath = "";
+			var fileName = "";
+			var fileList = "";
 
-			// js
-			packages		= _getJsPackages().getOrdered();
-			for(i=1; i LTE ArrayLen(packages); i++){
-				package			= _getJsPackages().getPackage(packages[i]);
+			packages = _getJsPackages().getOrdered();
+			for( i=1; i LTE ArrayLen(packages); i++ ){
 				if ( _getDownloadexternals() OR packages[i] NEQ 'external' ) {
-					files			= package.getOrdered();
-					for(n=1; n LTE ArrayLen(files); n++){
-						file		= package.getStaticFile( files[n] );
+					package = _getJsPackages().getPackage(packages[i]);
+					files   = package.getOrdered();
+
+					for( n=1; n LTE ArrayLen(files); n++ ){
+						file = package.getStaticFile( files[n] );
 
 						if ( _compilationNecessary( file ) ) {
-							content		= _compileJsFile( file );
-							fileName	= file.getMinifiedFileName();
-							filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-							$fileWrite(filePath, content, _getOutputCharset() );
+							content	 = _compileJsFile( file );
+							fileName = file.getMinifiedFileName();
+							filePath = $listAppend( _getOutputDirectory(), filename, '/' );
+							$fileWrite( filePath, content, _getOutputCharset() );
 						}
-						fileList = ListAppend(fileList, file.getMinifiedFileName());
+						fileList = ListAppend(fileList, fileName );
 					}
 				}
 			}
 
-			// css
-			packages		= _getCssPackages().getOrdered();
-			for(i=1; i LTE ArrayLen(packages); i++){
+			packages = _getCssPackages().getOrdered();
+			for( i=1; i LTE ArrayLen(packages); i++ ){
 				if ( _getDownloadexternals() OR packages[i] NEQ 'external' ) {
-					package			= _getCssPackages().getPackage(packages[i]);
-					files			= package.getOrdered();
-					for(n=1; n LTE ArrayLen(files); n++){
-						file		= package.getStaticFile( files[n] );
+					package = _getCssPackages().getPackage(packages[i]);
+					files   = package.getOrdered();
+
+					for( n=1; n LTE ArrayLen(files); n++ ){
+						file = package.getStaticFile( files[n] );
 
 						if ( _compilationNecessary( file ) ) {
-							content		= _compileCssFile( file );
-							fileName	= file.getMinifiedFileName();
-							filePath	= $listAppend( _getOutputDirectory(), filename, '/' );
-							$fileWrite(filePath, content, _getOutputCharset() );
+							content  = _compileCssFile( file );
+							fileName = file.getMinifiedFileName();
+							filePath = $listAppend( _getOutputDirectory(), filename, '/' );
+							$fileWrite( filePath, content, _getOutputCharset() );
 						}
-						fileList = ListAppend(fileList, file.getMinifiedFileName());
+						fileList = ListAppend(fileList, fileName );
 					}
 				}
 			}
@@ -596,13 +597,13 @@
 		<cfargument name="file" type="org.cfstatic.core.StaticFile" required="true" hint="The staticFile object representing the javascript file to compile" />
 
 		<cfscript>
-			// if the file is minified already, just return its content
-			if ( arguments.file.getProperty('minified', 'false', 'string') ) {
-				return arguments.file.getContent();
+			var alreadyMinified = file.getProperty('minified', 'false', 'string');
+
+			if ( alreadyMinified ) {
+				return file.getContent();
 			}
 
-			// else, return compressed version
-			return _getYuiCompressor().compressJs( arguments.file.getContent() );
+			return _getYuiCompressor().compressJs( file.getContent() );
 		</cfscript>
     </cffunction>
 
@@ -610,15 +611,13 @@
 		<cfargument name="file" type="org.cfstatic.core.StaticFile" required="true" hint="The staticFile object representing the css file to compile" />
 
 		<cfscript>
-			var content = arguments.file.getContent();
+			var content         = file.getContent();
+			var alreadyMinified = file.getProperty('minified', 'false', 'string');
 
-			// compress using yui compressor (if not already minified)
-			if ( not arguments.file.getProperty('minified', 'false', 'string') ) {
+			if ( not alreadyMinified ) {
 				content = _getYuiCompressor().compressCss( content );
 			}
-
-			// parse relative image paths
-			content	= _getCssImageParser().parse( content, arguments.file.getPath(), _getEmbedCssImages() );
+			content	= _getCssImageParser().parse( content, file.getPath(), _getEmbedCssImages() );
 
 			return content;
 		</cfscript>
@@ -628,20 +627,17 @@
 		<cfargument name="collectionPackageOrFile" type="any" required="true" hint="This could be either a staticFile, package or packageCollection" />
 
 		<cfscript>
-			var minFile = $listAppend(_getOutputDirectory(), arguments.collectionPackageOrFile.getMinifiedFileName(), '/');
+			var minFile = $listAppend( _getOutputDirectory(), collectionPackageOrFile.getMinifiedFileName(), '/' );
 
-			// if we've been told to, we ought to...
 			if ( _getForceCompilation() ) {
 				return true;
 			}
 
-			// if the minified file does not exist already we ought to compile
 			if ( not fileExists(minFile) ) {
 				return true;
 			}
 
-			// otherwise, if the minified file has not been modified since the last modification to the source file(s), we ought to compile
-			return $fileLastModified(minFile) LT arguments.collectionPackageOrFile.getLastModified();
+			return $fileLastModified( minFile ) LT collectionPackageOrFile.getLastModified();
 		</cfscript>
 	</cffunction>
 
@@ -658,7 +654,7 @@
 
 	<cffunction name="_setRequestIncludes" access="private" returntype="void" output="false" hint="I set the array of includes for this request">
 		<cfargument name="requestIncludes" required="true" type="array" />
-		<cfset request['_cfstaticIncludes'] = arguments.requestIncludes />
+		<cfset request['_cfstaticIncludes'] = requestIncludes />
 	</cffunction>
 	<cffunction name="_getRequestIncludes" access="private" returntype="array" output="false" hint="I get the array of includes for this request">
 		<cfscript>
@@ -672,7 +668,7 @@
 
 	<cffunction name="_setRequestData" access="private" returntype="void" output="false" hint="I set the structure of data to be rendered as javascript variables for this request">
     	<cfargument name="requestData" type="struct" required="true" />
-    	<cfset request['_cfstaticData'] = arguments.requestData />
+    	<cfset request['_cfstaticData'] = requestData />
     </cffunction>
 	<cffunction name="_getRequestData" access="private" returntype="struct" output="false" hint="I get the structure of data to be rendered as javascript variables for this request">
     	<cfscript>
@@ -686,11 +682,9 @@
 
 	<cffunction name="_setupRequest" access="public" returntype="void" output="false" hint="I setup all the skeleton data for a new request. I also check to see whether or not we should attempt to recompile all the static files (dev mode)">
 		<cfscript>
-			// set skeleton data
-			_setRequestIncludes(ArrayNew(1));
-			_setRequestData( StructNew() );
+			_setRequestIncludes( ArrayNew(1) );
+			_setRequestData    ( StructNew() );
 
-			// check whether or not we should try to recompile
 			if ( _getCheckForUpdates() ) {
 				_processStaticFiles();
 			}
@@ -701,14 +695,14 @@
     	<cfargument name="includedFile" type="string" required="true" />
 
     	<cfscript>
-    		var ext = ListLast( arguments.includedFile, '.' );
+    		var ext = ListLast( includedFile, '.' );
 
     		switch( ext ){
-    			case "less"   : return arguments.includedFile & '.css';
-    			case "coffee" : return arguments.includedFile & '.js';
+    			case "less"   : return includedFile & '.css';
+    			case "coffee" : return includedFile & '.js';
     		}
 
-    		return arguments.includedFile;
+    		return includedFile;
     	</cfscript>
     </cffunction>
 
@@ -728,12 +722,12 @@
     </cffunction>
     <cffunction name="_setRootDirectory" access="private" returntype="void" output="false">
     	<cfargument name="rootDirectory" type="string" required="true" />
-    	<cfset _rootDirectory = arguments.rootDirectory />
+    	<cfset _rootDirectory = rootDirectory />
     </cffunction>
 
 	<cffunction name="_setJsDirectory" access="private" returntype="void" output="false">
 		<cfargument name="jsDirectory" required="true" type="string" />
-		<cfset _jsDirectory = arguments.jsDirectory />
+		<cfset _jsDirectory = jsDirectory />
 	</cffunction>
 	<cffunction name="_getJsDirectory" access="private" returntype="string" output="false">
 		<cfreturn _jsDirectory />
@@ -741,7 +735,7 @@
 
 	<cffunction name="_setJsUrl" access="private" returntype="void" output="false">
 		<cfargument name="jsUrl" required="true" type="string" />
-		<cfset _jsUrl = arguments.jsUrl />
+		<cfset _jsUrl = jsUrl />
 	</cffunction>
 	<cffunction name="_getJsUrl" access="private" returntype="string" output="false">
 		<cfreturn _jsUrl />
@@ -749,7 +743,7 @@
 
 	<cffunction name="_setCssDirectory" access="private" returntype="void" output="false">
 		<cfargument name="cssDirectory" required="true" type="string" />
-		<cfset _cssDirectory = arguments.cssDirectory />
+		<cfset _cssDirectory = cssDirectory />
 	</cffunction>
 	<cffunction name="_getCssDirectory" access="private" returntype="string" output="false">
 		<cfreturn _cssDirectory />
@@ -757,7 +751,7 @@
 
 	<cffunction name="_setCssUrl" access="private" returntype="void" output="false">
 		<cfargument name="cssUrl" required="true" type="string" />
-		<cfset _cssUrl = arguments.cssUrl />
+		<cfset _cssUrl = cssUrl />
 	</cffunction>
 	<cffunction name="_getCssUrl" access="private" returntype="string" output="false">
 		<cfreturn _cssUrl />
@@ -767,18 +761,18 @@
 		<cfargument name="outputDirectory" required="true" type="string" />
 
 		<cfscript>
-			if ( not directoryExists( arguments.outputDirectory ) ) {
+			if ( not directoryExists( outputDirectory ) ) {
 				try {
-					$directoryCreate( arguments.outputDirectory );
+					$directoryCreate( outputDirectory );
 				} catch( "java.io.IOException" e ) {
 					$throw(  type    = "org.cfstatic.CfStatic.badOutputDir"
-					       , message = "The output directory, '#arguments.outputDirectory#', does not exist and could not be created by CfStatic."
+					       , message = "The output directory, '#outputDirectory#', does not exist and could not be created by CfStatic."
 					       , detail  = e.detail
 					);
 				}
 			}
 
-			_outputDirectory = arguments.outputDirectory;
+			_outputDirectory = outputDirectory;
 		</cfscript>
 	</cffunction>
 	<cffunction name="_getOutputDirectory" access="private" returntype="string" output="false">
@@ -787,7 +781,7 @@
 
 	<cffunction name="_setMinifiedUrl" access="private" returntype="void" output="false">
 		<cfargument name="minifiedUrl" required="true" type="string" />
-		<cfset _minifiedUrl = arguments.minifiedUrl />
+		<cfset _minifiedUrl = minifiedUrl />
 	</cffunction>
 	<cffunction name="_getMinifiedUrl" access="private" returntype="string" output="false">
 		<cfreturn _minifiedUrl />
@@ -795,7 +789,7 @@
 
 	<cffunction name="_setMinifyMode" access="private" returntype="void" output="false">
 		<cfargument name="minifyMode" required="true" type="string" />
-		<cfset _minifyMode = arguments.minifyMode />
+		<cfset _minifyMode = minifyMode />
 	</cffunction>
 	<cffunction name="_getMinifyMode" access="private" returntype="string" output="false">
 		<cfreturn _minifyMode />
@@ -803,7 +797,7 @@
 
 	<cffunction name="_setDownloadExternals" access="private" returntype="void" output="false">
 		<cfargument name="downloadExternals" required="true" type="boolean" />
-		<cfset _downloadExternals = arguments.downloadExternals />
+		<cfset _downloadExternals = downloadExternals />
 	</cffunction>
 	<cffunction name="_getDownloadExternals" access="private" returntype="boolean" output="false">
 		<cfreturn _downloadExternals />
@@ -811,7 +805,7 @@
 
 	<cffunction name="_setDebugAllowed" access="private" returntype="void" output="false">
 		<cfargument name="debugAllowed" required="true" type="boolean" />
-		<cfset _debugAllowed = arguments.debugAllowed />
+		<cfset _debugAllowed = debugAllowed />
 	</cffunction>
 	<cffunction name="_getDebugAllowed" access="private" returntype="boolean" output="false">
 		<cfreturn _debugAllowed />
@@ -819,7 +813,7 @@
 
 	<cffunction name="_setDebugKey" access="private" returntype="void" output="false">
 		<cfargument name="debugKey" required="true" type="string" />
-		<cfset _debugKey = arguments.debugKey />
+		<cfset _debugKey = debugKey />
 	</cffunction>
 	<cffunction name="_getDebugKey" access="private" returntype="string" output="false">
 		<cfreturn _debugKey />
@@ -827,7 +821,7 @@
 
 	<cffunction name="_setDebugPassword" access="private" returntype="void" output="false">
 		<cfargument name="debugPassword" required="true" type="string" />
-		<cfset _debugPassword = arguments.debugPassword />
+		<cfset _debugPassword = debugPassword />
 	</cffunction>
 	<cffunction name="_getDebugPassword" access="private" returntype="string" output="false">
 		<cfreturn _debugPassword />
@@ -835,7 +829,7 @@
 
 	<cffunction name="_setForceCompilation" access="private" returntype="void" output="false">
 		<cfargument name="forceCompilation" required="true" type="boolean" />
-		<cfset _forceCompilation = arguments.forceCompilation />
+		<cfset _forceCompilation = forceCompilation />
 	</cffunction>
 	<cffunction name="_getForceCompilation" access="private" returntype="boolean" output="false">
 		<cfreturn _forceCompilation />
@@ -846,12 +840,12 @@
     </cffunction>
     <cffunction name="_setCheckForUpdates" access="private" returntype="void" output="false">
     	<cfargument name="checkForUpdates" type="boolean" required="true" />
-    	<cfset _checkForUpdates = arguments.checkForUpdates />
+    	<cfset _checkForUpdates = checkForUpdates />
     </cffunction>
 
 	<cffunction name="_setJsPackages" access="private" returntype="void" output="false">
 		<cfargument name="jsPackages" required="true" type="org.cfstatic.core.PackageCollection" />
-		<cfset _jsPackages = arguments.jsPackages />
+		<cfset _jsPackages = jsPackages />
 	</cffunction>
 	<cffunction name="_getJsPackages" access="private" returntype="org.cfstatic.core.PackageCollection" output="false">
 		<cfreturn _jsPackages />
@@ -859,7 +853,7 @@
 
 	<cffunction name="_setCssPackages" access="private" returntype="void" output="false">
 		<cfargument name="cssPackages" required="true" type="org.cfstatic.core.PackageCollection" />
-		<cfset _cssPackages = arguments.cssPackages />
+		<cfset _cssPackages = cssPackages />
 	</cffunction>
 	<cffunction name="_getCssPackages" access="private" returntype="org.cfstatic.core.PackageCollection" output="false">
 		<cfreturn _cssPackages />
@@ -871,19 +865,19 @@
 
 		<cfscript>
 			var pkgCollection = "";
-			if ( arguments.packageType EQ 'css' ) {
+			if ( packageType EQ 'css' ) {
 				pkgCollection = _getCssPackages();
 			} else {
 				pkgCollection = _getJsPackages();
 			}
 
-			return pkgCollection.getPackage( arguments.packageName );
+			return pkgCollection.getPackage( packageName );
 		</cfscript>
 	</cffunction>
 
 	<cffunction name="_setYuiCompressor" access="private" returntype="void" output="false">
 		<cfargument name="yuiCompressor" required="true" type="any" />
-		<cfset _yuiCompressor = arguments.yuiCompressor />
+		<cfset _yuiCompressor = yuiCompressor />
 	</cffunction>
 	<cffunction name="_getYuiCompressor" access="private" returntype="any" output="false">
 		<cfreturn _yuiCompressor />
@@ -891,7 +885,7 @@
 
 	<cffunction name="_setLessCompiler" access="private" returntype="void" output="false">
 		<cfargument name="lessCompiler" required="true" type="any" />
-		<cfset _lessCompiler = arguments.lessCompiler />
+		<cfset _lessCompiler = lessCompiler />
 	</cffunction>
 	<cffunction name="_getLessCompiler" access="private" returntype="any" output="false">
 		<cfreturn _lessCompiler />
@@ -902,12 +896,12 @@
 	</cffunction>
 	<cffunction name="_setCoffeeScriptCompiler" access="private" returntype="void" output="false">
 		<cfargument name="CoffeeScriptCompiler" type="any" required="true" />
-		<cfset _CoffeeScriptCompiler = arguments.CoffeeScriptCompiler />
+		<cfset _CoffeeScriptCompiler = CoffeeScriptCompiler />
 	</cffunction>
 
 	<cffunction name="_setCssImageParser" access="private" returntype="void" output="false">
 		<cfargument name="cssImageParser" required="true" type="any" />
-		<cfset _cssImageParser = arguments.cssImageParser />
+		<cfset _cssImageParser = cssImageParser />
 	</cffunction>
 	<cffunction name="_getCssImageParser" access="private" returntype="any" output="false">
 		<cfreturn _cssImageParser />
@@ -917,11 +911,11 @@
 		<cfargument name="includeMappings" required="true" type="struct" />
 		<cfargument name="type" type="string" required="true" />
 
-		<cfset _includeMappings[arguments.type] = arguments.includeMappings />
+		<cfset _includeMappings[type] = includeMappings />
 	</cffunction>
 	<cffunction name="_getIncludeMappings" access="private" returntype="struct" output="false">
 		<cfargument name="type" type="string" required="true" />
-		<cfreturn _includeMappings[arguments.type] />
+		<cfreturn _includeMappings[type] />
 	</cffunction>
 
 	<cffunction name="_getAddCacheBusters" access="private" returntype="boolean" output="false">
@@ -929,7 +923,7 @@
 	</cffunction>
 	<cffunction name="_setAddCacheBusters" access="private" returntype="void" output="false">
 		<cfargument name="addCacheBusters" type="boolean" required="true" />
-		<cfset _addCacheBusters = arguments.addCacheBusters />
+		<cfset _addCacheBusters = addCacheBusters />
 	</cffunction>
 
 	<cffunction name="_getIncludeAllByDefault" access="private" returntype="boolean" output="false">
@@ -937,7 +931,7 @@
 	</cffunction>
 	<cffunction name="_setIncludeAllByDefault" access="private" returntype="void" output="false">
 		<cfargument name="includeAllByDefault" type="boolean" required="true" />
-		<cfset _includeAllByDefault = arguments.includeAllByDefault />
+		<cfset _includeAllByDefault = includeAllByDefault />
 	</cffunction>
 
 	<cffunction name="_getEmbedCssImages" access="private" returntype="string" output="false">
@@ -945,7 +939,7 @@
 	</cffunction>
 	<cffunction name="_setEmbedCssImages" access="private" returntype="void" output="false">
 		<cfargument name="embedCssImages" type="string" required="true" />
-		<cfset _embedCssImages = arguments.embedCssImages />
+		<cfset _embedCssImages = embedCssImages />
 	</cffunction>
 
 	<cffunction name="_getIncludePattern" access="private" returntype="string" output="false">
@@ -953,7 +947,7 @@
 	</cffunction>
 	<cffunction name="_setIncludePattern" access="private" returntype="void" output="false">
 		<cfargument name="includePattern" type="string" required="true" />
-		<cfset _includePattern = arguments.includePattern />
+		<cfset _includePattern = includePattern />
 	</cffunction>
 
 	<cffunction name="_getExcludePattern" access="private" returntype="string" output="false">
@@ -961,7 +955,7 @@
 	</cffunction>
 	<cffunction name="_setExcludePattern" access="private" returntype="void" output="false">
 		<cfargument name="excludePattern" type="string" required="true" />
-		<cfset _excludePattern = arguments.excludePattern />
+		<cfset _excludePattern = excludePattern />
 	</cffunction>
 
 	<cffunction name="_getOutputCharset" access="private" returntype="any" output="false">
@@ -969,7 +963,7 @@
 	</cffunction>
 	<cffunction name="_setOutputCharset" access="private" returntype="void" output="false">
 		<cfargument name="outputCharset" type="any" required="true" />
-		<cfset _outputCharset = arguments.outputCharset />
+		<cfset _outputCharset = outputCharset />
 	</cffunction>
 
 	<cffunction name="_getLessGlobals" access="private" returntype="string" output="false">
@@ -977,7 +971,7 @@
 	</cffunction>
 	<cffunction name="_setLessGlobals" access="private" returntype="void" output="false">
 		<cfargument name="LessGlobals" type="string" required="true" />
-		<cfset _LessGlobals = $normalizeUnixAndWindowsPaths( arguments.LessGlobals ) />
+		<cfset _LessGlobals = $normalizeUnixAndWindowsPaths( LessGlobals ) />
 	</cffunction>
 	<cffunction name="_scanForImportedLessFiles" access="private" returntype="any" output="false">
 		<cfscript>
@@ -1011,14 +1005,14 @@
 			var importPath    = "";
 			var i             = 0;
 
-			if ( fileExists( arguments.filePath ) ){
-				searchResults = $reSearch( '@import url\((.+?)\)', $fileRead( arguments.filePath ) );
+			if ( fileExists( filePath ) ){
+				searchResults = $reSearch( '@import url\((.+?)\)', $fileRead( filePath ) );
 
 				if ( StructKeyExists( searchResults, "$1" ) ) {
 					for( i=1; i LTE ArrayLen(searchResults.$1); i++){
 						importPath = Replace( searchResults.$1[i], '"', '', 'all' );
 						importPath = Replace( importPath, "'", '', 'all' );
-						importPath = getDirectoryFromPath(arguments.filePath) & Trim(importPath);
+						importPath = getDirectoryFromPath(filePath) & Trim(importPath);
 						imports = ListAppend(imports, importPath);
 						imports = ListAppend(imports, _readLessImports(importPath));
 					}
