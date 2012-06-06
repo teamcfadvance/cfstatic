@@ -663,6 +663,42 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t28_renderIncludes_shouldRenderConfiguredJsVar_forRenderingData" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+			var dataToInclude  = StructNew();
+
+			rootDir &= 'goodFiles/standardFolders/';
+
+			cfstatic.init(
+				  staticDirectory     = rootDir
+				, staticUrl           = "/assets"
+				, debugKey            = "doNotLetMxUnitDebugScrewTests"
+				, includeAllByDefault = false
+				, jsDataVariable      = "_jsVarTest"
+			);
+			dataToInclude['someKey']          = ListToArray("1,2,3,4,7,8,9");
+			dataToInclude.anotherKey          = StructNew();
+			dataToInclude.anotherKey['fubar'] = "hello world";
+			dataToInclude.yetAnotherKey       = false;
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'rendered_data_with_configured_js_var.html' );
+			renderedOutput = cfstatic.includeData( dataToInclude ).renderIncludes( 'js' );
+
+			expectedOutput = _cleanupRenderedOutput( expectedOutput );
+			renderedOutput = _cleanupRenderedOutput( renderedOutput );
+
+			if( _isBlueDragon() ){
+				AssertEquals( expectedOutput, renderedOutput );
+			} else {
+				AssertEqualsCase( expectedOutput, renderedOutput );
+			}
+
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
