@@ -8,11 +8,12 @@
 #
 
 http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js
+	http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
 	*.js
 
-/core/jquery-ui.js
+http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
 	/folder/some.js
-	/core/bootstrap.js (conditional)
+	/core/bootstrap.js
 	/ui-pages/*.js
 
 /core/bootstrap.js
@@ -27,7 +28,7 @@ http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js
 	/folder/some.js
 
 /shared/jqGrid/locales/*.js
-	/shared/jqGrid/jqGrid.js (conditional)
+	/shared/jqGrid/jqGrid.js
 
 /shared/jqGrid/jqGrid.js
 	/folder/some-more.js

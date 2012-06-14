@@ -23,6 +23,7 @@
 		_javaLoaderScope     = "server";
 		_lessGlobals         = "";
 		_jsDataVariable      = "cfrequest";
+		_jsDependencyFile    = "";
 
 		_jsPackages			 = "";
 		_cssPackages		 = "";
@@ -57,6 +58,7 @@
 		<cfargument name="javaLoaderScope"     type="string"  required="false" default="server"    hint="The scope in which instances of JavaLoader libraries for the compilers should be persisted, either 'application' or 'server' (default is 'server' to prevent JavaLoader memory leaks)" />
 		<cfargument name="lessGlobals"         type="string"  required="false" default=""          hint="Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list" />
 		<cfargument name="jsDataVariable"      type="string"  required="false" default="cfrequest" hint="JavaScript variable name that will contain any data passed to the .includeData() method" />
+		<cfargument name="jsDependencyFile"    type="string"  required="false" default=""          hint="Text file describing the dependencies between javascript files" />
 
 		<cfscript>
 			var rootDir = $normalizeUnixAndWindowsPaths( $ensureFullDirectoryPath( staticDirectory ) );
@@ -83,6 +85,7 @@
 			_setOutputCharset      ( outputCharset                                );
 			_setLessGlobals        ( lessGlobals                                  );
 			_setJsDataVariable     ( jsDataVariable                               );
+			_setJsDependencyFile   ( jsDependencyFile                             );
 
 			_loadCompilers( javaLoaderScope = javaLoaderScope );
 			_processStaticFiles();
@@ -171,7 +174,7 @@
 			_compileLess();
 			_compileCoffeeScript();
 
-			_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js'  ) );
+			_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js' , _getJsDependenciesFromFile() ) );
 			_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css' ) );
 
 			_cacheIncludeMappings();
@@ -181,10 +184,11 @@
 	</cffunction>
 
 	<cffunction name="_packageDirectory" access="private" returntype="org.cfstatic.core.PackageCollection" output="false" hint="I take a directory and return a processed PackageCollection object (with stored metadata about the packages and files within it)">
-		<cfargument name="rootDirectory" type="string" required="true" />
-		<cfargument name="rootUrl"       type="string" required="true" />
-		<cfargument name="minifiedUrl"   type="string" required="true" />
-		<cfargument name="fileType"      type="string" required="true" />
+		<cfargument name="rootDirectory" type="string" required="true"                          />
+		<cfargument name="rootUrl"       type="string" required="true"                          />
+		<cfargument name="minifiedUrl"   type="string" required="true"                          />
+		<cfargument name="fileType"      type="string" required="true"                          />
+		<cfargument name="dependencies"  type="struct" required="false" default="#StructNew()#" />
 
 		<cfreturn CreateObject('component', 'org.cfstatic.core.PackageCollection').init(
 			  rootDirectory  = rootDirectory
@@ -194,6 +198,7 @@
 			, cacheBust      = _getAddCacheBusters()
 			, includePattern = _getIncludePattern()
 			, excludePattern = _getExcludePattern()
+			, dependencies   = dependencies
 		) />
 	</cffunction>
 
@@ -719,6 +724,20 @@
     	<cfreturn _getIncludeAllByDefault() or ArrayLen( filters.packages ) or ArrayLen( filters.files ) />
     </cffunction>
 
+    <cffunction name="_getJsDependenciesFromFile" access="private" returntype="struct" output="false">
+    	<cfscript>
+    		var dependencyFile = _getJsDependencyFile();
+    		var dependencies   = StructNew();
+    		var jsDir          = $ListAppend( _getRootDirectory(), _getJsdirectory(), '/' );
+
+    		if ( Len(Trim( dependencyFile ) ) ) {
+    			dependencies = CreateObject('org.cfstatic.util.jsDependencyFileParser').parse( dependencyFile,  jsDir );
+    		}
+
+    		return dependencies;
+    	</cfscript>
+    </cffunction>
+
 <!--- plain old instance property accessors (private) --->
 	<cffunction name="_getRootDirectory" access="private" returntype="string" output="false">
     	<cfreturn _rootDirectory />
@@ -974,7 +993,15 @@
 	</cffunction>
 	<cffunction name="_setJsDataVariable" access="private" returntype="void" output="false">
 		<cfargument name="JsDataVariable" type="any" required="true" />
-		<cfset _JsDataVariable = arguments.JsDataVariable />
+		<cfset _JsDataVariable = JsDataVariable />
+	</cffunction>
+
+	<cffunction name="_getJsDependencyFile" access="private" returntype="string" output="false">
+		<cfreturn _JsDependencyFile>
+	</cffunction>
+	<cffunction name="_setJsDependencyFile" access="private" returntype="void" output="false">
+		<cfargument name="JsDependencyFile" type="string" required="true" />
+		<cfset _JsDependencyFile = JsDependencyFile />
 	</cffunction>
 
 	<cffunction name="_getLessGlobals" access="private" returntype="string" output="false">

@@ -409,6 +409,17 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="$ensureFullFilePath" access="private" returntype="string" output="false">
+		<cfargument name="file" type="string" required="true" />
+
+		<cfscript>
+			if ( fileExists( ExpandPath( arguments.file ) ) ) {
+				return ExpandPath( arguments.file );
+			}
+			return arguments.file;
+		</cfscript>
+	</cffunction>
+
 	<cffunction name="$getStringBuffer" access="private" returntype="any" output="false">
 		<cfreturn CreateObject("java","java.lang.StringBuffer") />
 	</cffunction>

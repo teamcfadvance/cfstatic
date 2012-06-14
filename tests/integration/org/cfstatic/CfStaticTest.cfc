@@ -708,6 +708,7 @@
 			rootDir &= 'goodFiles/dependenciesFile/';
 
 			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_file_mode_from_dependency_file.html' );
+
 			cfstatic.init(
 				  staticDirectory = rootDir
 				, staticUrl       = "/assets"
