@@ -112,6 +112,12 @@
 				ArraySort( returnArray, 'text' );
 			}
 
+			if ( not ArrayLen( returnArray ) ) {
+				$throw(  type    = "org.cfstatic.util.JsDependencyFileParser.missingDependency"
+					   , message = "Your js dependency file has a bad file path / wildcard mapping"
+					   , detail  = "The dependency, '#wildCardMapping#', failed to match any files." );
+			}
+
 			return returnArray;
 		</cfscript>
 	</cffunction>

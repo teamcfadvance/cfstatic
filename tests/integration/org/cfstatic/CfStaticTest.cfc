@@ -721,6 +721,30 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t30_cfstatic_shouldThrowError_whenMissingDependenciesFoundInJsDependenciesFile" returntype="void">
+		<cfscript>
+			var outputHtmlRoot       = ExpandPath( rootDir ) & 'renderedIncludes/';
+			var expectedErrorMessage = "The dependency, '/ui-pages-do-not-exist/*.js', failed to match any files.";
+			var failed               = false;
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			try {
+				cfstatic.init(
+					  staticDirectory = rootDir
+					, staticUrl       = "/assets"
+					, minifyMode      = "file"
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
+					, jsDependencyFile = rootDir & 'bad.js.dependencies'
+				);
+			} catch ( "org.cfstatic.util.JsDependencyFileParser.missingDependency" e ) {
+				AssertEquals( expectedErrorMessage, e.detail );
+				failed = true;
+			}
+
+			super.Assert( failed, "CfStatic did not throw a suitable error when the js dependencies file contained bad file paths.");
+		</cfscript>
+	</cffunction>
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
