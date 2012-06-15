@@ -745,6 +745,56 @@
 			super.Assert( failed, "CfStatic did not throw a suitable error when the js dependencies file contained bad file paths.");
 		</cfscript>
 	</cffunction>
+
+	<cffunction name="t31_renderIncludes_shouldOnlyRenderSelectedIncludes_withSuppliedJsDepenenciesFile" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'selected_js_includes_file_mode_from_dependencies_file.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "file"
+				, jsDependencyFile = rootDir & 'js.dependencies'
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+			cfstatic.include('/js/folder/some.js')
+			        .include('/js/ui-pages/');
+
+			renderedOutput = cfstatic.renderIncludes('js');
+
+			AssertEquals( _cleanupRenderedOutput( expectedOutput ), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="t32_renderIncludes_shouldOnlyRenderSelectedIncludes_withSuppliedJsDepenenciesFile_packageMode" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'selected_js_includes_package_mode_from_dependencies_file.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "package"
+				, jsDependencyFile = rootDir & 'js.dependencies'
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+			cfstatic.include('/js/folder/some.js')
+			        .include('/js/ui-pages/');
+
+			renderedOutput = cfstatic.renderIncludes('js');
+
+			AssertEquals( _cleanupRenderedOutput( expectedOutput ), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
