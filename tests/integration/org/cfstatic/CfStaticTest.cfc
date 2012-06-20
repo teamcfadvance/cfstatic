@@ -242,7 +242,7 @@
 			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_all_mode.html' );
 			cfstatic.init(
 				  staticDirectory = rootDir
-				, staticUrl       = "/assets"
+				, staticUrl       = "/"
 				, minifyMode      = "all"
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);

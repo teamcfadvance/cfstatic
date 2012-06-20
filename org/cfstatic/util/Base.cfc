@@ -158,11 +158,14 @@
 		<cfargument name="delimiter" type="string" required="false" default="," />
 
 		<cfscript>
-			if( Right(arguments.list, Len(arguments.delimiter)) eq arguments.delimiter ){
-				arguments.list = Left( arguments.list, Len(arguments.list) - Len(arguments.delimiter ));
+			var delimiterAlreadyOnEnd = Right( arguments.list, Len( arguments.delimiter ) ) eq arguments.delimiter;
+			var isEmptyList           = not Len( arguments.list );
+
+			if ( delimiterAlreadyOnEnd or isEmptyList ) {
+				return arguments.list & arguments.value;
 			}
 
-			return ListAppend( arguments.list, arguments.value, arguments.delimiter );
+			return arguments.list & arguments.delimiter & arguments.value;
 		</cfscript>
 	</cffunction>
 
