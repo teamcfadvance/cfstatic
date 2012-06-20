@@ -18,13 +18,13 @@
 					if ( _isChild( line ) ) {
 						files = _addDependents(
 							  files      = files
-							, dependents = _discoverFilesFromWildCardMapping( Trim(line), jsDir )
+							, dependents = _discoverFilesFromWildCardMapping( Trim( ListFirst( line, ' ' ) ), jsDir )
 						);
 						lastLineIsParent = false;
 					} else {
 						files = _addDependencies(
 							  files           = files
-							, dependencies    = _discoverFilesFromWildCardMapping( Trim(line), jsDir )
+							, dependencies    = _discoverFilesFromWildCardMapping( Trim( ListFirst( line, ' ' ) ), jsDir )
 							, isNewDependency =  not lastLineIsParent
 						);
 
