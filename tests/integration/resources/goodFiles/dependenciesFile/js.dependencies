@@ -1,0 +1,34 @@
+#
+# This file details dependencies between javascript files
+#
+# Indented files have dependencies on the unindented file(s) above them
+# Dependent files marked with (conditional), only depend on the file above
+# when it is already included in the request and can be included without
+# the dependency.
+#
+
+http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js
+	http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
+	*.js
+
+http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
+	/folder/some.js
+	/core/bootstrap.js
+	/ui-pages/*.js
+
+/core/bootstrap.js
+	/folder/*.js
+	/ui-pages/*.js
+	/shared/*.js
+
+/folder/some.js
+	/folder/some-more.js
+
+/shared/swfLoader/swfLoader.js
+	/folder/some.js
+
+/shared/jqGrid/locales/*.js
+	/shared/jqGrid/jqGrid.js (conditional)
+
+/shared/jqGrid/jqGrid.js
+	/folder/some-more.js

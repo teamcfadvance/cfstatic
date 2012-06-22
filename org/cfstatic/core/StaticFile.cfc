@@ -2,14 +2,15 @@
 
 <!--- properties --->
 	<cfscript>
-		_path			= "";
-		_url			= "";
-		_minifiedUrl	= "";
-		_fileType		= "";
-		_cacheBust		= true;
-		_dependencies	= ArrayNew(1);
-		_properties		= StructNew();
-		_lastModified	= CreateDateTime(1900,1,1,0,0,0);
+		_path			         = "";
+		_url			         = "";
+		_minifiedUrl	         = "";
+		_fileType		         = "";
+		_cacheBust		         = true;
+		_dependencies	         = ArrayNew(1);
+		_properties		         = StructNew();
+		_lastModified	         = CreateDateTime(1900,1,1,0,0,0);
+		_conditionalDependencies = ArrayNew(1);
 	</cfscript>
 
 <!--- constructor --->
@@ -20,7 +21,7 @@
 		<cfargument name="minifiedUrl"	type="string"  required="true" />
 		<cfargument name="fileType"     type="string"  required="true" />
 		<cfargument name="cacheBust"    type="boolean" required="true" />
-		
+
 		<cfscript>
 			_setPath( arguments.path );
 			_setPackageName( arguments.packageName );
@@ -28,11 +29,11 @@
 			_setCacheBust( arguments.cacheBust );
 			_setMinifiedUrl( $listAppend( arguments.minifiedUrl, getMinifiedFileName(), '/' ));
 			_setFileType( arguments.fileType );
-			
+
 			if(_isLocal()){
-				_parseProperties();			
+				_parseProperties();
 			}
-			
+
 			return this;
 		</cfscript>
 	</cffunction>
@@ -44,16 +45,18 @@
 	</cffunction>
 
 	<cffunction name="getDependencies" access="public" returntype="array" output="false"  hint="I return an array, in the correct order, of all the file''s dependencies">
-		<cfargument name="recursive"	type="boolean"	required="false" default="false" />
-		
+		<cfargument name="recursive"	       type="boolean" required="false" default="false" />
+		<cfargument name="includeConditionals" type="boolean" required="false" default="true"  />
+
 		<cfscript>
-			var final	= ArrayNew(1);
-			var added	= StructNew();
-			var deep	= "";
-			var i		= 0;
-			var n		= 0;
-			
-			
+			var final	     = ArrayNew(1);
+			var added	     = StructNew();
+			var deep	     = "";
+			var conditionals = "";
+			var i		     = 0;
+			var n		     = 0;
+
+
 			for(i = 1; i LTE ArrayLen(_dependencies); i++){
 				if(recursive){
 					deep = _dependencies[i].getDependencies(true);
@@ -69,7 +72,15 @@
 					added[_dependencies[i].getPath()] = true;
 				}
 			}
-			
+			if ( not includeConditionals ) {
+				conditionals = ArrayToList( _getConditionalDependencies() );
+				for( i=ArrayLen( final ); i GT 0 ; i-- ){
+					if ( ListFindNoCase( conditionals, final[i].getPath() ) ) {
+						ArrayDeleteAt( final, i );
+					}
+				}
+			}
+
 			return _bubbleSort( final );
 		</cfscript>
 	</cffunction>
@@ -78,11 +89,11 @@
 		<cfargument name="propertyName"			type="string"	required="true" />
 		<cfargument name="defaultValue"			type="any"		required="false" default="" />
 		<cfargument name="forceType"			type="string"	required="false" default="any" />
-		
+
 		<cfscript>
 			var prop	= "";
 			var arr		= "";
-			
+
 			if(not StructKeyExists(_properties, arguments.propertyName)){
 				return arguments.defaultValue;
 			}
@@ -96,21 +107,21 @@
 				ArrayAppend(arr, prop);
 				return arr;
 			}
-			
+
 			return prop;
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="getContent" access="public" returntype="string" output="false" hint="I return the content of the file (through a local file read when a local file and http get when an external file)">
 		<cfscript>
 			if( _isLocal() ){
 				return $fileRead( getPath() );
 			}
-			
+
 			return $httpGet( getPath() );
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="renderInclude" access="public" returntype="string" output="false" hint="I return the html needed to include the file">
 		<cfargument name="minified" type="boolean" required="true" hint="Whether or not to refer to the minified or non-minified file when rendering the html include"/>
 		<cfargument name="charset"  type="string"  required="false" default="utf-8" />
@@ -121,7 +132,7 @@
 
 			if(_getFileType() EQ 'css'){
 				return $renderCssInclude( src, media, ie, arguments.charset );
-				
+
 			} else {
 				return $renderJsInclude( src, ie, arguments.charset );
 			}
@@ -140,7 +151,7 @@
 			} else {
 				filename = "#ListChangeDelims(packageName, '.', '/')#.#ListLast(path,'\/')#";
 			}
-			
+
 			filename 		= $listDeleteLast(filename, '.');
 			filename 		= $listAppend(filename, 'min', '.');
 			if(_getCacheBust()){
@@ -158,6 +169,12 @@
 			}
 			return '1900-01-01 00:00:00';
 		</cfscript>
+	</cffunction>
+
+	<cffunction name="setConditionalDependencies" access="public" returntype="void" output="false">
+		<cfargument name="conditionals" type="array" required="true" />
+
+		<cfset _conditionalDependencies = arguments.conditionals />
 	</cffunction>
 
 <!--- private methods --->
@@ -180,7 +197,7 @@
 					for(i=1; i LTE ArrayLen(meta.$1); i++){
 						prop	= meta.$1[i];
 						value	= Trim(meta.$2[i]);
-						
+
 						if(StructKeyExists(_properties, prop)){
 							if(not IsArray(_properties[prop])){
 								tmp = _properties[prop];
@@ -188,7 +205,7 @@
 								ArrayAppend(_properties[prop], tmp);
 							}
 							ArrayAppend(_properties[prop], value);
-						
+
 						} else {
 							_properties[prop] = value;
 						}
@@ -225,7 +242,7 @@
 			return arguments.fileArray;
 		</cfscript>
 	</cffunction>
-	
+
 <!--- accessors --->
 	<cffunction name="_setPath" access="private" returntype="void" output="false">
 		<cfargument name="path" required="true" type="string" />
@@ -234,7 +251,7 @@
 	<cffunction name="getPath" access="public" returntype="string" output="false">
 		<cfreturn _path />
 	</cffunction>
-	
+
 	<cffunction name="_setPackageName" access="private" returntype="void" output="false">
 		<cfargument name="packageName" required="true" type="string" />
 		<cfset _packageName = arguments.packageName />
@@ -242,7 +259,7 @@
 	<cffunction name="getPackageName" access="public" returntype="string" output="false">
 		<cfreturn _packageName />
 	</cffunction>
-	
+
 	<cffunction name="_setUrl" access="private" returntype="void" output="false">
 		<cfargument name="url" required="true" type="string" />
 		<cfset _url = arguments.url />
@@ -250,7 +267,7 @@
 	<cffunction name="_getUrl" access="private" returntype="string" output="false">
 		<cfreturn _url />
 	</cffunction>
-	
+
 	<cffunction name="_setMinifiedUrl" access="private" returntype="void" output="false">
 		<cfargument name="minifiedUrl" required="true" type="string" />
 		<cfset _minifiedUrl = arguments.minifiedUrl />
@@ -258,7 +275,7 @@
 	<cffunction name="_getMinifiedUrl" access="private" returntype="string" output="false">
 		<cfreturn _minifiedUrl />
 	</cffunction>
-		
+
 	<cffunction name="_setFileType" access="private" returntype="void" output="false">
 		<cfargument name="fileType" required="true" type="string" />
 		<cfset _fileType = arguments.fileType />
@@ -273,5 +290,9 @@
 	<cffunction name="_setCacheBust" access="private" returntype="void" output="false">
 		<cfargument name="cacheBust" type="boolean" required="true" />
 		<cfset _cacheBust = arguments.cacheBust />
+	</cffunction>
+
+	<cffunction name="_getConditionalDependencies" access="private" returntype="array" output="false">
+		<cfreturn _conditionalDependencies	/>
 	</cffunction>
 </cfcomponent>

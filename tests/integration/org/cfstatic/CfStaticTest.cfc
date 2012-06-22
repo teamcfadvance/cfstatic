@@ -699,6 +699,151 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t29_renderIncludes_shouldRenderFilesInTheCorrectOrder_whenAJsDependenciesFileIsSupplied" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_file_mode_from_dependency_file.html' );
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "file"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				, jsDependencyFile = rootDir & 'js.dependencies'
+			);
+			renderedOutput = cfstatic.renderIncludes();
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="t30_cfstatic_shouldThrowError_whenMissingDependenciesFoundInJsDependenciesFile" returntype="void">
+		<cfscript>
+			var outputHtmlRoot       = ExpandPath( rootDir ) & 'renderedIncludes/';
+			var expectedErrorMessage = "The dependency, '/ui-pages-do-not-exist/*.js', failed to match any files.";
+			var failed               = false;
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			try {
+				cfstatic.init(
+					  staticDirectory = rootDir
+					, staticUrl       = "/assets"
+					, minifyMode      = "file"
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
+					, jsDependencyFile = rootDir & 'bad.js.dependencies'
+				);
+			} catch ( "org.cfstatic.util.JsDependencyFileParser.missingDependency" e ) {
+				AssertEquals( expectedErrorMessage, e.detail );
+				failed = true;
+			}
+
+			super.Assert( failed, "CfStatic did not throw a suitable error when the js dependencies file contained bad file paths.");
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="t31_renderIncludes_shouldOnlyRenderSelectedIncludes_withSuppliedJsDepenenciesFile" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'selected_js_includes_file_mode_from_dependencies_file.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "file"
+				, jsDependencyFile = rootDir & 'js.dependencies'
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+			cfstatic.include('/js/folder/some.js')
+			        .include('/js/ui-pages/');
+
+			renderedOutput = cfstatic.renderIncludes('js');
+
+			AssertEquals( _cleanupRenderedOutput( expectedOutput ), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="t32_renderIncludes_shouldOnlyRenderSelectedIncludes_withSuppliedJsDepenenciesFile_packageMode" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'selected_js_includes_package_mode_from_dependencies_file.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "package"
+				, jsDependencyFile = rootDir & 'js.dependencies'
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+			cfstatic.include('/js/folder/some.js')
+			        .include('/js/ui-pages/');
+
+			renderedOutput = cfstatic.renderIncludes('js');
+
+			AssertEquals( _cleanupRenderedOutput( expectedOutput ), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="t33_renderIncludes_shouldOnlyRenderConditionalDependencies_whenTheyAreExplicitlyIncluded" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "file"
+				, jsDependencyFile = rootDir & 'js.dependencies'
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+			cfstatic.include('/js/shared/jqGrid/jqGrid.js').include('/js/shared/jqGrid/locales/de.js');
+
+			renderedOutput = cfstatic.renderIncludes('js');
+			expectedOutput = _fileRead( outputHtmlRoot & 'conditional_js_includes_no_dependencies_included.html' );
+
+			AssertEquals( _cleanupRenderedOutput( expectedOutput ), _cleanupRenderedOutput( renderedOutput ) );
+
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="t34_renderIncludes_shouldOnlyRenderConditionalDependencies_whenTheyAreExplicitlyIncluded_packageMode" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "package"
+				, jsDependencyFile = rootDir & 'js.dependencies'
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			renderedOutput = cfstatic.include('/js/shared/jqGrid/jqGrid.js').renderIncludes('js');
+			expectedOutput = _fileRead( outputHtmlRoot & 'conditional_js_includes_no_dependencies_included_package.html' );
+
+			AssertEquals( _cleanupRenderedOutput( expectedOutput ), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />

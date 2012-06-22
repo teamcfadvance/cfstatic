@@ -49,6 +49,8 @@
 	</cffunction>
 
 	<cffunction name="getDependencies" access="public" returntype="array" output="false" hint="I return an array of other packages (package names) that this package depends on">
+		<cfargument name="includeConditionals" type="boolean" required="false" default="true" />
+
 		<cfscript>
 			var pkgDependencies		= ArrayNew(1);
 			var files				= _getStaticFiles();
@@ -57,7 +59,7 @@
 			var i					= "";
 
 			for( file in files ){
-				fileDependencies = files[file].getDependencies( true );
+				fileDependencies = files[file].getDependencies( true, arguments.includeConditionals );
 				for(i=1; i LTE ArrayLen(fileDependencies); i++){
 					if(fileDependencies[i].getPackageName() NEQ _getPackageName()){
 						if(not ListFind(ArrayToList(pkgDependencies), fileDependencies[i].getPackageName() )){
