@@ -215,8 +215,11 @@
 
 					// ensure all dependencies are created as static files (including externals)
 					dependencyArray	= file.getProperty( 'depends', ArrayNew(1), 'array' );
-					if ( StructKeyExists( dependencies, path ) ) {
-						dependencyArray = $ArrayMerge( dependencyArray, dependencies[path] );
+					if ( StructCount(dependencies) and StructKeyExists( dependencies.regular, path ) ) {
+						dependencyArray = $ArrayMerge( dependencyArray, dependencies.regular[path] );
+					}
+					if ( StructCount(dependencies) and StructKeyExists( dependencies.conditional, path ) ) {
+						file.setConditionalDependencies( dependencies.conditional[path] );
 					}
 
 					for(i=1; i LTE ArrayLen(dependencyArray); i++){

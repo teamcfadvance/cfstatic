@@ -811,7 +811,7 @@
 				, jsDependencyFile = rootDir & 'js.dependencies'
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
-			cfstatic.include('/js/shared/jqGrid/jqGrid.js')
+			cfstatic.include('/js/shared/jqGrid/jqGrid.js').include('/js/shared/jqGrid/locales/de.js');
 
 			renderedOutput = cfstatic.renderIncludes('js');
 			expectedOutput = _fileRead( outputHtmlRoot & 'conditional_js_includes_no_dependencies_included.html' );

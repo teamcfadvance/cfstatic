@@ -1,5 +1,7 @@
 <cfcomponent output="false" extends="org.cfstatic.util.Base" hint="I provide an interface for parsing the CfStatic JS Dependency file">
 
+	<cfset _setConditionalToken( '(conditional)' ) />
+
 	<cffunction name="parse" access="public" returntype="struct" output="false">
 		<cfargument name="filePath" type="string" required="true" />
 		<cfargument name="jsDir"    type="string" required="true" />
@@ -15,10 +17,12 @@
 				line = ListGetAt( fileContent, lineNumber, $newLine() );
 
 				if ( not _isIgnorable( line ) ) {
+
 					if ( _isChild( line ) ) {
 						files = _addDependents(
-							  files      = files
-							, dependents = _discoverFilesFromWildCardMapping( Trim( ListFirst( line, ' ' ) ), jsDir )
+							  files       = files
+							, dependents  = _discoverFilesFromWildCardMapping( Trim( ListFirst( line, ' ' ) ), jsDir )
+							, conditional = _isConditional( line )
 						);
 						lastLineIsParent = false;
 					} else {
@@ -55,6 +59,17 @@
 		<cfreturn ReFind( "\s", Left( line, 1 ) ) />
 	</cffunction>
 
+	<cffunction name="_isConditional" access="private" returntype="boolean" output="false">
+		<cfargument name="line" type="string" required="true" />
+
+		<cfscript>
+			var hasTwoTokens           = ListLen ( Trim( line ), ' ' ) EQ 2;
+			var lastTokenIsConditional = ListLast( Trim( line ), ' ' ) EQ _getConditionalToken();
+
+			return hasTwoTokens and lastTokenIsConditional;
+		</cfscript>
+	</cffunction>
+
 	<cffunction name="_addDependencies" access="private" returntype="array" output="false">
 		<cfargument name="files"           type="array"   required="true" />
 		<cfargument name="dependencies"    type="array"   required="true" />
@@ -64,8 +79,9 @@
 			var dependency = StructNew();
 
 			if ( isNewDependency ) {
-				dependency['dependencies'] = ArrayNew(1)
-				dependency['dependents']   = ArrayNew(1);
+				dependency['dependencies']          = ArrayNew(1)
+				dependency['dependents']            = ArrayNew(1);
+				dependency['conditionalDependents'] = ArrayNew(1);
 
 				ArrayAppend( files, dependency );
 			}
@@ -77,11 +93,15 @@
 	</cffunction>
 
 	<cffunction name="_addDependents" access="private" returntype="array" output="false">
-		<cfargument name="files"      type="array" required="true" />
-		<cfargument name="dependents" type="array" required="true" />
-
+		<cfargument name="files"       type="array" required="true"   />
+		<cfargument name="dependents"  type="array" required="true"   />
+		<cfargument name="conditional" type="boolean" required="true" />
 		<cfscript>
-			$ArrayMerge( files[ ArrayLen( files ) ].dependents, dependents )
+			$ArrayMerge( files[ ArrayLen( files ) ].dependents, dependents );
+
+			if ( conditional ) {
+				$ArrayMerge( files[ ArrayLen( files ) ].conditionalDependents, dependents );
+			}
 
 			return files;
 		</cfscript>
@@ -131,21 +151,41 @@
 			var dependencyStruct = StructNew();
 			var dependencies     = "";
 			var dependents       = "";
+			var conditionals     = "";
+
+			dependencyStruct.regular     = StructNew();
+			dependencyStruct.conditional = StructNew();
+
 
 			for( i=1; i LTE ArrayLen( dependencyArray ); i=i+1 ){
 				dependents   = dependencyArray[i].dependents;
 				dependencies = dependencyArray[i].dependencies;
+				conditionals = dependencyArray[i].conditionalDependents;
 
 				for( n=1; n LTE ArrayLen( dependents ); n=n+1 ){
-					if ( not StructKeyExists( dependencyStruct, dependents[n] ) ) {
-						dependencyStruct[ dependents[n] ] = ArrayNew();
+					if ( not StructKeyExists( dependencyStruct.regular, dependents[n] ) ) {
+						dependencyStruct.regular[ dependents[n] ] = ArrayNew();
 					}
 
-					dependencyStruct[ dependents[n] ] = $ArrayMerge( dependencyStruct[ dependents[n] ], dependencies );
+					dependencyStruct.regular[ dependents[n] ] = $ArrayMerge( dependencyStruct.regular[ dependents[n] ], dependencies );
+				}
+				for( n=1; n LTE ArrayLen( conditionals ); n=n+1 ){
+					if ( not StructKeyExists( dependencyStruct.conditional, conditionals[n] ) ) {
+						dependencyStruct.conditional[ conditionals[n] ] = ArrayNew();
+					}
+
+					dependencyStruct.conditional[ conditionals[n] ] = $ArrayMerge( dependencyStruct.conditional[ conditionals[n] ], dependencies );
 				}
 			}
-
 			return dependencyStruct;
 		</cfscript>
+	</cffunction>
+
+	<cffunction name="_getConditionalToken" access="private" returntype="any" output="false">
+		<cfreturn _conditionalToken>
+	</cffunction>
+	<cffunction name="_setConditionalToken" access="private" returntype="void" output="false">
+		<cfargument name="conditionalToken" type="any" required="true" />
+		<cfset _conditionalToken = arguments.conditionalToken />
 	</cffunction>
 </cfcomponent>

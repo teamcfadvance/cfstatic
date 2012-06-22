@@ -231,7 +231,7 @@
 			var package      = _getPackage( packageName, packageType );
 			var include      = packageName;
 			var rootDir      = iif( packageType EQ 'css', DE( _getCssDirectory() ), DE( _getJsDirectory() ) );
-			var dependencies = package.getDependencies( recursive=true );
+			var dependencies = package.getDependencies( recursive=true, conditional=false );
 			var files        = package.getOrdered();
 			var i            = 0;
 
@@ -270,7 +270,7 @@
 
 		<cfscript>
 			var include      = filePath;
-			var dependencies = file.getDependencies( recursive = true );
+			var dependencies = file.getDependencies( recursive = true, includeConditionals = false );
 			var i            = 1;
 
 			if ( pkgInclude NEQ 'externals' ) {
