@@ -820,6 +820,30 @@
 
 		</cfscript>
 	</cffunction>
+
+	<cffunction name="t34_renderIncludes_shouldOnlyRenderConditionalDependencies_whenTheyAreExplicitlyIncluded_packageMode" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "package"
+				, jsDependencyFile = rootDir & 'js.dependencies'
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			renderedOutput = cfstatic.include('/js/shared/jqGrid/jqGrid.js').renderIncludes('js');
+			expectedOutput = _fileRead( outputHtmlRoot & 'conditional_js_includes_no_dependencies_included_package.html' );
+
+			AssertEquals( _cleanupRenderedOutput( expectedOutput ), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
