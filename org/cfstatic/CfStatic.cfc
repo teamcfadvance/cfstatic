@@ -231,7 +231,7 @@
 			var package      = _getPackage( packageName, packageType );
 			var include      = packageName;
 			var rootDir      = iif( packageType EQ 'css', DE( _getCssDirectory() ), DE( _getJsDirectory() ) );
-			var dependencies = package.getDependencies( recursive=true, conditional=false );
+			var dependencies = package.getDependencies( includeConditionals=false );
 			var files        = package.getOrdered();
 			var i            = 0;
 
