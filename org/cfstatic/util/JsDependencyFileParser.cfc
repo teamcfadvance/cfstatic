@@ -126,7 +126,7 @@
 				files = $directoryList( dir, filter, true );
 
 				for( i=1; i LTE files.recordCount; i=i+1 ){
-					ArrayAppend( returnArray, $ListAppend( files.directory[i], files.name[i], '/' ) );
+					ArrayAppend( returnArray, $normalizeUnixAndWindowsPaths( $ListAppend( files.directory[i], files.name[i], '/' ) ) );
 				}
 
 				ArraySort( returnArray, 'text' );

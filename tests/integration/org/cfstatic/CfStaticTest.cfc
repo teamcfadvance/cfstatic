@@ -652,22 +652,23 @@
 	<cffunction name="t27_cfstatic_shouldThrowError_whenOutputFolderDoesNotExistAndCannotBeCreated" returntype="void">
 		<cfscript>
 			var failed = false;
+			if ( not _isBlueDragon() ) {
+				try {
+					cfstatic.init(
+						  staticDirectory = "/nonexistant/dir/"
+						, staticUrl       = "/any/old/thing"
+						, minifyMode      = "none"
+						, debugKey        = "doNotLetMxUnitDebugScrewTests"
+					);
 
-			try {
-				cfstatic.init(
-					  staticDirectory = "/nonexistant/dir/"
-					, staticUrl       = "/any/old/thing"
-					, minifyMode      = "none"
-					, debugKey        = "doNotLetMxUnitDebugScrewTests"
-				);
-
-			} catch ( "org.cfstatic.CfStatic.badOutputDir" e ) {
-				if ( e.message EQ "The output directory, '/nonexistant/dir/min', does not exist and could not be created by CfStatic." ) {
-					failed = true;
+				} catch ( "org.cfstatic.CfStatic.badOutputDir" e ) {
+					if ( e.message EQ "The output directory, '/nonexistant/dir/min', does not exist and could not be created by CfStatic." ) {
+						failed = true;
+					}
 				}
-			}
 
-			super.Assert( failed, "CfStatic did not throw an appropriate error when the output directory could not be created." );
+				super.Assert( failed, "CfStatic did not throw an appropriate error when the output directory could not be created." );
+			}
 		</cfscript>
 	</cffunction>
 
