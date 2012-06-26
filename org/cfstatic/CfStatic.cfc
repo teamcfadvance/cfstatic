@@ -731,7 +731,7 @@
     		var jsDir          = $ListAppend( _getRootDirectory(), _getJsdirectory(), '/' );
 
     		if ( Len(Trim( dependencyFile ) ) ) {
-    			dependencies = CreateObject('org.cfstatic.util.jsDependencyFileParser').parse( dependencyFile,  jsDir );
+    			dependencies = CreateObject('org.cfstatic.util.JsDependencyFileParser').parse( dependencyFile,  jsDir );
     		}
 
     		return dependencies;
@@ -791,6 +791,16 @@
 					       , message = "The output directory, '#outputDirectory#', does not exist and could not be created by CfStatic."
 					       , detail  = e.detail
 					);
+
+				} catch( Application e ) {
+					if ( e.message EQ "The specified directory #outputDirectory# could not be created." ) {
+						failed = true;
+
+						$throw(  type    = "org.cfstatic.CfStatic.badOutputDir"
+						       , message = "The output directory, '#outputDirectory#', does not exist and could not be created by CfStatic."
+						       , detail  = e.detail
+						);
+					}
 				}
 			}
 

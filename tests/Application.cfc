@@ -1,4 +1,6 @@
 <cfcomponent output="false">
+	<cfsetting requesttimeout="600" />
+
 	<cfscript>
 		this.name = "cfstatictests_" & hash(GetCurrenttemplatepath());
 

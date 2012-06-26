@@ -435,7 +435,11 @@
 
 			rootDir &= 'goodFiles/simpleAllMode/';
 
-			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_plus_data_all_mode.html' );
+			if ( _isAdobeColdFusion() ) {
+				expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_plus_data_all_mode_acf.html' );
+			} else {
+				expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_plus_data_all_mode.html' );
+			}
 			cfstatic.init(
 				  staticDirectory = rootDir
 				, staticUrl       = "/assets"
@@ -471,7 +475,11 @@
 
 			rootDir &= 'goodFiles/standardFolders/';
 
-			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_package_mode_utf16.html' );
+			if ( _isAdobeColdFusion() ) {
+				expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_package_mode_utf16_acf.html' );
+			} else {
+				expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_package_mode_utf16.html' );
+			}
 			cfstatic.init(
 				  staticDirectory = rootDir
 				, staticUrl       = "/assets"
@@ -684,7 +692,11 @@
 			dataToInclude.anotherKey['fubar'] = "hello world";
 			dataToInclude.yetAnotherKey       = false;
 
-			expectedOutput = _fileRead( outputHtmlRoot & 'rendered_data_with_configured_js_var.html' );
+			if ( _isAdobeColdFusion() ) {
+				expectedOutput = _fileRead( outputHtmlRoot & 'rendered_data_with_configured_js_var_acf.html' );
+			} else {
+				expectedOutput = _fileRead( outputHtmlRoot & 'rendered_data_with_configured_js_var.html' );
+			}
 			renderedOutput = cfstatic.includeData( dataToInclude ).renderIncludes( 'js' );
 
 			expectedOutput = _cleanupRenderedOutput( expectedOutput );
@@ -964,6 +976,10 @@
 
 	<cffunction name="_isBlueDragon" returntype="boolean" access="private" output="false">
 		<cfreturn StructKeyExists( server, 'bluedragon' ) />
+	</cffunction>
+
+	<cffunction name="_isAdobeColdFusion" returntype="boolean" access="private" output="false">
+		<cfreturn server.coldfusion.productName EQ "ColdFusion Server" />
 	</cffunction>
 
 </cfcomponent>

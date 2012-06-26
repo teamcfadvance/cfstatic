@@ -79,14 +79,14 @@
 			var dependency = StructNew();
 
 			if ( isNewDependency ) {
-				dependency['dependencies']          = ArrayNew(1)
+				dependency['dependencies']          = ArrayNew(1);
 				dependency['dependents']            = ArrayNew(1);
 				dependency['conditionalDependents'] = ArrayNew(1);
 
 				ArrayAppend( files, dependency );
 			}
 
-			$ArrayMerge( files[ ArrayLen( files ) ].dependencies, dependencies );
+			files[ ArrayLen( files ) ].dependencies = $ArrayMerge( files[ ArrayLen( files ) ].dependencies, dependencies );
 
 			return files;
 		</cfscript>
@@ -97,10 +97,10 @@
 		<cfargument name="dependents"  type="array" required="true"   />
 		<cfargument name="conditional" type="boolean" required="true" />
 		<cfscript>
-			$ArrayMerge( files[ ArrayLen( files ) ].dependents, dependents );
+			files[ ArrayLen( files ) ].dependents = $ArrayMerge( files[ ArrayLen( files ) ].dependents, dependents );
 
 			if ( conditional ) {
-				$ArrayMerge( files[ ArrayLen( files ) ].conditionalDependents, dependents );
+				files[ ArrayLen( files ) ].conditionalDependents = $ArrayMerge( files[ ArrayLen( files ) ].conditionalDependents, dependents );
 			}
 
 			return files;
@@ -164,14 +164,14 @@
 
 				for( n=1; n LTE ArrayLen( dependents ); n=n+1 ){
 					if ( not StructKeyExists( dependencyStruct.regular, dependents[n] ) ) {
-						dependencyStruct.regular[ dependents[n] ] = ArrayNew();
+						dependencyStruct.regular[ dependents[n] ] = ArrayNew(1);
 					}
 
 					dependencyStruct.regular[ dependents[n] ] = $ArrayMerge( dependencyStruct.regular[ dependents[n] ], dependencies );
 				}
 				for( n=1; n LTE ArrayLen( conditionals ); n=n+1 ){
 					if ( not StructKeyExists( dependencyStruct.conditional, conditionals[n] ) ) {
-						dependencyStruct.conditional[ conditionals[n] ] = ArrayNew();
+						dependencyStruct.conditional[ conditionals[n] ] = ArrayNew(1);
 					}
 
 					dependencyStruct.conditional[ conditionals[n] ] = $ArrayMerge( dependencyStruct.conditional[ conditionals[n] ], dependencies );
