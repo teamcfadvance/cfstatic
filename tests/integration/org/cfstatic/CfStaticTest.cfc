@@ -857,6 +857,31 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t35_renderIncludes_shouldRenderEmptyString_onSecondCall" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+
+			rootDir &= 'goodFiles/standardFolders';
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "file"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			renderedOutput = cfstatic.renderIncludes('js');
+			Assert( Len(Trim(renderedOutput)), "Rendering JS includes was expected to render something - empty instead" );
+			renderedOutput = cfstatic.renderIncludes('js');
+			Assert( not Len(Trim(renderedOutput)), "Rendering JS includes a second time was expected to render nothing but something was rendered instead." );
+
+			renderedOutput = cfstatic.renderIncludes('css');
+			Assert( Len(Trim(renderedOutput)), "Rendering CSS includes was expected to render something - empty instead" );
+			renderedOutput = cfstatic.renderIncludes('css');
+			Assert( not Len(Trim(renderedOutput)), "Rendering CSS includes a second time was expected to render nothing but something was rendered instead." );
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
