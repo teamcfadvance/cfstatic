@@ -143,6 +143,8 @@
 						, charset           = _getOutputCharset()
 					) );
 				}
+
+				_clearRequestData( 'css' );
 			}
 
 			if ( renderJs ) {
@@ -158,6 +160,8 @@
 						, charset           = _getOutputCharset()
 					) );
 				}
+
+				_clearRequestData( 'js' );
 			}
 
 			return buffer.toString();
@@ -697,6 +701,29 @@
 				_processStaticFiles();
 			}
 		</cfscript>
+    </cffunction>
+
+    <cffunction name="_clearRequestData" access="private" returntype="void" output="false">
+    	<cfargument name="type" type="string" required="true" />
+
+    	<cfscript>
+    		var includes   = _getRequestIncludes();
+    		var i          = 0;
+    		var rootDir    = '/' & iif( type EQ 'css', DE( _getCssDirectory() ), DE( _getJsDirectory() ) ) & '/';
+    		var rootDirLen = Len( rootDir );
+
+    		if ( type EQ 'js' ) {
+    			_setRequestData( StructNew() );
+    		}
+
+    		for( i=ArrayLen( includes ); i GTE 1 ; i=i-1 ){
+    			if ( Left( includes[i], rootDirLen ) EQ rootDir ) {
+    				ArrayDeleteAt( includes, i );
+    			}
+    		}
+
+    		_setRequestIncludes( includes );
+    	</cfscript>
     </cffunction>
 
     <cffunction name="_appendFileTypesToSpecialIncludes" access="private" returntype="string" output="false">
