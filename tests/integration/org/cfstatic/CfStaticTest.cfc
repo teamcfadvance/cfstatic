@@ -862,7 +862,7 @@
 			var renderedOutput = "";
 			var data = StructNew();
 
-			rootDir &= 'goodFiles/standardFolders';
+			rootDir &= 'goodFiles/standardFolders/';
 
 			cfstatic.init(
 				  staticDirectory     = rootDir
