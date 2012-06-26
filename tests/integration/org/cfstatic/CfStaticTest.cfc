@@ -860,15 +860,23 @@
 	<cffunction name="t35_renderIncludes_shouldRenderEmptyString_onSecondCall" returntype="void">
 		<cfscript>
 			var renderedOutput = "";
+			var data = StructNew();
 
 			rootDir &= 'goodFiles/standardFolders';
 
 			cfstatic.init(
-				  staticDirectory = rootDir
-				, staticUrl       = "/assets"
-				, minifyMode      = "file"
-				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				  staticDirectory     = rootDir
+				, staticUrl           = "/assets"
+				, minifyMode          = "file"
+				, includeAllByDefault = false
+				, debugKey            = "doNotLetMxUnitDebugScrewTests"
 			);
+
+			data.fubar = "fubar";
+
+			cfstatic.include('/css/core/')
+			        .include('/js/core/')
+			        .includeData( data );
 
 			renderedOutput = cfstatic.renderIncludes('js');
 			Assert( Len(Trim(renderedOutput)), "Rendering JS includes was expected to render something - empty instead" );
