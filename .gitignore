@@ -1,8 +1,6 @@
 WEB-INF
 example
 .htaccess
-.project
-mxunit
 cfstatic.sublime-project
 cfstatic.sublime-workspace
 *.less.css

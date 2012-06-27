@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+ <mxunit-config>
+  <config-element type="meta" name="version" value="1.0.0" /> 
+  
+  <!-- 
+  Tells MXUnit how the framework should be mapped. MXUnit attempts to discover
+  this, but, in some configurations, this does not work. So, specify the
+  dotted notation where mxunit is installed. 
+  
+  *The "override" attribute tells mxunit to 
+  
+  Examples:
+  1. Mapped or installed directly under webroot: mxunit [Default]
+  2. Mapped or installed in a subdirectory under webroot: mysubdirectory.mxunit
+  --> 
+  <config-element type="userConfig" name="componentRoot" value="mxunit" override="false" /> 
+
+
+  <!-- 
+  Assertion extensions. Enable or disable auto-loading at runtime.
+  Alternatively, you can load Assertion extensions in your test case
+  setUp() method by invoking Assert.addAssertDecorator(MyCustomAssertion).
+  The override parameter tells the framework to override any duplicate assertions
+  with the ones in the custom assertion.
+   --> 
+  <config-element type="assertionExtension" path="MXUnitAssertionExtensions" autoload="true" override="false" /> 
+  <config-element type="assertionExtension" path="HamcrestAssert" autoload="true" override="false" />
+  <config-element type="assertionExtension" path="XPathAssert" autoload="true" override="false" />
+  
+  <!--
+  <config-element type="assertionExtension" path="org.cfcunit.framework.Assert" autoload="true" override="false" /> 
+  <config-element type="assertionExtension" path="net.sourceforge.cfunit.framework.Assert" autoload="false" override="false" />
+  -->
+    
+  
+  <!-- 
+  Tells the MXUnit Eclipse plug-in to automatically cache
+  test object to increase performance. Change element value to false
+  to override.
+  --> 
+  <config-element type="pluginControl" name="UseRemoteFacadeObjectCache" value="true" /> 
+
+
+  <!-- 
+   Tells the MXUnit framework how to execute assertions. If set to false, message parameter
+  in assertions is optional but should be last of used; E.g., assertEquals(expected, actual [,message]).
+  If set to true, follows the JUnit parameter syntax but the first parameter is REQUIRED; E.g., 
+  assertEquals(message, expected, actual). The default is false.
+   --> 
+  <config-element type="assertionMessageBehavior" name="MessageParameterFirst" value="false" /> 
+
+
+  <!-- 
+  Which mocking framework should be used?
+  -->
+  <config-element type="mockingFramework" name="name" value="MightyMock" /> 
+
+  <!-- 
+  Configuration for MightyMock
+  factoryPath: path to the MockFactory object
+  createMockMethodName: the name of the default method in the MockFactory to use for creating mocks
+  createMockStringArgumentName: the name of the string argument to the createMockMethod that holds the path of the object to be mocked
+  createMockObjectArgumentName: the name of the object argument to the createMockMethod that holds an actual object to be mocked
+  constructorName: the name of the constructor method on the MockFactory
+  constructorArgs: one attribute per argument expected by the MockFactory constructor
+  -->
+  <config-element type="MightyMock" name="factoryPath" value="mightymock.MockFactory" /> 
+  <config-element type="MightyMock" name="createMockMethodName" value="createMock" /> 
+  <config-element type="MightyMock" name="createMockStringArgumentName" value="mocked" /> 
+  <config-element type="MightyMock" name="createMockObjectArgumentName" value="mocked" /> 
+  <config-element type="MightyMock" name="constructorName" value="init" /> 
+  <config-element type="MightyMock" name="constructorArgs" /> 
+    
+  <!-- 
+  Configuration for MockBox
+  -->
+  <config-element type="MockBox" name="factoryPath" value="Coldbox.system.testing.MockBox" /> 
+  <config-element type="MockBox" name="createMockMethodName" value="createMock" /> 
+  <config-element type="MockBox" name="createMockStringArgumentName" value="className" /> 
+  <config-element type="MockBox" name="createMockObjectArgumentName" value="object" /> 
+  <config-element type="MockBox" name="constructorName" value="init" /> 
+  <config-element type="MockBox" name="constructorArgs" generationPath="/Coldbox/Temp/" /> 
+
+  <!-- 
+  Configuration for ColdMock
+  -->
+  <config-element type="ColdMock" name="factoryPath" value="coldmock.MockFactory" /> 
+  <config-element type="ColdMock" name="createMockMethodName" value="createMock" /> 
+  <config-element type="ColdMock" name="createMockStringArgumentName" value="objectToMock" /> 
+  <config-element type="ColdMock" name="createMockObjectArgumentName" value="notApplicable" /> 
+  <config-element type="ColdMock" name="constructorName" value="init" /> 
+  <config-element type="ColdMock" name="constructorArgs" /> 
+
+  <!-- 
+  Configuration for another framework - example of adding your own plugin
+  -->
+  <config-element type="newFramework" name="factoryPath" value="mxunit.tests.framework.fixture.MockFactory" /> 
+  <config-element type="newFramework" name="createMockMethodName" value="createMeAMock" /> 
+  <config-element type="newFramework" name="createMockStringArgumentName" value="componentName" /> 
+  <config-element type="newFramework" name="createMockObjectArgumentName" value="object" /> 
+  <config-element type="newFramework" name="constructorName" value="initMethod" /> 
+  <config-element type="newFramework" name="constructorArgs" arg1="constructorArg1" /> 
+
+
+ </mxunit-config>

@@ -1,0 +1,48 @@
+Valid To Dos as of December 5, 2009
+
+- Debug output should be more descriptive and readable, Raw debug data available
+  via verbose flag.
+  
+- Normalize arguments. Should be able to reasonably define a method with or
+  without named arguments, and invoke it as named or positional. See
+  how the engines do it.
+
+- add invocation record for both pattern and literal that were executed. This
+  should allow verification of either. 
+ 
+- mock should record all invocations and store literal parameters
+- verifying by pattern should also be possible
+  e.g., 
+   register:
+       mock.foo(1,2).returns();
+       mock.foo(4,5).return();
+   actual exec:
+       mock.foo(1,2);
+       mock.foo(1,2);
+       mock.foo(4,5);
+       
+   verify:
+       mock.verifyTimes(3).foo('{numeric}','{numeric}');
+   
+   And vice versa:
+      mock..foo('{numeric}','{numeric}').returns();
+   
+   actual exec:
+        mock.foo(1,2);
+        mock.foo(1,2);
+        mock.foo(4,5);
+
+    verify:
+        mock.verifyTimes(2).foo(1,2);
+        mock.verifyTimes(1).foo(4,5);
+   
+- DONE -verbose . maybe should persist actual literal arguments in addition to hash
+- 
+
+
+
+
+
+
+
+

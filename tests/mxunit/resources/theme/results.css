@@ -1,0 +1,148 @@
+ #sparkcontainer {
+ border: thin #eaeaea dotted ;
+ padding: .25em .5em .25em .5em ;
+ text-align:center;
+ float:left;
+ -moz-border-radius: .5em;
+ -webkit-border-radius: .5em;
+}
+
+.mxunittestsparks{
+ color:white;
+}
+
+#sparkcontainer p{
+  color:silver;
+  text-decoration:italics;
+}
+
+#bugjar{
+  padding:.5em;
+  border:none;
+  margin-right:2em;
+  float:right;
+}
+
+
+.sparkline-caption {
+  /*border:1px dotted navy;*/
+}
+
+
+.mxunitResults .summary {
+	margin: 1em 0;
+}
+
+.mxunitResults .summary .active {
+	background: #ffe77f; 
+}
+
+.mxunitResults table {
+	width: 100%;
+	border:1px dotted gray;
+	padding:0px;
+}
+
+.mxunitResults th {
+	text-align: left;
+}
+
+.mxunitResults tr.component {
+	padding-top: 1em;
+	background: transparent;
+	border-bottom: 1px solid #333;
+	font-size: 1.35em;
+}
+
+.mxunitResults th,
+.mxunitResults td {
+	vertical-align: top;
+	padding: .5em;
+}
+
+.mxunitResults tbody tr:nth-child(even) {
+	background: whitesmoke;
+}
+
+.stacktrace, .tagcontext td{
+	font-size:1em;
+	font-family:monospace;
+	line-height:.65em;
+}
+
+
+.summary{
+  margin:0,0,0,0;
+  overflow:hidden;
+}
+
+.summary .failed{
+  float: left;
+}
+
+.summary #bug{
+  float: left;
+}
+
+.summary #sparkcontanier{
+  float: left;
+}
+
+.mxunitResults {
+ padding: .5em;
+}
+
+.mxunitResults .summary .nav a {
+	border: 1px solid #D0D0D0;
+	-moz-border-radius: .5em;
+	-webkit-border-radius: .5em;
+	padding: .5em 1em;
+	margin-right: 1em;
+}
+
+
+.mxunitResults pre {
+	white-space: pre-wrap; /* css-3 */
+	white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+	white-space: -pre-wrap; /* Opera 4-6 */
+	white-space: -o-pre-wrap; /* Opera 7 */
+	word-wrap: break-word; /* Internet Explorer 5.5+ */
+}                
+
+
+.mxunitResults .tagcontext a  {
+    color: gray;
+}
+
+table.results th {
+	text-align: left;
+}
+
+table.results th.result,
+table.results th.speed {
+	width: 10%;
+}
+
+table.results th.error,
+table.results th.output {
+	width: 25%;
+}
+
+/* Mapped to the actual test status returned by MXUnit */
+
+.failed,
+.failed a {
+	color:#101080;
+}
+
+.error,
+.error a {
+	color: #c70000;
+}
+
+.success,
+.passed,
+.success a, 
+.passed a {
+	color: #0d7008;
+}

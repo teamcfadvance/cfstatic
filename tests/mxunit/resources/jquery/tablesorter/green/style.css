@@ -1,0 +1,40 @@
+table.tablesorter {
+	font-size: 12px;
+	background-color: #eaeaea;
+	width: 1024px;
+	border: 1px solid #000;
+}
+table.tablesorter th {
+	text-align: left;
+	padding: 5px;
+	background-color: #545050;
+	color:whitesmoke;
+}
+table.tablesorter td {
+	padding: 5px;
+}
+table.tablesorter .even {
+	background-color: #3D3D3D;
+}
+table.tablesorter .odd {
+	background-color: #6E6E6E;
+}
+table.tablesorter .header {
+	background-image: url(default.png);
+	background-repeat:no-repeat;
+	cursor: pointer; 
+	border: 1px inset silver;
+	padding-left: 32px;
+	padding-top: 8px;
+	height: 32px;
+	
+}
+table.tablesorter .headerSortDown {
+  background-image: url(up.png);
+  background-repeat:no-repeat;
+}
+
+table.tablesorter .headerSortUp {
+	background-image: url(down.png);
+	background-repeat:no-repeat;
+}
