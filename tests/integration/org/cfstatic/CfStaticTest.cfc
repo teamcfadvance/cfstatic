@@ -879,14 +879,14 @@
 			        .includeData( data );
 
 			renderedOutput = cfstatic.renderIncludes('js');
-			Assert( Len(Trim(renderedOutput)), "Rendering JS includes was expected to render something - empty instead" );
+			super.Assert( Len(Trim(renderedOutput)), "Rendering JS includes was expected to render something - empty instead" );
 			renderedOutput = cfstatic.renderIncludes('js');
-			Assert( not Len(Trim(renderedOutput)), "Rendering JS includes a second time was expected to render nothing but something was rendered instead." );
+			super.Assert( not Len(Trim(renderedOutput)), "Rendering JS includes a second time was expected to render nothing but something was rendered instead." );
 
 			renderedOutput = cfstatic.renderIncludes('css');
-			Assert( Len(Trim(renderedOutput)), "Rendering CSS includes was expected to render something - empty instead" );
+			super.Assert( Len(Trim(renderedOutput)), "Rendering CSS includes was expected to render something - empty instead" );
 			renderedOutput = cfstatic.renderIncludes('css');
-			Assert( not Len(Trim(renderedOutput)), "Rendering CSS includes a second time was expected to render nothing but something was rendered instead." );
+			super.Assert( not Len(Trim(renderedOutput)), "Rendering CSS includes a second time was expected to render nothing but something was rendered instead." );
 		</cfscript>
 	</cffunction>
 
