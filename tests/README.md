@@ -1,16 +1,10 @@
 CfStatic Tests
 --------------
 
-These tests rely on MXUnit (<http://mxunit.org/>).
+The CfStatic test suite uses MxUnit and tests can be run using any of the
+MxUnit test running tools. Additionally, you can run the suite by making
+CfStatic web accessible and browsering to:
 
-The Application.cfc is setup to map MXUnit to a directory above the tests/ directory, i.e.
+http://yoursite/cfstatic/tests/index.cfm
 
-	/org
-		/cfstatic
-		...
-	/tests
-		/integration
-		Application.cfc
-		...
-	/mxunit
-		...
+Please report any failling tests and errors at [https://github.com/DominicWatson/cfstatic/issues](https://github.com/DominicWatson/cfstatic/issues).

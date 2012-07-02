@@ -1,0 +1,55 @@
+@bg-color    : #333333;
+@font-color  : #cccccc;
+@pass-color  : #aaeeaa;
+@fail-color  : #aaaaee;
+@error-color : #eeaaaa;
+
+html {
+	background-color : @bg-color;
+
+	#container {
+		max-width      : 750px;
+		margin         : 20px auto;
+		font-size      : 12px;
+		font-family    : "Bitstream Vera Sans Mono","Monaco",'andale mono', 'lucida console', monospace, "Courier New";
+		color          : @font-color;
+
+		* {
+			font-size : 1em;
+		}
+
+		a, &:visited {
+			color : @font-color;
+		}
+
+		table {
+			width           : 100%;
+			border-collapse : collapse;
+
+			th, td {
+				text-align     : left;
+				vertical-align : top;
+			}
+
+			.test {
+				td {
+					padding : 5px 4px 5px 0;
+				}
+
+				a {
+					text-decoration : none;
+				}
+
+				&.Passed * {
+					color : @pass-color;
+				}
+				&.Failed * {
+					color : @fail-color;
+				}
+				&.Error * {
+					color : @error-color;
+				}
+			}
+		}
+	}
+}
