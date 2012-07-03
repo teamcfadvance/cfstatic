@@ -25,15 +25,13 @@
 			var failed = false;
 			rootDir &= 'badFiles/mixedMediaInPackage/';
 
-			cfstatic.init(
-				  staticDirectory = rootDir
-				, staticUrl       = "/any/old/thing"
-				, minifyMode      = "package"
-				, debugKey        = "doNotLetMxUnitDebugScrewTests"
-			);
-
 			try {
-				cfstatic.renderIncludes();
+				cfstatic.init(
+					  staticDirectory = rootDir
+					, staticUrl       = "/any/old/thing"
+					, minifyMode      = "package"
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				);
 
 			} catch ( "cfstatic.Package.badConfig" e ) {
 				failed = true;
@@ -48,14 +46,13 @@
 			var failed = false;
 			rootDir &= 'badFiles/mixedIeInPackage/';
 
-			cfstatic.init(
-				  staticDirectory = rootDir
-				, staticUrl       = "/any/old/thing"
-				, minifyMode      = "package"
-				, debugKey        = "doNotLetMxUnitDebugScrewTests"
-			);
 			try {
-				cfstatic.renderIncludes();
+				cfstatic.init(
+					  staticDirectory = rootDir
+					, staticUrl       = "/any/old/thing"
+					, minifyMode      = "package"
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				);
 
 			} catch ( "cfstatic.Package.badConfig" e ) {
 				failed = true;
@@ -70,15 +67,14 @@
 			var failed = false;
 			rootDir &= 'badFiles/mixedMediaInAll/';
 
-			cfstatic.init(
-				  staticDirectory = rootDir
-				, staticUrl       = "/any/old/thing"
-				, minifyMode      = "all"
-				, debugKey        = "doNotLetMxUnitDebugScrewTests"
-			);
-
 			try {
-				cfstatic.renderIncludes();
+				cfstatic.init(
+					  staticDirectory = rootDir
+					, staticUrl       = "/any/old/thing"
+					, minifyMode      = "all"
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				);
+
 			} catch ( "cfstatic.PackageCollection.badConfig" e ) {
 				failed = true;
 			}
@@ -91,15 +87,14 @@
 		<cfscript>
 			var failed = false;
 			rootDir &= 'badFiles/mixedIeInAll/';
-			cfstatic.init(
-				  staticDirectory = rootDir
-				, staticUrl       = "/any/old/thing"
-				, minifyMode      = "all"
-				, debugKey        = "doNotLetMxUnitDebugScrewTests"
-			);
 
 			try {
-				cfstatic.renderIncludes();
+				cfstatic.init(
+					  staticDirectory = rootDir
+					, staticUrl       = "/any/old/thing"
+					, minifyMode      = "all"
+					, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				);
 
 			} catch ( "cfstatic.PackageCollection.badConfig" e ) {
 				failed = true;

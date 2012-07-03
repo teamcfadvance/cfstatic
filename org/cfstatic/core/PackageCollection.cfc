@@ -309,7 +309,6 @@
 			var i		 = "";
 
 			ArraySort( packages, 'text' );
-
 			for( i=1; i LTE ArrayLen(packages); i=i+1 ){
 				_addPackageToOrderedList( packages[i] );
 			}

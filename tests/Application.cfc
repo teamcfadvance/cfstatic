@@ -26,11 +26,4 @@
 		) />
 	</cffunction>
 
-	<cffunction name="onRequestStart" access="public" returntype="boolean" output="false">
-		<cfscript>
-			onApplicationStart();
-
-			return true;
-		</cfscript>
-	</cffunction>
 </cfcomponent>

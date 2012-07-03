@@ -427,6 +427,10 @@
 		<cfreturn CreateObject("java","java.lang.StringBuffer") />
 	</cffunction>
 
+	<cffunction name="$orderedStructNew" access="private" returntype="struct" output="false">
+		<cfreturn CreateObject( "java", "java.util.LinkedHashMap" ).init() />
+	</cffunction>
+
 <!--- accessors --->
 	<cffunction name="_setJavaLoader" access="private" returntype="void" output="false">
 		<cfargument name="javaLoader" required="true" type="any" />

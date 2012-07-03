@@ -125,40 +125,49 @@
 		<cfargument name="debugMode" type="boolean" required="false" default="#_getDebugAllowed() and StructKeyExists(url, _getDebugKey()) and url[_getDebugKey()] EQ _getDebugPassword()#" hint="Whether or not to render the source files (as opposed to the compiled files). You should use the debug url parameter (see cfstatic config options) rather than manually setting this argument, but it is included here should you need it." />
 
 		<cfscript>
-			var filters    = "";
-			var buffer     = $getStringBuffer();
-			var renderCss  = not StructKeyExists( arguments, 'type' ) or type eq 'css';
-			var renderJs   = not StructKeyExists( arguments, 'type' ) or type eq 'js';
-			var minifyMode = iif( debugMode, DE('none'), DE( _getMinifyMode() ) );
+			var filters     = "";
+			var renderCache = "";
+			var buffer      = $getStringBuffer();
+			var renderCss   = not StructKeyExists( arguments, 'type' ) or type eq 'css';
+			var renderJs    = not StructKeyExists( arguments, 'type' ) or type eq 'js';
+			var includeCachedFile = "";
+			var includeAll  = "";
+			var keys        = "";
 
 			if ( renderCss ) {
-				filters = _getRequestIncludeFilters( 'css' );
+				filters = _getRequestIncludeFilters( 'css', arguments.debugMode );
 
 				if ( _anythingToRender( filters ) ) {
-					buffer.append( _getCssPackages().renderincludes(
-						  minification      = minifyMode
-						, includePackages   = filters.packages
-						, includeFiles      = filters.files
-						, downloadExternals = _getDownloadexternals()
-						, charset           = _getOutputCharset()
-					) );
+					includeAll  = not Len( filters ) and _getIncludeAllByDefault();
+					renderCache = _getRenderedIncludeCache( 'css', arguments.debugMode );
+					keys        = StructKeyArray( renderCache );
+
+					for( i=1; i LTE ArrayLen( keys ); i=i+1 ){
+						includeCachedFile = includeAll or ListFind( filters, keys[i] );
+						if ( includeCachedFile ) {
+							buffer.append( renderCache[ keys[i] ] );
+						}
+					}
 				}
 
 				_clearRequestData( 'css' );
 			}
 
 			if ( renderJs ) {
-				filters = _getRequestIncludeFilters( 'js' );
-
+				filters = _getRequestIncludeFilters( 'js', arguments.debugMode );
 				buffer.append( _renderRequestData() );
+
 				if ( _anythingToRender( filters ) ) {
-					buffer.append( _getJsPackages().renderincludes(
-						  minification      = minifyMode
-						, includePackages   = filters.packages
-						, includeFiles      = filters.files
-						, downloadExternals = _getDownloadexternals()
-						, charset           = _getOutputCharset()
-					) );
+					includeAll  = not Len( filters ) and _getIncludeAllByDefault();
+					renderCache = _getRenderedIncludeCache( 'js', arguments.debugMode );
+					keys        = StructKeyArray( renderCache );
+
+					for( i=1; i LTE ArrayLen( keys ); i=i+1 ){
+						includeCachedFile = includeAll or ListFind( filters, keys[i] );
+						if ( includeCachedFile ) {
+							buffer.append( renderCache[ keys[i] ] );
+						}
+					}
 				}
 
 				_clearRequestData( 'js' );
@@ -182,7 +191,7 @@
 			_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css' ) );
 
 			_cacheIncludeMappings();
-
+			_cacheRenderedIncludes();
 			_compileCssAndJavascript();
 		</cfscript>
 	</cffunction>
@@ -208,9 +217,9 @@
 
 	<cffunction name="_cacheIncludeMappings" access="private" returntype="void" output="false" hint="I calculate the include mappings. The mappings are a quick referenced storage of a given 'include' string that a coder might use to include a package or file that is mapped to the resultant set of packages and files that it might need to include given its dependencies. These mappings then negate the need to calculate dependencies on every request (making cfstatic super fast).">
 		<cfscript>
+			var mappings    = StructNew();
 			var jsPackages  = _getJsPackages().getOrdered();
 			var cssPackages = _getCssPackages().getOrdered();
-			var mappings    = StructNew();
 			var i           = 0;
 
 			for( i=1; i LTE ArrayLen( jsPackages ); i=i+1 ){
@@ -297,29 +306,144 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="_getRequestIncludeFilters" access="private" returntype="struct" output="false" hint="I return a list of static files / packages that need to be included in this request">
-		<cfargument name="type" type="string" required="true" hint="The type of static file, either 'js' or 'css'" />
-
+	<cffunction name="_getRequestIncludeFilters" access="private" returntype="string" output="false">
+		<cfargument name="type"      type="string"  required="true"  hint="The type of static file, either 'js' or 'css'" />
+		<cfargument name="debugMode" type="boolean" required="false" default="false" />
 		<cfscript>
 			var includes		= _getRequestIncludes();
 			var mappings		= _getIncludeMappings( type );
-			var filters			= StructNew();
+			var filters			= "";
+			var includeFiles    = debugMode OR ListFindNoCase( "file,none", _getMinifyMode() );
 			var i				= 0;
-
-			filters.packages	= ArrayNew(1);
-			filters.files		= ArrayNew(1);
 
 			for( i=1; i LTE ArrayLen(includes); i++ ){
 				if ( StructKeyExists( mappings, includes[i] ) ) {
-					filters.packages = $arrayMerge( filters.packages, mappings[includes[i]].packages );
-					filters.files    = $arrayMerge( filters.files   , mappings[includes[i]].files    );
+					if ( includeFiles ) {
+						filters = ListAppend( filters, ArrayToList( mappings[includes[i]].files ) );
+					} else {
+						filters = ListAppend( filters, ArrayToList( mappings[includes[i]].packages ) );
+
+					}
 				}
 			}
 
-			filters.packages = $arrayRemoveDuplicates( filters.packages );
-			filters.files    = $arrayRemoveDuplicates( filters.files    );
-
 			return filters;
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_cacheRenderedIncludes" access="private" returntype="void" output="false">
+		<cfscript>
+			_setupRenderedIncludeCache();
+
+			switch( _getMinifyMode() ){
+				case 'all'     : _cacheRenderedIncludesForAllMode()    ; break;
+				case 'package' : _cacheRenderedIncludesForPackageMode(); break;
+				default        : _cacheRenderedIncludesForFileMode()   ; break;
+			}
+
+			_cacheRenderedIncludesForFileMode( debug = true );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_cacheRenderedIncludesForAllMode" access="private" returntype="void" output="false">
+		<cfscript>
+			_addRenderedIncludeToCache( 'js',  '/', _getJsPackages().renderIncludes(
+				  minification      = _getMinifyMode()
+				, downloadExternals = _getDownloadExternals()
+				, charset           = _getOutputCharset()
+			)  );
+			_addRenderedIncludeToCache( 'css', '/', _getCssPackages().renderIncludes(
+				  minification      = _getMinifyMode()
+				, downloadExternals = _getDownloadExternals()
+				, charset           = _getOutputCharset()
+			) );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_cacheRenderedIncludesForPackageMode" access="private" returntype="void" output="false">
+		<cfscript>
+			var collection = "";
+			var packages   = "";
+			var package    = "";
+			var types      = ListToArray("js,css");
+			var minifyMode = "";
+			var type       = "";
+			var i          = 0;
+			var n          = 0;
+
+			for( n=1; n LTE ArrayLen( types ); n=n+1 ){
+				type = types[n];
+
+				if ( type EQ 'js' ) {
+					collection = _getJsPackages();
+				} else {
+					collection = _getCssPackages();
+				}
+				packages = collection.getOrdered();
+
+
+				for( i=1; i LTE ArrayLen( packages ); i=i+1 ){
+					package = collection.getPackage( packages[i] );
+
+					if ( packages[i] EQ 'external' and not _getDownloadExternals() ){
+						minifyMode = 'none';
+					} else {
+						minifyMode = _getMinifyMode();
+					}
+
+					_addRenderedIncludeToCache( type, packages[i], package.renderIncludes(
+						  minification      = minifyMode
+						, charset           = _getOutputCharset()
+					) );
+				}
+			}
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_cacheRenderedIncludesForFileMode" access="private" returntype="void" output="false">
+		<cfargument name="debug" type="boolean" required="false" default="false" />
+
+		<cfscript>
+			var types      = ListToArray("js,css");
+			var type       = "";
+			var collection = "";
+			var packages   = "";
+			var package    = "";
+			var files      = "";
+			var file       = "";
+			var i          = 0;
+			var n          = 0;
+			var x          = 0;
+			var minified   = iif( debug, DE( false ), DE( _getMinifyMode() EQ 'file' ) );
+
+			for( n=1; n LTE ArrayLen( types ); n=n+1 ){
+				type = types[n];
+
+				if ( type EQ 'js' ) {
+					collection = _getJsPackages();
+				} else {
+					collection = _getCssPackages();
+				}
+				packages = collection.getOrdered();
+				for( i=1; i LTE ArrayLen( packages ); i=i+1 ){
+					package = collection.getPackage( packages[i] );
+					files   = package.getOrdered();
+
+					for( x=1; x LTE ArrayLen( files ); x=x+1 ) {
+						file        = package.getStaticFile( files[x] );
+
+						_addRenderedIncludeToCache(
+							  type     = type
+							, path     = files[x]
+							, debug    = debug
+							, rendered = file.renderInclude(
+								  minified  = minified and ( packages[i] neq 'external' or _getDownloadExternals() )
+								, charset   = _getOutputCharset()
+							)
+						);
+					}
+				}
+			}
 		</cfscript>
 	</cffunction>
 
@@ -746,9 +870,9 @@
     </cffunction>
 
     <cffunction name="_anythingToRender" access="private" returntype="boolean" output="false">
-    	<cfargument name="filters" type="struct" required="true" />
+    	<cfargument name="filters" type="string" required="true" />
 
-    	<cfreturn _getIncludeAllByDefault() or ArrayLen( filters.packages ) or ArrayLen( filters.files ) />
+    	<cfreturn _getIncludeAllByDefault() or Len( filters ) />
     </cffunction>
 
     <cffunction name="_getJsDependenciesFromFile" access="private" returntype="struct" output="false">
@@ -762,6 +886,46 @@
     		}
 
     		return dependencies;
+    	</cfscript>
+    </cffunction>
+
+    <cffunction name="_setupRenderedIncludeCache" access="private" returntype="void" output="false">
+    	<cfscript>
+    		_renderedIncludeCache     = StructNew();
+    		_renderedIncludeCache.js  = $orderedStructNew();
+    		_renderedIncludeCache.css = $orderedStructNew();
+
+    		_renderedIncludeCache.debug = StructNew();
+    		_renderedIncludeCache.debug.js  = $orderedStructNew();
+    		_renderedIncludeCache.debug.css = $orderedStructNew();
+    	</cfscript>
+    </cffunction>
+
+    <cffunction name="_addRenderedIncludeToCache" access="private" returntype="void" output="false">
+    	<cfargument name="type"     type="string"  required="true"                  />
+    	<cfargument name="path"     type="string"  required="true"                  />
+    	<cfargument name="rendered" type="string"  required="true"                  />
+    	<cfargument name="debug"    type="boolean" required="false" default="false" />
+
+    	<cfscript>
+    		if ( debug ) {
+    			_renderedIncludeCache.debug[ arguments.type ][ arguments.path ] = arguments.rendered;
+    		} else {
+    			_renderedIncludeCache[ arguments.type ][ arguments.path ] = arguments.rendered;
+    		}
+    	</cfscript>
+    </cffunction>
+
+    <cffunction name="_getRenderedIncludeCache" access="private" returntype="struct" output="false">
+    	<cfargument name="type"  type="string"  required="true"                  />
+    	<cfargument name="debug" type="boolean" required="false" default="false" />
+
+    	<cfscript>
+    		if ( debug ) {
+    			return _renderedIncludeCache.debug[ arguments.type ];
+    		}
+
+    		return _renderedIncludeCache[ arguments.type ];
     	</cfscript>
     </cffunction>
 
