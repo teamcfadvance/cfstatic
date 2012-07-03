@@ -5,7 +5,7 @@
 
 	data = StructNew();
 	data.testRoot = "integration/org/cfstatic/CfStaticTest.cfc?method=runtestremote&output=json&testmethod=";
-	application.cfstatic.includeData( data );
+	cfstatic.includeData( data );
 </cfscript>
 
 <cfsetting enablecfoutputonly="true" />
@@ -16,7 +16,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<title>CfStatic: Test Suite Runner</title>
 		<meta name="author" content="Dominic Watson">
-		#application.cfstatic.renderIncludes( 'css' )#
+		#cfstatic.renderIncludes( 'css' )#
 	</head>
 	<body>
 		<div id="container">
@@ -36,6 +36,6 @@
 			</table>
 		</div>
 
-		#application.cfstatic.renderIncludes( 'js' )#
+		#cfstatic.renderIncludes( 'js' )#
 	</body>
 </html></cfoutput>

@@ -138,12 +138,12 @@
 				filters = _getRequestIncludeFilters( 'css', arguments.debugMode );
 
 				if ( _anythingToRender( filters ) ) {
-					includeAll  = not Len( filters ) and _getIncludeAllByDefault();
+					includeAll  = not ArrayLen( filters ) and _getIncludeAllByDefault();
 					renderCache = _getRenderedIncludeCache( 'css', arguments.debugMode );
 					keys        = StructKeyArray( renderCache );
 
 					for( i=1; i LTE ArrayLen( keys ); i=i+1 ){
-						includeCachedFile = includeAll or ListFind( filters, keys[i] );
+						includeCachedFile = includeAll or filters.contains( keys[i] );
 						if ( includeCachedFile ) {
 							buffer.append( renderCache[ keys[i] ] );
 						}
@@ -158,12 +158,12 @@
 				buffer.append( _renderRequestData() );
 
 				if ( _anythingToRender( filters ) ) {
-					includeAll  = not Len( filters ) and _getIncludeAllByDefault();
+					includeAll  = not ArrayLen( filters ) and _getIncludeAllByDefault();
 					renderCache = _getRenderedIncludeCache( 'js', arguments.debugMode );
 					keys        = StructKeyArray( renderCache );
 
 					for( i=1; i LTE ArrayLen( keys ); i=i+1 ){
-						includeCachedFile = includeAll or ListFind( filters, keys[i] );
+						includeCachedFile = includeAll or filters.contains( keys[i] );
 						if ( includeCachedFile ) {
 							buffer.append( renderCache[ keys[i] ] );
 						}
@@ -306,23 +306,22 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="_getRequestIncludeFilters" access="private" returntype="string" output="false">
+	<cffunction name="_getRequestIncludeFilters" access="private" returntype="array" output="false">
 		<cfargument name="type"      type="string"  required="true"  hint="The type of static file, either 'js' or 'css'" />
 		<cfargument name="debugMode" type="boolean" required="false" default="false" />
 		<cfscript>
 			var includes		= _getRequestIncludes();
 			var mappings		= _getIncludeMappings( type );
-			var filters			= "";
+			var filters			= ArrayNew(1);
 			var includeFiles    = debugMode OR ListFindNoCase( "file,none", _getMinifyMode() );
 			var i				= 0;
 
 			for( i=1; i LTE ArrayLen(includes); i++ ){
 				if ( StructKeyExists( mappings, includes[i] ) ) {
 					if ( includeFiles ) {
-						filters = ListAppend( filters, ArrayToList( mappings[includes[i]].files ) );
+						filters = $ArrayMerge( filters, mappings[includes[i]].files );
 					} else {
-						filters = ListAppend( filters, ArrayToList( mappings[includes[i]].packages ) );
-
+						filters = $ArrayMerge( filters, mappings[includes[i]].packages );
 					}
 				}
 			}
@@ -870,9 +869,9 @@
     </cffunction>
 
     <cffunction name="_anythingToRender" access="private" returntype="boolean" output="false">
-    	<cfargument name="filters" type="string" required="true" />
+    	<cfargument name="filters" type="array" required="true" />
 
-    	<cfreturn _getIncludeAllByDefault() or Len( filters ) />
+    	<cfreturn _getIncludeAllByDefault() or ArrayLen( filters ) />
     </cffunction>
 
     <cffunction name="_getJsDependenciesFromFile" access="private" returntype="struct" output="false">
