@@ -132,20 +132,19 @@
 			var renderJs    = not StructKeyExists( arguments, 'type' ) or type eq 'js';
 			var includeCachedFile = "";
 			var includeAll  = "";
-			var keys        = "";
 
 			if ( renderCss ) {
 				filters = _getRequestIncludeFilters( 'css', arguments.debugMode );
 
 				if ( _anythingToRender( filters ) ) {
-					includeAll  = not ArrayLen( filters ) and _getIncludeAllByDefault();
 					renderCache = _getRenderedIncludeCache( 'css', arguments.debugMode );
-					keys        = StructKeyArray( renderCache );
+					includeAll  = not ArrayLen( filters ) and _getIncludeAllByDefault();
 
-					for( i=1; i LTE ArrayLen( keys ); i=i+1 ){
-						includeCachedFile = includeAll or filters.contains( keys[i] );
-						if ( includeCachedFile ) {
-							buffer.append( renderCache[ keys[i] ] );
+					if ( includeAll ){
+						buffer.append( ArrayToList( renderCache['_ordered'], $newline() ) );
+					} else {
+						for( i=1; i LTE ArrayLen( filters ); i=i+1 ){
+							buffer.append( renderCache['_ordered'][ filters[i] ] );
 						}
 					}
 				}
@@ -158,18 +157,17 @@
 				buffer.append( _renderRequestData() );
 
 				if ( _anythingToRender( filters ) ) {
-					includeAll  = not ArrayLen( filters ) and _getIncludeAllByDefault();
 					renderCache = _getRenderedIncludeCache( 'js', arguments.debugMode );
-					keys        = StructKeyArray( renderCache );
+					includeAll  = not ArrayLen( filters ) and _getIncludeAllByDefault();
 
-					for( i=1; i LTE ArrayLen( keys ); i=i+1 ){
-						includeCachedFile = includeAll or filters.contains( keys[i] );
-						if ( includeCachedFile ) {
-							buffer.append( renderCache[ keys[i] ] );
+					if ( includeAll ){
+						buffer.append( ArrayToList( renderCache['_ordered'], $newline() ) );
+					} else {
+						for( i=1; i LTE ArrayLen( filters ); i=i+1 ){
+							buffer.append( renderCache['_ordered'][ filters[i] ] );
 						}
 					}
 				}
-
 				_clearRequestData( 'js' );
 			}
 
@@ -190,8 +188,8 @@
 			_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js' , _getJsDependenciesFromFile() ) );
 			_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css' ) );
 
-			_cacheIncludeMappings();
 			_cacheRenderedIncludes();
+			_cacheIncludeMappings();
 			_compileCssAndJavascript();
 		</cfscript>
 	</cffunction>
@@ -310,21 +308,37 @@
 		<cfargument name="type"      type="string"  required="true"  hint="The type of static file, either 'js' or 'css'" />
 		<cfargument name="debugMode" type="boolean" required="false" default="false" />
 		<cfscript>
-			var includes		= _getRequestIncludes();
-			var mappings		= _getIncludeMappings( type );
-			var filters			= ArrayNew(1);
-			var includeFiles    = debugMode OR ListFindNoCase( "file,none", _getMinifyMode() );
-			var i				= 0;
+			var includes = _getRequestIncludes();
+			var mappings = _getIncludeMappings( type );
+			var filters  = StructNew();
+			var fileMode = debugMode or ListFindNoCase( "file,none", _getMinifyMode() );
+			var allMode    = not debugMode and _getMinifyMode() eq "all";
+			var renderCache = _getRenderedIncludeCache( type, debugMode );
+			var files    = "";
+			var i        = 0;
+			var n        = 0;
 
-			for( i=1; i LTE ArrayLen(includes); i++ ){
+			for( i=1; i LTE ArrayLen( includes ); i++ ){
+
 				if ( StructKeyExists( mappings, includes[i] ) ) {
-					if ( includeFiles ) {
-						filters = $ArrayMerge( filters, mappings[includes[i]].files );
+					if ( fileMode ) {
+						files = mappings[includes[i]].files;
 					} else {
-						filters = $ArrayMerge( filters, mappings[includes[i]].packages );
+						files = mappings[includes[i]].packages;
+					}
+
+					for( n=1; n LTE ArrayLen( files ); n++ ){
+						if ( allMode ){
+							filters[ renderCache[ "/" ] ] = 1;
+						} else {
+							filters[ renderCache[ files[n] ] ] = 1;
+						}
 					}
 				}
 			}
+
+			filters = StructKeyArray( filters );
+			arraySort( filters, "numeric" );
 
 			return filters;
 		</cfscript>
@@ -891,12 +905,17 @@
     <cffunction name="_setupRenderedIncludeCache" access="private" returntype="void" output="false">
     	<cfscript>
     		_renderedIncludeCache     = StructNew();
-    		_renderedIncludeCache.js  = $orderedStructNew();
-    		_renderedIncludeCache.css = $orderedStructNew();
+    		_renderedIncludeCache.js  = StructNew();
+    		_renderedIncludeCache.css = StructNew();
 
     		_renderedIncludeCache.debug = StructNew();
-    		_renderedIncludeCache.debug.js  = $orderedStructNew();
-    		_renderedIncludeCache.debug.css = $orderedStructNew();
+    		_renderedIncludeCache.debug.js  = StructNew();
+    		_renderedIncludeCache.debug.css = StructNew();
+
+    		_renderedIncludeCache.js['_ordered']        = ArrayNew(1);
+    		_renderedIncludeCache.css['_ordered']       = ArrayNew(1);
+    		_renderedIncludeCache.debug.js['_ordered']  = ArrayNew(1);
+    		_renderedIncludeCache.debug.css['_ordered'] = ArrayNew(1);
     	</cfscript>
     </cffunction>
 
@@ -907,11 +926,15 @@
     	<cfargument name="debug"    type="boolean" required="false" default="false" />
 
     	<cfscript>
+    		var node = "";
     		if ( debug ) {
-    			_renderedIncludeCache.debug[ arguments.type ][ arguments.path ] = arguments.rendered;
+    			node = _renderedIncludeCache.debug[ arguments.type ];
     		} else {
-    			_renderedIncludeCache[ arguments.type ][ arguments.path ] = arguments.rendered;
+    			node = _renderedIncludeCache[ arguments.type ];
     		}
+
+    		ArrayAppend( node['_ordered'], rendered );
+    		node[ arguments.path ] = ArrayLen( node['_ordered'] );
     	</cfscript>
     </cffunction>
 
