@@ -191,6 +191,8 @@
 			_cacheRenderedIncludes();
 			_cacheIncludeMappings();
 			_compileCssAndJavascript();
+
+			_clearPackageObjects();
 		</cfscript>
 	</cffunction>
 
@@ -1102,6 +1104,13 @@
 	</cffunction>
 	<cffunction name="_getCssPackages" access="private" returntype="org.cfstatic.core.PackageCollection" output="false">
 		<cfreturn _cssPackages />
+	</cffunction>
+
+	<cffunction name="_clearPackageObjects" access="private" returntype="void" output="false">
+		<cfscript>
+			_jsPackages  = "";
+			_cssPackages = "";
+		</cfscript>
 	</cffunction>
 
 	<cffunction name="_getPackage" access="private" returntype="any" output="false">
