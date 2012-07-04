@@ -125,50 +125,41 @@
 		<cfargument name="debugMode" type="boolean" required="false" default="#_getDebugAllowed() and StructKeyExists(url, _getDebugKey()) and url[_getDebugKey()] EQ _getDebugPassword()#" hint="Whether or not to render the source files (as opposed to the compiled files). You should use the debug url parameter (see cfstatic config options) rather than manually setting this argument, but it is included here should you need it." />
 
 		<cfscript>
-			var filters     = "";
-			var renderCache = "";
-			var buffer      = $getStringBuffer();
-			var renderCss   = not StructKeyExists( arguments, 'type' ) or type eq 'css';
-			var renderJs    = not StructKeyExists( arguments, 'type' ) or type eq 'js';
-			var includeCachedFile = "";
-			var includeAll  = "";
+			var filters      = "";
+			var renderCache  = "";
+			var buffer       = $getStringBuffer();
+			var needToRender = "";
+			var includeAll   = "";
+			var types        = ListToArray( 'css,js' );
+			var i            = 0;
+			var n            = 0;
 
-			if ( renderCss ) {
-				filters = _getRequestIncludeFilters( 'css', arguments.debugMode );
+			for( i=1; i LTE ArrayLen( types ); i++ ){
+				needToRender = not StructKeyExists( arguments, "type" ) or type eq types[i];
 
-				if ( _anythingToRender( filters ) ) {
-					renderCache = _getRenderedIncludeCache( 'css', arguments.debugMode );
-					includeAll  = not ArrayLen( filters ) and _getIncludeAllByDefault();
+				if ( needToRender ) {
+					if ( types[i] EQ 'js' ) {
+						buffer.append( _renderRequestData() );
+					}
 
-					if ( includeAll ){
-						buffer.append( ArrayToList( renderCache['_ordered'], $newline() ) );
-					} else {
-						for( i=1; i LTE ArrayLen( filters ); i=i+1 ){
-							buffer.append( renderCache['_ordered'][ filters[i] ] );
+					filters = _getRequestIncludeFilters( types[i], arguments.debugMode );
+
+					if ( _anythingToRender( filters ) ) {
+						renderCache = _getRenderedIncludeCache( types[i], arguments.debugMode );
+						includeAll  = not ArrayLen( filters ) and _getIncludeAllByDefault();
+
+						if ( includeAll ){
+							buffer.append( ArrayToList( renderCache['_ordered'], $newline() ) );
+
+						} else {
+							for( n=1; n LTE ArrayLen( filters ); n=n+1 ){
+								buffer.append( renderCache['_ordered'][ filters[ n ] ] );
+							}
 						}
 					}
+
+					_clearRequestData( types[i] );
 				}
-
-				_clearRequestData( 'css' );
-			}
-
-			if ( renderJs ) {
-				filters = _getRequestIncludeFilters( 'js', arguments.debugMode );
-				buffer.append( _renderRequestData() );
-
-				if ( _anythingToRender( filters ) ) {
-					renderCache = _getRenderedIncludeCache( 'js', arguments.debugMode );
-					includeAll  = not ArrayLen( filters ) and _getIncludeAllByDefault();
-
-					if ( includeAll ){
-						buffer.append( ArrayToList( renderCache['_ordered'], $newline() ) );
-					} else {
-						for( i=1; i LTE ArrayLen( filters ); i=i+1 ){
-							buffer.append( renderCache['_ordered'][ filters[i] ] );
-						}
-					}
-				}
-				_clearRequestData( 'js' );
 			}
 
 			return buffer.toString();
