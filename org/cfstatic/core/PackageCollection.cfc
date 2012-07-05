@@ -23,6 +23,7 @@
 		<cfargument name="includePattern"   type="string"  required="true" />
 		<cfargument name="excludePattern"   type="string"  required="true" />
 		<cfargument name="dependencies"     type="struct"  required="true" />
+		<cfargument name="outputDir"        type="string"  required="true" />
 
 		<cfscript>
 			_setRootDirectory ( arguments.rootDirectory  );
@@ -33,7 +34,10 @@
 			_setIncludePattern( arguments.includePattern );
 			_setExcludePattern( arguments.excludePattern );
 
-			_loadFromFiles( arguments.dependencies );
+			_loadFromFiles(
+				  dependencies = arguments.dependencies
+				, outputDir    = arguments.outputDir
+			);
 
 			return this;
 		</cfscript>
@@ -171,16 +175,18 @@
 <!--- private methods --->
 	<cffunction name="_loadFromFiles" access="private" returntype="void" output="false" hint="I instantiate the collection by looking through all files in the collection's root directory">
 		<cfargument name="dependencies" type="struct" required="true" />
-
+		<cfargument name="outputDir"    type="string" required="true" />
 		<cfscript>
 			var files		= $directoryList( _getRootDirectory(), '*.#_getFileType()#' );
 			var i			= 1;
 
 			for(i=1; i lte files.recordCount; i++){
-				_addStaticFile(
-					  path         = $normalizeUnixAndWindowsPaths( files.directory[i] & '/' & files.name[i] )
-				    , dependencies = arguments.dependencies
-				);
+				if ( files.directory[i] neq arguments.outputDir ) {
+					_addStaticFile(
+						  path         = $normalizeUnixAndWindowsPaths( files.directory[i] & '/' & files.name[i] )
+					    , dependencies = arguments.dependencies
+					);
+				}
 			}
 		</cfscript>
 	</cffunction>

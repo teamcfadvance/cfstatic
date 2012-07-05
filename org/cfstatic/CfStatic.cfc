@@ -230,6 +230,7 @@
 			, includePattern = _getIncludePattern()
 			, excludePattern = _getExcludePattern()
 			, dependencies   = dependencies
+			, outputDir      = _getOutputDirectory()
 		) />
 	</cffunction>
 

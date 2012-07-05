@@ -885,6 +885,29 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t36_cfstatic_shouldNotBlowUp_whenOutputDirIsBeneathEitherJsOrCssDirectories" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/outputDirWithinCssDir/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_package_mode_output_within_css_dir.html' );
+			cfstatic.init(
+				  staticDirectory  = rootDir
+				, staticUrl        = "/assets/"
+				, outputDirectory  = "css/min"
+				, minifyMode       = "package"
+				, forceCompilation = true
+				, debugKey         = "doNotLetMxUnitDebugScrewTests"
+			);
+			renderedOutput = cfstatic.renderIncludes();
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
