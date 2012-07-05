@@ -18,16 +18,16 @@
 			  , url           = "";
 
 			var processResult = function( result ) {
-				var validResult = result.length && result[0].TESTSTATUS;
+				var testStatus = result.length && ( result[0].TESTSTATUS || result[0].testStatus );
 
 				$test.removeClass( ".test-running" );
-				if ( validResult ) {
+				if ( testStatus ) {
 					$test
-						.addClass( result[0].TESTSTATUS )
+						.addClass( testStatus )
 						.find( ".test-result" )
-							.html( result[0].TESTSTATUS );
+							.html( testStatus );
 
-					switch( result[0].TESTSTATUS ) {
+					switch( testStatus ) {
 						case "Passed" : $passCount.html( parseInt( $passCount.html() )+1 ); break;
 						case "Failed" : $failCount.html( parseInt( $failCount.html() )+1 ); break;
 						default : $errorCount.html( parseInt( $errorCount.html() )+1 ); break;

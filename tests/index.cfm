@@ -4,7 +4,7 @@
 	ArraySort( tests, "text" );
 
 	data = StructNew();
-	data.testRoot = "integration/org/cfstatic/CfStaticTest.cfc?method=runtestremote&output=json&testmethod=";
+	data.TESTROOT = "integration/org/cfstatic/CfStaticTest.cfc?method=runtestremote&output=json&testmethod=";
 	cfstatic.includeData( data );
 </cfscript>
 
