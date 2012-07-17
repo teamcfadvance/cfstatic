@@ -662,8 +662,9 @@
 
 			packages = _getJsPackages().getOrdered();
 			for( i=1; i LTE ArrayLen(packages); i++ ){
-				content = $getStringBuffer();
-				package = _getJsPackages().getPackage( packages[i] );
+				content  = $getStringBuffer();
+				package  = _getJsPackages().getPackage( packages[i] );
+				fileName = package.getMinifiedFileName();
 
 				if ( ( _getDownloadexternals() OR packages[i] NEQ 'external' ) AND _compilationNecessary( package ) ) {
 					files = package.getOrdered();
@@ -673,7 +674,6 @@
 						content.append( _compileJsFile( file ) );
 					}
 
-					fileName = package.getMinifiedFileName();
 					filePath = $listAppend( _getOutputDirectory(), filename, '/' );
 					$fileWrite(filePath, content.toString(), _getOutputCharset() );
 				}
@@ -683,8 +683,9 @@
 
 			packages = _getCssPackages().getOrdered();
 			for( i=1; i LTE ArrayLen(packages); i++ ){
-				content = $getStringBuffer();
-				package	= _getCssPackages().getPackage(packages[i]);
+				content  = $getStringBuffer();
+				package	 = _getCssPackages().getPackage(packages[i]);
+				fileName = package.getMinifiedFileName();
 
 				if ( ( _compilationNecessary( package ) ) AND ( _getDownloadexternals() OR packages[i] NEQ 'external' ) ) {
 					files = package.getOrdered();
@@ -694,7 +695,6 @@
 						content.append( _compileCssFile( file ) );
 					}
 
-					fileName = package.getMinifiedFileName();
 					filePath = $listAppend( _getOutputDirectory(), filename, '/' );
 					$fileWrite( filePath, content.toString(), _getOutputCharset() );
 				}
@@ -726,15 +726,15 @@
 					files   = package.getOrdered();
 
 					for( n=1; n LTE ArrayLen(files); n++ ){
-						file = package.getStaticFile( files[n] );
+						file     = package.getStaticFile( files[n] );
+						fileName = file.getMinifiedFileName();
 
 						if ( _compilationNecessary( file ) ) {
 							content	 = _compileJsFile( file );
-							fileName = file.getMinifiedFileName();
 							filePath = $listAppend( _getOutputDirectory(), filename, '/' );
 							$fileWrite( filePath, content, _getOutputCharset() );
 						}
-						fileList = ListAppend(fileList, fileName );
+						fileList = ListAppend( fileList, fileName );
 					}
 				}
 			}
@@ -746,15 +746,15 @@
 					files   = package.getOrdered();
 
 					for( n=1; n LTE ArrayLen(files); n++ ){
-						file = package.getStaticFile( files[n] );
+						file     = package.getStaticFile( files[n] );
+						fileName = file.getMinifiedFileName();
 
 						if ( _compilationNecessary( file ) ) {
 							content  = _compileCssFile( file );
-							fileName = file.getMinifiedFileName();
 							filePath = $listAppend( _getOutputDirectory(), filename, '/' );
 							$fileWrite( filePath, content, _getOutputCharset() );
 						}
-						fileList = ListAppend(fileList, fileName );
+						fileList = ListAppend( fileList, fileName );
 					}
 				}
 			}
