@@ -25,14 +25,14 @@
 		_jsDataVariable      = "cfrequest";
 		_jsDependencyFile    = "";
 
-		_jsPackages			 = "";
-		_cssPackages		 = "";
-		_yuiCompressor		 = "";
-		_lessCompiler		 = "";
-		_cssImageParser		 = "";
-		_includeMapping		 = StructNew();
-		_includeMapping.js	 = StructNew();
-		_includeMapping.css	 = StructNew();
+		_jsPackages          = "";
+		_cssPackages         = "";
+		_yuiCompressor       = "";
+		_lessCompiler        = "";
+		_cssImageParser      = "";
+		_includeMappings     = StructNew();
+		_includeMappings.js  = StructNew();
+		_includeMappings.css = StructNew();
 	</cfscript>
 
 <!--- constructor --->
