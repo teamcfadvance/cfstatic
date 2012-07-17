@@ -908,6 +908,27 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t37_cfstatic_shouldNotDeleteAllFiles_whenInCheckForUpdatesMode" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var data = StructNew();
+
+			rootDir &= 'goodFiles/standardFolders/';
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "file"
+				, checkForUpdates = true
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			cfstatic.include('/css/core/');
+
+			super.Assert( _directoryList( rootDir & 'min' ).recordCount, "The output directory was emptied after include() call, oops.");
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
@@ -1032,6 +1053,14 @@
 
 	<cffunction name="_isAdobeColdFusion" returntype="boolean" access="private" output="false">
 		<cfreturn server.coldfusion.productName EQ "ColdFusion Server" />
+	</cffunction>
+
+	<cffunction name="_directoryList" access="private" returntype="query" output="false">
+		<cfargument name="dir" type="string" required="true" />
+
+		<cfset files = "" />
+		<cfdirectory action="list" directory="#dir#" name="files" />
+		<cfreturn files />
 	</cffunction>
 
 </cfcomponent>
