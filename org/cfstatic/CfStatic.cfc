@@ -24,6 +24,7 @@
 		_lessGlobals         = "";
 		_jsDataVariable      = "cfrequest";
 		_jsDependencyFile    = "";
+		_fileStateCache      = "";
 
 		_jsPackages          = "";
 		_cssPackages         = "";
@@ -210,7 +211,9 @@
 			_cacheIncludeMappings();
 			_compileCssAndJavascript();
 
-			_clearPackageObjects();
+			if( _getCheckForUpdates() ) {
+				_setFileStateCache( _getFileState() );
+			}
 		</cfscript>
 	</cffunction>
 
@@ -480,6 +483,45 @@
 			}
 		</cfscript>
 	</cffunction>
+
+	<cffunction name="_getFileState" access="private" returntype="string" output="false">
+		<cfscript>
+			var jsDir    = $listAppend( _getRootDirectory(), _getJsDirectory() , '/' );
+			var cssDir   = $listAppend( _getRootDirectory(), _getCssDirectory(), '/' );
+			var jsFiles  = $directoryList( jsDir  );
+			var cssFiles = $directoryList( cssDir );
+			var state    = StructNew();
+			var ext      = "";
+			var path     = "";
+			var i        = 0;
+			var included = "";
+
+			for( i=1; i LTE jsFiles.recordCount; i++ ){
+				ext      = ListLast( jsFiles.name[i], '.' );
+				path     = $normalizeUnixAndWindowsPaths( $listAppend( jsFiles.directory[i], jsFiles.name[i], '/' ) );
+				included = ListFindNoCase( "js,coffee", ext ) and $shouldFileBeIncluded( path, _getIncludePattern(), _getExcludePattern() );
+				if ( included ) {
+					state[path] = jsFiles.dateLastModified[i];
+				}
+			}
+
+			for( i=1; i LTE cssFiles.recordCount; i++ ){
+				ext      = ListLast( cssFiles.name[i], '.' );
+				path     = $normalizeUnixAndWindowsPaths( $listAppend( cssFiles.directory[i], cssFiles.name[i], '/' ) );
+				included = ListFindNoCase( "css,less", ext ) and $shouldFileBeIncluded( path, _getIncludePattern(), _getExcludePattern() );
+				if ( included ) {
+					state[path] = cssFiles.dateLastModified[i];
+				}
+			}
+
+			return Hash( SerializeJson( state ) );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_filesHaveChanged" access="private" returntype="void" output="false">
+		<cfreturn _getFileStateCache() NEQ _getFileState() />
+	</cffunction>
+
 
 	<cffunction name="_loadCompilers" access="private" returntype="void" output="false" hint="I instantiate all the compilers used by cfstatic">
 		<cfargument name="javaLoaderScope" type="string" required="false" default="server" hint="The scope should the compilers be persisted">
@@ -855,7 +897,7 @@
 			_setRequestIncludes( ArrayNew(1) );
 			_setRequestData    ( StructNew() );
 
-			if ( _getCheckForUpdates() ) {
+			if ( _getCheckForUpdates() and _filesHaveChanged() ) {
 				_processStaticFiles();
 			}
 		</cfscript>
@@ -1253,6 +1295,14 @@
 	<cffunction name="_setJsDependencyFile" access="private" returntype="void" output="false">
 		<cfargument name="JsDependencyFile" type="string" required="true" />
 		<cfset _JsDependencyFile = JsDependencyFile />
+	</cffunction>
+
+	<cffunction name="_getFileStateCache" access="private" returntype="string" output="false">
+		<cfreturn _fileStateCache />
+	</cffunction>
+	<cffunction name="_setFileStateCache" access="private" returntype="void" output="false">
+		<cfargument name="fileStateCache" type="string" required="true" />
+		<cfset _fileStateCache = arguments.fileStateCache />
 	</cffunction>
 
 	<cffunction name="_getLessGlobals" access="private" returntype="string" output="false">
