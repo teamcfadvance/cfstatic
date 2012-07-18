@@ -518,7 +518,7 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="_filesHaveChanged" access="private" returntype="void" output="false">
+	<cffunction name="_filesHaveChanged" access="private" returntype="boolean" output="false">
 		<cfreturn _getFileStateCache() NEQ _getFileState() />
 	</cffunction>
 
