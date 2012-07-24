@@ -958,7 +958,7 @@
     		var jsDir          = $ListAppend( _getRootDirectory(), _getJsdirectory(), '/' );
 
     		if ( Len(Trim( dependencyFile ) ) ) {
-    			dependencies = CreateObject('org.cfstatic.util.JsDependencyFileParser').parse( dependencyFile,  jsDir );
+    			dependencies = CreateObject( 'component', 'org.cfstatic.util.JsDependencyFileParser' ).parse( dependencyFile,  jsDir );
     		}
 
     		return dependencies;
