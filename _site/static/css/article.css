@@ -1,0 +1,38 @@
+article time {
+	display        : block;
+	text-transform : uppercase;
+	font-size      : 1.1em;
+	color          : #666;
+	margin         : 0.5em 0;
+}
+
+article #page-title {
+	margin        : 0.1em 0;
+	font-size     : 2.4em;
+	border-bottom : 1px solid;
+}
+
+article #published-in {
+	color      : #555555;
+	text-align : right;
+	margin     : 1em 0;
+}
+
+article h1 {
+	font-size     : 2em;
+	margin        : 0.1em 0;
+}
+article h2 {
+	font-size     : 1.6em;
+	line-height   : 1;
+	margin-bottom : 0.5em;
+	border-bottom : 1px dotted;
+}
+article h3 {
+	font-size: 1.2em;
+}
+
+article #comments-container {
+	border-top  : 3px double #e4e1e1;
+	padding-top : 1em;
+}

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>{{ page.title }}: CfStatic</title>
+		<meta name="description" content="CfStatic, CSS and JavaScript control for CFML applications">
+		<meta name="author" content="Dominic Watson">
+
+		<!--[if lt IE 9]>
+		<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+
+		<!-- css -->
+		<link rel="stylesheet" type="text/css" href="{% minified_css_file %}">
+	</head>
+	<body>
+		<div id="container">
+			<header>
+				<div class="centerizer">
+					<h1><a href="/">CfStatic</a></h1>
+					<p>CSS and JavaScript control for CFML applications</p>
+					<a id="fork-me"   class="no-print" target="_blank" href="https://github.com/dominicwatson/cfstatic" title="Fork me on GitHub">Fork me on GitHub</a>
+				</div>
+			</header>
+			<nav class="no-print">
+				<ul class="centerizer">
+					<li><a href="/">Home</a></li>
+					<li><a href="/guide/index.html">Getting Started</a></li>
+					<li><a href="/api/index.html">API</a></li>
+				</ul>
+			</nav>
+			<div id="main" role="main">
+				<div class="centerizer">
+					{{ content }}
+				</div>
+			</div>
+    		<footer>
+				<div class="centerizer">
+    				<p>&copy; Dominic Watson 2012.</p>
+				</div>
+    		</footer>
+  		</div><!--! end of #container -->
+	</body>
+</html>
