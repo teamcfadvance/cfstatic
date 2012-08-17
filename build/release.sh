@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#TODO: take command line option for release number
+#TODO: put build date in version info file
+
 git checkout -b rb-0.6.0
 mkdir docs
 git checkout gh-pages
@@ -15,4 +18,3 @@ git commit -a -m "Removed build directory, not needed for tagged release"
 git tag 0.6.0
 git checkout -f develop
 git branch -D rb-0.6.0
-
