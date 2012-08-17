@@ -14,9 +14,9 @@ You can contribute to CfStatic by:
 
 Suggestions, bug reports and contributions are all very welcome.
 
-### Contributors
+### Contributors so far
 
-In alphabetical order:
+The following GitHub users have all contributed in some way; either by submitting bugs and suggestions or by supplying code. In alphabetical order:
 
 * [alexskinner](https://github.com/alexskinner)
 * [aliaspooryorik](https://github.com/aliaspooryorik)
