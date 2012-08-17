@@ -133,41 +133,78 @@ See here for conditional comment reference:
 
 The CfStatic init() method takes the following arguments. Do not be alarmed at the number of them, only two are mandatory, the rest have sensible defaults:
 
-      staticDirectory:     Full path to the directory in which static files reside (e.g. /webroot/static/)
-      staticUrl:           Url that maps to the static directory (e.g. http://mysite.com/static or /static)
-      jsDirectory:         Relative path to the directoy in which javascript files reside. Relative to
-                           static path. Default is 'js'
-      cssDirectory:        Relative path to the directoy in which css files reside. Relative to static
-                           path. Default is 'css'
-      outputDirectory:     Relative path to the directory in which minified files will be output. Relative to
-                           static path. Default is 'min'
-      minifyMode:          The minify mode. Options are: 'none', 'file', 'package' or 'all'. Default is 'package'.
-      downloadExternals:   If set to true, CfMinify will download and minify locally any external dependencies
-                           (e.g. http://code.jquery.com/jquery-1.6.1.min,js). Default = false
-      debugAllowed:        Whether or not debug is allowed. Defaulting to true, even though this may seem like a
-                           dev setting. No real extra load is made on the server by a user making use of debug
-                           mode and it is useful by default. Default = true.
-      debugKey:            URL parameter name used to invoke debugging (if enabled). Default = 'debug'
-      debugPassword:       URL parameter value used to invoke debugging (if enabled). Default = 'true'
-      forceCompilation:    Whether or not to check for updated files before compiling (true = do not check).
-                           Default = false.
-      checkForUpdates:     Whether or not to attempt recompilation on every request. Default = false
-      includeAllByDefault: Whether or not to include all static files in a request when the .include() method is never called
-                           (default = true) *0.2.2*
-      embedCssImages:      Either 'none', 'all' or a regular expression to select css images that should be embedded in css
-                         files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images
-                         (default = 'none') *0.3.0*
-    includePattern       Regex pattern indicating css and javascript files to be included in CfStatic's processing. Defaults
-                         to .* (all) *0.4.0*
-    excludePattern       Regex pattern indicating css and javascript files to be excluded from CfStatic's processing.
-                         Defaults to blank (exclude none) *0.4.0*
-    outputCharset        Character set to use when writing outputted minified files *0.4.0*
-    javaLoaderScope      The scope in which instances of JavaLoader libraries for the compilers should be persisted, either
-                         'application' or 'server' (default is 'server' to prevent JavaLoader memory leaks). You may
-                         need to use 'application' in a shared hosting environment *0.4.1*
-    lessGlobals          Comma separated list of .LESS files to import when processing all .LESS files. Files will be included
-                         in the order of the list *0.4.2*
+    staticDirectory:     Full path to the directory in which static files
+                         reside (e.g. /webroot/static/)
 
+    staticUrl:           Url that maps to the static directory (e.g.
+                         http://mysite.com/static or /static)
+
+    jsDirectory:         Relative path to the directoy in which javascript
+                         files reside. Relative to static path. Default is
+                         'js'
+
+    cssDirectory:        Relative path to the directoy in which css files
+                         reside. Relative to static path. Default is 'css'
+
+    outputDirectory:     Relative path to the directory in which minified
+                         files will be output. Relative to static path.
+                         Default is 'min'
+
+    minifyMode:          The minify mode. Options are: 'none', 'file',
+                         'package' or 'all'. Default is 'package'.
+                         downloadExternals:   If set to true, CfMinify will
+                         download and minify locally any external
+                         dependencies (e.g.
+                         http://code.jquery.com/jquery-1.6.1.min,js). Default = false
+
+    debugAllowed:        Whether or not debug is allowed. Defaulting to
+                         true, even though this may seem like a dev setting.
+                         No real extra load is made on the server by a user
+                         making use of debug mode and it is useful by default.
+                         Default = true.
+
+    debugKey:            URL parameter name used to invoke debugging (if
+                         enabled). Default = 'debug'
+
+    debugPassword:       URL parameter value used to invoke debugging (if
+                         enabled). Default = 'true'
+
+    forceCompilation:    Whether or not to check for updated files before
+                         compiling (true = do not check). Default = false.
+
+    checkForUpdates:     Whether or not to attempt recompilation on every
+                         request. Default = false
+
+    includeAllByDefault: Whether or not to include all static files in a
+                         request when the .include() method is never called
+                         (default = true) *0.2.2*
+
+    embedCssImages:      Either 'none', 'all' or a regular expression to
+                         select css images that should be embedded in css
+                         files as base64 encoded strings, e.g. '\.gif$' for
+                         only gifs or '.*' for all images (default = 'none')
+                         *0.3.0*
+
+    includePattern:      Regex pattern indicating css and javascript files to
+                         be included in CfStatic's processing. Defaults to .*
+                         (all) *0.4.0*
+
+    excludePattern:      Regex pattern indicating css and javascript files to
+                         be excluded from CfStatic's processing. Defaults to
+                         blank (exclude none) *0.4.0*
+
+    outputCharset:       Character set to use when writing outputted minified
+                         files *0.4.0*
+
+    javaLoaderScope:     The scope in which instances of JavaLoader libraries
+                         for the compilers should be persisted, either
+                         'application' or 'server' (default is 'server' to
+                         prevent JavaLoader memory leaks). You may need to use
+                         'application' in a shared hosting environment *0.4.1*
+
+    lessGlobals:         Comma separated list of .LESS files to import when
+                         processing all .LESS files. Files will be included in
+                         the order of the list *0.4.2*
 
 ### Static paths
 The minimal setup, ready for production, involves declaring your root static directory and the url that maps to it. This assumes that you have 'js', 'css' and 'min' folders beneath your 'staticDirectory'. For example, consider the following directory structure:
