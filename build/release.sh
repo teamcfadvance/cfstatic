@@ -1,8 +1,5 @@
 #!/bin/sh
 
-#TODO: take command line option for release number
-#TODO: put build date in version info file
-
 if test $# -lt 1; then
 	echo "Useage: ./release.sh {tag name}"
 else
