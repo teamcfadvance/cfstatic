@@ -1,10 +1,10 @@
-<cfcomponent output="false" extends="org.cfstatic.util.Base" hint="I provide an interface for parsing the CfStatic JS Dependency file">
+<cfcomponent output="false" extends="org.cfstatic.util.Base" hint="I provide an interface for parsing the CfStatic Dependency file">
 
 	<cfset _setConditionalToken( '(conditional)' ) />
 
 	<cffunction name="parse" access="public" returntype="struct" output="false">
 		<cfargument name="filePath" type="string" required="true" />
-		<cfargument name="jsDir"    type="string" required="true" />
+		<cfargument name="rootDir"  type="string" required="true" />
 
 		<cfscript>
 			var fileContent      = $fileRead( $ensureFullFilePath( filePath ) );
@@ -21,14 +21,14 @@
 					if ( _isChild( line ) ) {
 						files = _addDependents(
 							  files       = files
-							, dependents  = _discoverFilesFromWildCardMapping( Trim( ListFirst( line, ' ' ) ), jsDir )
+							, dependents  = _discoverFilesFromWildCardMapping( Trim( ListFirst( line, ' ' ) ), rootDir )
 							, conditional = _isConditional( line )
 						);
 						lastLineIsParent = false;
 					} else {
 						files = _addDependencies(
 							  files           = files
-							, dependencies    = _discoverFilesFromWildCardMapping( Trim( ListFirst( line, ' ' ) ), jsDir )
+							, dependencies    = _discoverFilesFromWildCardMapping( Trim( ListFirst( line, ' ' ) ), rootDir )
 							, isNewDependency =  not lastLineIsParent
 						);
 
@@ -109,11 +109,11 @@
 
 	<cffunction name="_discoverFilesFromWildCardMapping" access="private" returntype="array" output="false">
 		<cfargument name="wildCardMapping" type="string" required="true" />
-		<cfargument name="jsDir"           type="string" required="true" />
+		<cfargument name="rootDir"           type="string" required="true" />
 
 		<cfscript>
 			var returnArray = ArrayNew(1);
-			var fullPath    = $ListAppend( jsDir, wildCardMapping, '/' );
+			var fullPath    = $ListAppend( rootDir, wildCardMapping, '/' );
 			var dir         = GetDirectoryFromPath( fullPath );
 			var filter      = Trim( ListLast( fullPath, '/' ) );
 			var files       = "";
@@ -133,8 +133,8 @@
 			}
 
 			if ( not ArrayLen( returnArray ) ) {
-				$throw(  type    = "org.cfstatic.util.JsDependencyFileParser.missingDependency"
-					   , message = "Your js dependency file has a bad file path / wildcard mapping"
+				$throw(  type    = "org.cfstatic.util.DependencyFileParser.missingDependency"
+					   , message = "Your dependency file has a bad file path / wildcard mapping"
 					   , detail  = "The dependency, '#wildCardMapping#', failed to match any files." );
 			}
 
@@ -151,6 +151,7 @@
 			var dependencyStruct = StructNew();
 			var dependencies     = "";
 			var dependents       = "";
+			var dependent        = "";
 			var conditionals     = "";
 
 			dependencyStruct.regular     = StructNew();
@@ -163,18 +164,20 @@
 				conditionals = dependencyArray[i].conditionalDependents;
 
 				for( n=1; n LTE ArrayLen( dependents ); n=n+1 ){
-					if ( not StructKeyExists( dependencyStruct.regular, dependents[n] ) ) {
-						dependencyStruct.regular[ dependents[n] ] = ArrayNew(1);
+					dependent = _appendCompiledFileTypeWhenNecessary( dependents[n] );
+					if ( not StructKeyExists( dependencyStruct.regular, dependent ) ) {
+						dependencyStruct.regular[ dependent ] = ArrayNew(1);
 					}
 
-					dependencyStruct.regular[ dependents[n] ] = $ArrayMerge( dependencyStruct.regular[ dependents[n] ], dependencies );
+					dependencyStruct.regular[ dependent ] = $ArrayMerge( dependencyStruct.regular[ dependent ], dependencies );
 				}
 				for( n=1; n LTE ArrayLen( conditionals ); n=n+1 ){
-					if ( not StructKeyExists( dependencyStruct.conditional, conditionals[n] ) ) {
-						dependencyStruct.conditional[ conditionals[n] ] = ArrayNew(1);
+					dependent = _appendCompiledFileTypeWhenNecessary( dependents[n] );
+					if ( not StructKeyExists( dependencyStruct.conditional, dependent ) ) {
+						dependencyStruct.conditional[ dependent ] = ArrayNew(1);
 					}
 
-					dependencyStruct.conditional[ conditionals[n] ] = $ArrayMerge( dependencyStruct.conditional[ conditionals[n] ], dependencies );
+					dependencyStruct.conditional[ dependent ] = $ArrayMerge( dependencyStruct.conditional[ dependent ], dependencies );
 				}
 			}
 			return dependencyStruct;
@@ -187,5 +190,17 @@
 	<cffunction name="_setConditionalToken" access="private" returntype="void" output="false">
 		<cfargument name="conditionalToken" type="any" required="true" />
 		<cfset _conditionalToken = arguments.conditionalToken />
+	</cffunction>
+
+	<cffunction name="_appendCompiledFileTypeWhenNecessary" access="private" returntype="string" output="false">
+		<cfargument name="filePath" type="string" required="true" />
+
+		<cfscript>
+			switch( ListLast( filePath, "." ) ){
+				case "coffee" : return filePath & ".js";
+				case "less"   : return filePath & ".css";
+				default       : return filePath;
+			}
+		</cfscript>
 	</cffunction>
 </cfcomponent>

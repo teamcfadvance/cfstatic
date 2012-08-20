@@ -1,0 +1,15 @@
+/**
+ * This less file depends on testing.less
+ *
+ */
+
+@import url(../common.less);
+
+@someColor:#ff99ff;
+
+.class {
+	.another .class {
+		color:@someColor;
+		border-color:@light-grey;
+	}
+}

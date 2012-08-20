@@ -1,0 +1,9 @@
+/**
+ * I am a test IE only stylesheet
+ *
+ * @ie IE
+ */
+
+.layout-fix {
+	zoom:1;
+}

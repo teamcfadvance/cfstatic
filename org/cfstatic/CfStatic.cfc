@@ -24,6 +24,7 @@
 		_lessGlobals         = "";
 		_jsDataVariable      = "cfrequest";
 		_jsDependencyFile    = "";
+		_cssDependencyFile   = "";
 		_fileStateCache      = "";
 
 		_jsPackages          = "";
@@ -60,6 +61,7 @@
 		<cfargument name="lessGlobals"         type="string"  required="false" default=""          hint="Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list" />
 		<cfargument name="jsDataVariable"      type="string"  required="false" default="cfrequest" hint="JavaScript variable name that will contain any data passed to the .includeData() method" />
 		<cfargument name="jsDependencyFile"    type="string"  required="false" default=""          hint="Text file describing the dependencies between javascript files" />
+		<cfargument name="cssDependencyFile"   type="string"  required="false" default=""          hint="Text file describing the dependencies between css files" />
 
 		<cfscript>
 			_setProperties( argumentCollection = arguments );
@@ -165,6 +167,7 @@
 		<cfargument name="lessGlobals"         type="string"  required="false" default=""          hint="Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list" />
 		<cfargument name="jsDataVariable"      type="string"  required="false" default="cfrequest" hint="JavaScript variable name that will contain any data passed to the .includeData() method" />
 		<cfargument name="jsDependencyFile"    type="string"  required="false" default=""          hint="Text file describing the dependencies between javascript files" />
+		<cfargument name="cssDependencyFile"   type="string"  required="false" default=""          hint="Text file describing the dependencies between css files" />
 
 		<cfscript>
 			var rootDir = $normalizeUnixAndWindowsPaths( $ensureFullDirectoryPath( staticDirectory ) );
@@ -192,6 +195,7 @@
 			_setLessGlobals        ( lessGlobals                                  );
 			_setJsDataVariable     ( jsDataVariable                               );
 			_setJsDependencyFile   ( jsDependencyFile                             );
+			_setCssDependencyFile  ( cssDependencyFile                            );
 		</cfscript>
 	</cffunction>
 
@@ -204,8 +208,8 @@
 			_compileLess();
 			_compileCoffeeScript();
 
-			_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js' , _getJsDependenciesFromFile() ) );
-			_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css' ) );
+			_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js' , _getDependenciesFromFile( 'js'  ) ) );
+			_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css', _getDependenciesFromFile( 'css' ) ) );
 
 			_cacheRenderedIncludes();
 			_cacheIncludeMappings();
@@ -951,14 +955,24 @@
     	<cfreturn _getIncludeAllByDefault() or ArrayLen( filters ) />
     </cffunction>
 
-    <cffunction name="_getJsDependenciesFromFile" access="private" returntype="struct" output="false">
+    <cffunction name="_getDependenciesFromFile" access="private" returntype="struct" output="false">
+    	<cfargument name="type" type="string" required="true" hint="js|css" />
+
     	<cfscript>
-    		var dependencyFile = _getJsDependencyFile();
+    		var dependencyFile = "";
     		var dependencies   = StructNew();
-    		var jsDir          = $ListAppend( _getRootDirectory(), _getJsdirectory(), '/' );
+    		var rootDir        = "";
+
+    		if ( type eq 'css' ) {
+    			dependencyFile = _getCssDependencyFile();
+    			rootDir        = $ListAppend( _getRootDirectory(), _getCssdirectory(), '/' );
+    		} else {
+    			dependencyFile = _getJsDependencyFile();
+    			rootDir        = $ListAppend( _getRootDirectory(), _getJsdirectory(), '/' );
+    		}
 
     		if ( Len(Trim( dependencyFile ) ) ) {
-    			dependencies = CreateObject( 'component', 'org.cfstatic.util.JsDependencyFileParser' ).parse( dependencyFile,  jsDir );
+    			dependencies = CreateObject( 'component', 'org.cfstatic.util.DependencyFileParser' ).parse( dependencyFile, rootDir );
     		}
 
     		return dependencies;
@@ -1295,6 +1309,14 @@
 	<cffunction name="_setJsDependencyFile" access="private" returntype="void" output="false">
 		<cfargument name="JsDependencyFile" type="string" required="true" />
 		<cfset _JsDependencyFile = JsDependencyFile />
+	</cffunction>
+
+	<cffunction name="_getCssDependencyFile" access="private" returntype="string" output="false">
+		<cfreturn _cssDependencyFile>
+	</cffunction>
+	<cffunction name="_setCssDependencyFile" access="private" returntype="void" output="false">
+		<cfargument name="cssDependencyFile" type="string" required="true" />
+		<cfset _cssDependencyFile = arguments.cssDependencyFile />
 	</cffunction>
 
 	<cffunction name="_getFileStateCache" access="private" returntype="string" output="false">

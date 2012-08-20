@@ -1,0 +1,23 @@
+#
+# This file details dependencies between css files
+#
+# Indented files have dependencies on the unindented file(s) above them
+# Dependent files marked with (conditional), only depend on the file above
+# when it is already included in the request and can be included without
+# the dependency.
+#
+
+/core/reset.css
+	/core/typography.css
+
+/core/typography.css
+	/core/ie/ie.css
+	/core/mobile/mobile.css
+	/someFolder/someCss.css
+	/another.css
+
+/someFolder/someCss.css
+	/less/testing.less
+
+/less/testing.less
+	/less/anothertest.less

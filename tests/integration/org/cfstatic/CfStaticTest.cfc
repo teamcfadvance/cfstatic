@@ -707,7 +707,7 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="t29_renderIncludes_shouldRenderFilesInTheCorrectOrder_whenAJsDependenciesFileIsSupplied" returntype="void">
+	<cffunction name="t29_renderIncludes_shouldRenderFilesInTheCorrectOrder_whenDependencyFilesAreSupplied" returntype="void">
 		<cfscript>
 			var renderedOutput = "";
 			var expectedOutput = "";
@@ -718,14 +718,16 @@
 			expectedOutput = _fileRead( outputHtmlRoot & 'all_includes_file_mode_from_dependency_file.html' );
 
 			cfstatic.init(
-				  staticDirectory = rootDir
-				, staticUrl       = "/assets"
-				, minifyMode      = "file"
-				, debugKey        = "doNotLetMxUnitDebugScrewTests"
-				, jsDependencyFile = rootDir & 'js.dependencies'
+				  staticDirectory   = rootDir
+				, staticUrl         = "/assets"
+				, minifyMode        = "file"
+				, debugKey          = "doNotLetMxUnitDebugScrewTests"
+				, jsDependencyFile  = rootDir & 'js.dependencies'
+				, cssDependencyFile = rootDir & 'css.dependencies'
 			);
+
 			renderedOutput = cfstatic.renderIncludes();
-			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+			AssertEquals( _cleanupRenderedOutput( expectedOutput ), _cleanupRenderedOutput( renderedOutput ) );
 		</cfscript>
 	</cffunction>
 
@@ -745,7 +747,7 @@
 					, debugKey        = "doNotLetMxUnitDebugScrewTests"
 					, jsDependencyFile = rootDir & 'bad.js.dependencies'
 				);
-			} catch ( "org.cfstatic.util.JsDependencyFileParser.missingDependency" e ) {
+			} catch ( "org.cfstatic.util.DependencyFileParser.missingDependency" e ) {
 				AssertEquals( expectedErrorMessage, e.detail );
 				failed = true;
 			}
