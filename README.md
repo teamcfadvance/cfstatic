@@ -1,4 +1,4 @@
-CFStatic is a framework for the inclusion and packaging of CSS and JavaScript files for CFML 
+CFStatic is a framework for the inclusion and packaging of CSS and JavaScript files for CFML
 applications.
 
 CFStatic takes care of:
@@ -15,25 +15,23 @@ Key features:
 * Minifies your files for you using YuiCompressor
 * Compiles your LESS CSS for you
 * Compiles your CoffeeScript for you
-* Dependency configuration through JavaDoc style documentation
+* Dependency configuration through self documentation
 * Easy, zero-code, switching between inclusion of raw source files and minified files
 * Small API, only 4 public methods (including the constructor)
-* Three minify modes (All, Package and File)
-* Built for production; no need for CSS and JavaScript file packaging in your build scripts, 
+* Built for production; no need for CSS and JavaScript file packaging in your build scripts,
   code can be put in production
 * Minified files are saved to disk, CF is not involved in serving the files
 
 Documentation
 -------------
 
-https://github.com/DominicWatson/cfstatic/wiki
-
+[http://dominicwatson.github.com/cfstatic](http://dominicwatson.github.com/cfstatic)
 
 Other resources
 ---------------
 
-Authors Blog : http://fusion.dominicwatson.co.uk/categories/CfStatic/
+Authors Blog : [http://fusion.dominicwatson.co.uk/categories/CfStatic/](http://fusion.dominicwatson.co.uk/categories/CfStatic/)
 
-Source       : https://github.com/DominicWatson/cfstatic/
+Source       : [https://github.com/DominicWatson/cfstatic/](https://github.com/DominicWatson/cfstatic/)
 
-Issues       : https://github.com/DominicWatson/cfstatic/issues/
+Issues       : [https://github.com/DominicWatson/cfstatic/issues/](https://github.com/DominicWatson/cfstatic/issues/)
