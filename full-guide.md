@@ -424,6 +424,7 @@ Once you have configured CfStatic and marked up your static files with the appro
 3. **includeData( *data* )**: used to output data to a JavaScript variable when the javascript is rendered
 4. **renderIncludes( *[type]* )**: used to render the CSS or JavaScript includes
 
+<a id="instance-creating"></a>
 ### Creating an instance of the API for your application
 
 The API is published in the component, `org.cfstatic.CfStatic`. An instance should be created using the component's init() method, passing in any [configuration](#configuration) arguments for your environment, and stored in a cacheable scope. An example, without using any framework, might look like this:

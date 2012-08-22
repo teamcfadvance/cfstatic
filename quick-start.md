@@ -34,7 +34,7 @@ CfStatic is designed to be a singleton so you will want to store the instance of
 </cfscript>
 {% endhighlight %}
 
-Further information on instantiating CfStatic can be seen here. Full configuration option listing can be found here.
+For more detail, see the full guide for [instantiating cfstatic](full-guide.html#instance-creating) and [configuring cfstatic](full-guide.html#configuration)
 
 <a id="configure-dependencies"></a>
 ## Configure dependencies
@@ -61,6 +61,8 @@ All three methods may be used. Dependencies declared in JavaDoc style comments a
      // my plugin code here...
 })(jQuery);
 {% endhighlight %}
+
+See an in-depth explanation in the [full guide](full-guide.html#javadoc).
 
 #### Dependency file example:
 {% highlight sh %}
@@ -99,6 +101,8 @@ http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
 /shared/jqGrid/jqGrid.js
     /folder/some-more.js
 {% endhighlight %}
+
+See an in-depth explanation in the [full guide](full-guide.html#dependency-file).
 
 <a id="include-resources"></a>
 ## Include static resources in your request
