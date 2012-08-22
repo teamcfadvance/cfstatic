@@ -293,6 +293,18 @@ The CfStatic init() method takes the following arguments. Do not be alarmed at t
                          processing all .LESS files. Files will be included in
                          the order of the list *0.4.2*
 
+    jsDataVariable       JavaScript variable name that will contain any data
+                         passed to the .includeData() method, default is
+                         'cfrequest' *0.6.0*
+
+    jsDependencyFile     Text file describing the dependencies between
+                         javascript files *0.6.0*
+
+    cssDependencyFile    Text file describing the dependencies between css
+                         files *0.6.0*
+
+
+
 ### Static paths
 The minimal setup, ready for production, involves declaring your root static directory and the url that maps to it. This assumes that you have 'js', 'css' and 'min' folders beneath your 'staticDirectory'. For example, consider the following directory structure:
 
