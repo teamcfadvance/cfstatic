@@ -1,59 +1,27 @@
 ---
 layout: default
-title: Useage guide
+title: Full Useage Guide
 ---
 
 # {{ page.title }}
 
-## Contents
-* [Download and installation](#installation)
-* [Preparing your static files](#preparation)
-* [Configuration](#configuration)
-* [Useage](#useage)
-* [LESS](#less)
-* [CoffeeScript](#coffeescript)
-
-<a id="installation"></a>
-## Download and installation
-### Download
-
-The latest stable download can be found at [http://cfstatic.riaforge.org](http://cfstatic.riaforge.org) or you can choose from the downloads on the [downloads page](/downloads/).
-
-### Installing CfStatic
-
-The content beneath the `/org/cfstatic` directory is all that is needed to run CfStatic. Place the content somewhere in your project, or globally on your server, and create a mapping to it with the logical path, `/org/cfstatic`.
-
-### Creating an instance of the API for your application
-
-The API is published in the component, `org.cfstatic.CfStatic`. An instance should be created using the component's init() method, passing in any [configuration](#configuration) arguments for your environment, and stored in a cacheable scope. An example, without using any framework, might look like this:
-
-**Application.cfc**
-
-{% highlight cfm %}
-<cfscript>
-    function onApplicationStart() {
-        application.cfstatic = CreateObject('component', 'org.cfstatic.CfStatic').init(
-            staticDirectory = ExpandPath('./static')
-          , staticUrl       = "/static/"
-        );
-    }
-</cfscript>
-{% endhighlight %}
-
-All CfStatic operations can now be performed using this instance, e.g.
-
-**MyLayout.cfm**
-
-{% highlight cfm %}
-        ...
-        #application.cfstatic.renderIncludes( 'css' )#
-    </head>
-{% endhighlight %}
+1. [Preparing your static files](#preparation)
+2. [Configuration](#configuration)
+3. [API Useage](#useage)
+4. [LESS](#less)
+5. [CoffeeScript](#coffeescript)
 
 <a id="preparation"></a>
 ## Preparing your static files
-### JavaDoc style comments
-In order for CfStatic to know how to include and package your files correctly, JavaDoc style comments must be present at the top of all your CSS and JavaScript files. JavaDoc comments look like this:
+
+In order for CfStatic to know how to include and package your files in the correct order and with all the necessary dependencies, it needs to know how your javascript and css files relate to one another. The framework provides two methods of doing this:
+
+1. JavaDoc style comments within each file
+2. A single 'dependencies' text file
+
+###JavaDoc style comments
+
+JavaDoc comments look like this and must be present at the top of your files for CfStatic to process them:
 
 {% highlight js %}
 /**
@@ -75,7 +43,7 @@ CfStatic makes use of the following properties:
 * **@ie** used to indicate an Internet Explorer restriction for the file, e.g. `@ie LTE IE 8`
 * **@media** for CSS files only, used to indicate the target media for the CSS file, e.g. `@media print`
 
-#### Documenting dependencies
+### Documenting dependencies
 
 Core to the correct running of CfStatic is the use of the @depends property to document dependencies between your files; CfStatic uses this information to ensure all necessary files are included in your page, and in the correct order. Dependencies can be either local or external, e.g. `@depends http://someurl.com/somejs.js` is an external dependency.
 
@@ -316,13 +284,42 @@ Or only include any resources under a `raw` folder that do not contain an unders
 
 
 <a id="useage"></a>
-## Useage
+## API Useage
 
-Once you have configured CfStatic and marked up your static files with the appropriate dependency documentation, you arrive at the pleasing point of having very little left to do. The CfStatic API provides 3 methods:
+Once you have configured CfStatic and marked up your static files with the appropriate dependency documentation, you arrive at the pleasing point of having very little left to do. The CfStatic API provides 4 methods:
 
-* **include( *resource* )**: used to instruct CfStatic that a particular file or package (folder) is required for this request
-* **includeData( *data* )**: used to output data to a JavaScript variable when the javascript is rendered
-* **renderIncludes( *[type]* )**: used to render the CSS or JavaScript includes
+1. **init( *options* )**: used to get an instance of Cfstatic
+2. **include( *resource* )**: used to instruct CfStatic that a particular file or package (folder) is required for this request
+3. **includeData( *data* )**: used to output data to a JavaScript variable when the javascript is rendered
+4. **renderIncludes( *[type]* )**: used to render the CSS or JavaScript includes
+
+### Creating an instance of the API for your application
+
+The API is published in the component, `org.cfstatic.CfStatic`. An instance should be created using the component's init() method, passing in any [configuration](#configuration) arguments for your environment, and stored in a cacheable scope. An example, without using any framework, might look like this:
+
+**Application.cfc**
+
+{% highlight cfm %}
+<cfscript>
+    function onApplicationStart() {
+        application.cfstatic = CreateObject('component', 'org.cfstatic.CfStatic').init(
+            staticDirectory = ExpandPath('./static')
+          , staticUrl       = "/static/"
+        );
+    }
+</cfscript>
+{% endhighlight %}
+
+All CfStatic operations can now be performed using this instance, e.g.
+
+**MyLayout.cfm**
+
+{% highlight cfm %}
+        ...
+        #application.cfstatic.renderIncludes( 'css' )#
+    </head>
+{% endhighlight %}
+
 
 ### Include( *required string resource* )
 
@@ -472,4 +469,4 @@ By default, CoffeeScript will wrap the compiled `.js` in an anonymous function c
     })();
 {% endhighlight %}
 
-If you do not want this behaviour, CoffeeScript offers a "bare mode" switch so that the anonymous function wrapper is not included (which they do not recommend). In CfStatic, simply name your CoffeeScript files with the `.bare.coffee` extension to have them compiled in bare mode.
+If you do not want this behaviour, CoffeeScript offers a "bare mode" switch so that the anonymous function wrapper is not included (which they do not recommend). In CfStatic, simply name your CoffeeScript files with the `.bare.coffee` extension to have them compiled in bare mode. -->

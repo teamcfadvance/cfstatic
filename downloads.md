@@ -3,13 +3,13 @@ layout: default
 title: Downloads
 ---
 
-##{{ page.title }}
+# {{ page.title }}
 
-### Stable release
+## Stable release
 
-The latest stable release is **0.5.0**. [Download it here](https://github.com/DominicWatson/cfstatic/zipball/0.5.0).
+The latest stable release can be downloaded from the [CfStatic Riaforge project](http://cfstatic.riaforge.org). This release can also be downloaded by choosing the latest [release tag on GitHub](https://github.com/DominicWatson/cfstatic/tags). Choose this for up to date documentation and the most thorough testing.
 
-### Development releases
+## Development releases
 
 There are two maintained branches for development work, `master` and `develop`. The `master` branch can be used to try out tested features that might not have been released yet. The `develop` branch is the bleeding edge code that may or may not have been fully tested.
 
@@ -17,6 +17,6 @@ There are two maintained branches for development work, `master` and `develop`. 
 
 [Download develop](https://github.com/DominicWatson/cfstatic/zipball/develop)
 
-### Archived releases
+## Archived releases
 
 You can [view and download from a list of previous releases here](https://github.com/DominicWatson/cfstatic/tags).
