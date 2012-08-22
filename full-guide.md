@@ -14,12 +14,18 @@ title: Full Useage Guide
 <a id="preparation"></a>
 ## Preparing your static files
 
-In order for CfStatic to know how to include and package your files in the correct order and with all the necessary dependencies, it needs to know how your javascript and css files relate to one another. The framework provides two methods of doing this:
+In order for CfStatic to render static includes in the correct order and satisfy dependencies, it must know how your static files relate to each other. It offers three ways in which to do this:
 
-1. JavaDoc style comments within each file
-2. A single 'dependencies' text file
+1. [JavaDoc style documentation](#javadoc) in each file
+2. [Plain text 'dependencies' file](#dependency-file)
+3. File and folder name ordering
 
-###JavaDoc style comments
+All three methods may be used. Dependencies declared in JavaDoc style comments and in the dependencies file will be merged. When there is no dependency information, CfStatic will use the file and folder names for ordering of includes.
+
+The JavaDoc style commenting system also allows you to specify other processing instructions for CfStatic, not available in the dependencies file (see below).
+
+<a id="javadoc"></a>
+### JavaDoc style comments
 
 JavaDoc comments look like this and must be present at the top of your files for CfStatic to process them:
 
@@ -45,23 +51,9 @@ CfStatic makes use of the following properties:
 
 ### Documenting dependencies
 
-Core to the correct running of CfStatic is the use of the @depends property to document dependencies between your files; CfStatic uses this information to ensure all necessary files are included in your page, and in the correct order. Dependencies can be either local or external, e.g. `@depends http://someurl.com/somejs.js` is an external dependency.
+Core to the correct running of CfStatic is the use of the @depends property to document dependencies between your files; CfStatic uses this information to ensure all necessary files are included in your page, and in the correct order. Dependencies can be either local or external, e.g. `@depends http://someurl.com/somejs.js` is an external dependency, `@depends /jqueryplugins/tooltip.js` is a local dependency.
 
-Local dependencies have a path that starts at the root folder of the type of file you are dealing with. i.e. If your javascript files all live at `/webroot/static/js/`, and the file `/webroot/static/js/plugins/myplugin.js` has a dependency on `/webroot/static/js/core/jquery.js`, that dependency would be written like so:
-
-**myplugin.js**
-
-{% highlight js %}
-/**
- * myplugin does this and that...
- *
- * @depends /core/jquery.js
- * @author joe bloggs
- */
-(function($){
-     // my plugin code here...
-})(jQuery);
-{% endhighlight %}
+Local dependencies have a path that starts at the root folder of the type of file you are dealing with. i.e. If your javascript files all live at `/webroot/static/js/`, and the file `/webroot/static/js/plugins/myplugin.js` has a dependency on `/webroot/static/js/core/jquery.js`, that dependency would be written like so: `@depends /core/jquery.js`.
 
 #### Already minified files
 
@@ -93,6 +85,133 @@ These can be declared using the **@ie** property and static files with this prop
 See here for conditional comment reference:
 
 [http://msdn.microsoft.com/en-us/library/ms537512(v=vs.85).aspx](http://msdn.microsoft.com/en-us/library/ms537512\(v=vs.85\).aspx)
+
+<a id="dependency-file"></a>
+### Dependency file
+
+The dependency file can be used to document dependencies only. This has some advantages over the javadoc style approach:
+
+1. Not having to repeat dependency definitions in every file. For instance, if you want to upgrade jquery, you have only one dependency definition to change
+2. Documenting dependencies between external resources
+
+An example javascript dependency file (the syntax is the same for css dependencies):
+
+{% highlight sh %}
+##
+# This file details dependencies between javascript files
+#
+# Indented files have dependencies on the unindented file(s) above them
+# Dependent files marked with (conditional), only depend on the file above
+# when it is already included in the request and can be included without
+# the dependency.
+#
+
+http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js
+    http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
+    *.js
+
+http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
+    /folder/some.js
+    /core/bootstrap.js
+    /ui-pages/*.js
+
+/core/bootstrap.js
+    /folder/*.js
+    /ui-pages/*.js
+    /shared/*.js
+
+/folder/some.js
+    /folder/some-more.js
+
+/shared/swfLoader/swfLoader.js
+    /folder/some.js
+
+/shared/jqGrid/locales/*.js
+    /shared/jqGrid/jqGrid.js (conditional)
+
+/shared/jqGrid/jqGrid.js
+    /folder/some-more.js
+{% endhighlight %}
+
+### Configuring CfStatic to use the dependency file
+
+Use the two configuration options, `jsDependencyFile` and `cssDependencyFile` to point CfStatic to your dependency files. The files themselves can be called anything you like. My current preference is for `dependency.info` placed in the root of both js and css directories - but that's just me. Example:
+
+{% highlight cfm %}
+<cfscript>
+    application.cfstatic = CreateObject( 'component', 'org.cfstatic.CfStatic' ).init(
+        staticDirectory   = ExpandPath('./static')
+      , staticUrl         = "/static/"
+      , jsDependencyFile  = ExpandPath( './static/js/dependency.info' )
+      , cssDependencyFile = ExpandPath( './static/css/dependency.info' )
+    );
+</cfscript>
+{% endhighlight %}
+
+### Syntax of the dependencies file
+
+#### Comments
+
+Lines beginning with a # are ignored by the parser. Empty lines are also ignored.
+
+#### Indentation
+
+Paths to files that are declared *unindented* are treated as *dependencies*. Their *dependents* are defined by subsequent paths that do have indentation. Only one level of indentation is processed, i.e. all depths of indentation are treated the same. For example:
+
+{% highlight sh %}
+# core.js is dependent on jquery.js
+/core/jquery.js
+    /core/core.js
+
+# both tools.js and api.js are dependent on core.js
+# note that api.js is not dependent on tools.js because
+# only one level of indentation is processed
+/core/core.js
+    /core/tools.js
+      /core/api.js
+
+{% endhighlight %}
+
+#### Wildcard mappings
+
+Wildcard mappings may be used to declare multiple dependents and dependencies. For example:
+
+{% highlight sh %}
+# all css and less files depend on reset.less
+/core/reset.less
+    *.css
+    *.less
+
+# all .less files beginning with fubar-
+# depend on fubarcore.less
+/fubar/fubarcore.less
+    /fubar/fubar-*.less
+
+# all files under the fubar folder
+# depend on all core files
+/core/*.*
+    /fubar/*.*
+{% endhighlight %}
+
+#### Conditional dependencies
+
+A conditional dependency is one in which 'resource a' is dependent on 'resource b' *only when 'resource b' is included*. This means that 'resource a' can be included without 'resource b', but when 'resource b' is included, it will always be rendered before 'resource a'.
+
+To declare a dependant as conditional, you append `(conditional)` to the file path. For example:
+
+{% highlight sh %}
+/shared/jqGrid/locales/*.js
+    /shared/jqGrid/jqGrid.js (conditional)
+{% endhighlight %}
+
+This is a perfect example of this kind of dependency. `jqGrid.js` is dependent on *a* locale file but which one must be determined at request time. Without the `(conditional)` instruction, all locales would be included on every request. So now, you can include the user's locale at request time and know that it will always be included before jqGrid.js:
+
+{% highlight cfm %}
+<cfscript>
+    cfstatic.include( '/js/shared/jqGrid/jqGrid.js' )
+            .include( '/js/shared/jqGrid/locales/#session.user.locale#.js' );
+</cfscript>
+{% endhighlight %}
 
 <a id="configuration"></a>
 ## Configuration
