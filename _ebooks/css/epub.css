@@ -1,0 +1,19 @@
+body {
+	color         : rgb(30,30,30);
+	text-align    : justify;
+	margin-top    : 0px;
+	margin-bottom : 4px;
+	margin-right  : 50px;
+	margin-left   : 50px;
+}
+
+ul, ol {
+	margin       : 0;
+	padding-left : 1em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	color       : rgb(20,20,20);
+	text-align  : left;
+	font-weight : bold;
+}
