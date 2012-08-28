@@ -60,8 +60,8 @@ echo "========================================"
 
 echo "========================================"
 echo "Building eBooks using Calibre..."
-ebook-convert book.html ./cfstatic.mobi --max-levels=0 --chapter-mark=none --page-breaks-before='//h1' --cover=./cover.png --level1-toc="//h:h1" --level2-toc="//h:h2"
-ebook-convert book.html cfstatic.epub --extra-css ./css/epub.css --margin-left 10.0 --margin-right 10.0 --pretty-print --max-levels=0 --chapter-mark=none --page-breaks-before='//h1' --cover=./cover.png --level1-toc="//h:h1" --level2-toc="//h:h2"
+ebook-convert book.html ../cfstatic.mobi --max-levels=0 --chapter-mark=none --page-breaks-before='//h1' --cover=./cover.png --level1-toc="//h:h1" --level2-toc="//h:h2"
+ebook-convert book.html ../cfstatic.epub --extra-css ./css/epub.css --margin-left 10.0 --margin-right 10.0 --pretty-print --max-levels=0 --chapter-mark=none --page-breaks-before='//h1' --cover=./cover.png --level1-toc="//h:h1" --level2-toc="//h:h2"
 echo "...done."
 echo "========================================"
 
