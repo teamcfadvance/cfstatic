@@ -63,13 +63,16 @@ See an in-depth explanation in the [full guide](full-guide.html#javadoc).
 #### Dependency file example:
 {% highlight sh %}
 ##
-# This file details dependencies between javascript files
+# This file details dependencies between
+# javascript files.
 #
-# Indented files have dependencies on the unindented file(s) above them
-# Dependent files marked with (conditional), only depend on the file above
-# when it is already included in the request and can be included without
+# Indented files have dependencies on the
+# unindented file(s) above them. Dependent
+# files marked with (conditional), only depend
+# on the file above when it is already included
+# in the request and can be included without
 # the dependency.
-#
+##
 
 http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js
     http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js

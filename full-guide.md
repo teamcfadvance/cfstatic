@@ -31,12 +31,14 @@ JavaDoc comments look like this and must be present at the top of your files for
 
 {% highlight js %}
 /**
- * Note the slash and double star to start the comments.
- * The first paragraph of text within the comment block
- * is a free-text description (i.e. this text). CfStatic
- * will ignore this description but it can/should be
- * used to document your code. Key value pair properties
- * are then defined using the @ symbol:
+ * Note the slash and double star to start the
+ * comments. The first paragraph of text
+ * within the comment block is a free-text
+ * description (i.e. this text). CfStatic will
+ * ignore this description but it can/should be
+ * used to document your code. Key value pair
+ * properties are then defined using the @
+ * symbol:
  *
  * @property property value
  * @property another property value
@@ -92,6 +94,12 @@ These can be declared using the **@ie** property and static files with this prop
  */
 {% endhighlight %}
 
+Example output:
+
+{% highlight html %}
+<!--[if LT IE 8]><link rel="stylesheet" href="/assets/min/core.ie67.min.201206211653.css" media="all" charset="utf-8" /><![endif]-->
+{% endhighlight %}
+
 See here for conditional comment reference:
 
 [http://msdn.microsoft.com/en-us/library/ms537512(v=vs.85).aspx](http://msdn.microsoft.com/en-us/library/ms537512\(v=vs.85\).aspx)
@@ -108,13 +116,16 @@ An example javascript dependency file (the syntax is the same for css dependenci
 
 {% highlight sh %}
 ##
-# This file details dependencies between javascript files
+# This file details dependencies between
+# javascript files.
 #
-# Indented files have dependencies on the unindented file(s) above them
-# Dependent files marked with (conditional), only depend on the file above
-# when it is already included in the request and can be included without
+# Indented files have dependencies on the
+# unindented file(s) above them. Dependent
+# files marked with (conditional), only depend
+# on the file above when it is already included
+# in the request and can be included without
 # the dependency.
-#
+##
 
 http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js
     http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
@@ -145,7 +156,7 @@ http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
 
 ### Configuring CfStatic to use the dependency file
 
-Use the two configuration options, `jsDependencyFile` and `cssDependencyFile` to point CfStatic to your dependency files. The files themselves can be called anything you like. My current preference is for `dependency.info` placed in the root of both js and css directories - but that's just me. Example:
+Use the two configuration options, `jsDependencyFile` and `cssDependencyFile` to point CfStatic to your dependency files. The files themselves can be called anything you like. My current preference is for `dependency.info` placed in the root of both js and css directories, for example:
 
 {% highlight cfm %}
 <cfscript>
@@ -166,7 +177,7 @@ Lines beginning with a # are ignored by the parser. Empty lines are also ignored
 
 #### Indentation
 
-Paths to files that are declared *unindented* are treated as *dependencies*. Their *dependents* are defined by subsequent paths that do have indentation. Only one level of indentation is processed, i.e. all depths of indentation are treated the same. For example:
+Paths to files that are declared *unindented* are treated as *dependencies*. Their *dependents* are defined by subsequent paths that *are* indented. Only one level of indentation is processed, i.e. all depths of indentation are treated the same. For example:
 
 {% highlight sh %}
 # core.js is dependent on jquery.js
@@ -253,7 +264,11 @@ The CfStatic init() method takes the following arguments. Do not be alarmed at t
     </tr>
     <tr>
         <th>minifyMode:</th>
-        <td>The minify mode. Options are: 'none', 'file', 'package' or 'all'. Default is 'package'. downloadExternals:   If set to true, CfMinify will download and minify locally any external dependencies (e.g. http://code.jquery.com/jquery-1.6.1.min,js). Default = false</td>
+        <td>The minify mode. Options are: 'none', 'file', 'package' or 'all'. Default is 'package'.</td>
+    </tr>
+    <tr>
+        <th>downloadExternals:</th>
+        <td>If set to true, CfStatic will download and minify any external dependencies (e.g. http://code.jquery.com/jquery-1.6.1.min,js). Default = false</td>
     </tr>
     <tr>
         <th>debugAllowed:</th>
@@ -318,7 +333,7 @@ The CfStatic init() method takes the following arguments. Do not be alarmed at t
 </table>
 
 
-### Static paths
+### Configuring static paths and URLS
 The minimal setup, ready for production, involves declaring your root static directory and the url that maps to it. This assumes that you have 'js', 'css' and 'min' folders beneath your 'staticDirectory'. For example, consider the following directory structure:
 
     ./
@@ -428,53 +443,28 @@ Or only include any resources under a `raw` folder that do not contain an unders
 <a id="useage"></a>
 ## API Useage
 
-Once you have configured CfStatic and marked up your static files with the appropriate dependency documentation, you arrive at the pleasing point of having very little left to do. The CfStatic API provides 4 methods:
+Once you have configured CfStatic and marked up your static files with the appropriate dependency documentation, you arrive at the pleasing point of having very little left to do. The CfStatic API provides 3 public methods:
 
-1. **init( *options* )**: used to get an instance of Cfstatic
-2. **include( *resource* )**: used to instruct CfStatic that a particular file or package (folder) is required for this request
-3. **includeData( *data* )**: used to output data to a JavaScript variable when the javascript is rendered
-4. **renderIncludes( *[type]* )**: used to render the CSS or JavaScript includes
-
-<a id="instance-creating"></a>
-### Creating an instance of the API for your application
-
-The API is published in the component, `org.cfstatic.CfStatic`. An instance should be created using the component's init() method, passing in any [configuration](#configuration) arguments for your environment, and stored in a cacheable scope. An example, without using any framework, might look like this:
-
-**Somewhere in Application.cfc**
-
-{% highlight cfm %}
-<cfscript>
-application.cfstatic = CreateObject('org.cfstatic.CfStatic').init(
-    staticDirectory = ExpandPath('./static')
-  , staticUrl       = "/static/"
-);
-</cfscript>
-{% endhighlight %}
-
-All CfStatic operations can now be performed using this instance, e.g.
-
-**MyLayout.cfm**
-
-{% highlight cfm %}
-    ...
-    #application.cfstatic.renderIncludes( 'css' )#
-</head>
-{% endhighlight %}
+1. **include( *resource* )**: used to instruct CfStatic that a particular file or package (folder) is required for this request
+2. **includeData( *data* )**: used to output data to a JavaScript variable when the javascript is rendered
+3. **renderIncludes( *[type]* )**: used to render the CSS or JavaScript includes
 
 
 ### Include( *required string resource* )
 
-You can use this method to include an entire package or a single file in the request page (a package is a folder of files, not including sub-folders). Paths start at the root static directory, so the following are all valid:
+You can use this method to include an entire package (folder) or a single file in the requested page. Paths start at the root static directory, so the following are all valid:
 
 {% highlight cfm %}
 <cfscript>
 // include the layout.css file
 cfStatic.include('/css/core/layout.css');
 
-// include the 'core' css package (note the trailing slash on the directory name)
+// include the 'core' css package (note the trailing slash
+// on the directory name)
 cfStatic.include('/css/core/');
 
-// include a bunch of js packages and files, chaining the method call
+// include a bunch of js packages and files, chaining the
+// method call
 cfStatic.include('/js/core/')
         .include('/js/core/ie-only/')
         .include('/js/plugins/timers.js')
@@ -484,7 +474,7 @@ cfStatic.include('/js/core/')
 
 #### Including non existent packages or files
 
-If you try to include a package or file that does not exist, no error will be thrown and CfStatic will not render an include for that package or file. This is to allow you to create dynamic includes based on any rules you like. For instance, you might want to try to include page specific css when it is available, something like:
+If you attempt to include a package or file that does not exist, CfStatic will *not* throw an error. This is to allow you to create dynamic includes based on any rules you like. For instance, you might want to try to include page specific css when it is available, something like:
 
 {% highlight cfm %}
 <cfscript>
@@ -570,19 +560,26 @@ This method returns the necessary html to include your static files. The type ar
     </html>
 {% endhighlight %}
 
+The rendered output will look something like this:
 
-That's it!
+{% highlight html %}
+<link rel="stylesheet" href="/assets/min/core.min.201208282132.css" media="all" charset="utf-8" />
+<!--[if ie]><link rel="stylesheet" href="/assets/min/core.ie.min.201206211653.css" media="all" charset="utf-8" /><![endif]-->
+<link rel="stylesheet" href="/assets/min/core.mobile.min.201208121923.css" media="handheld" charset="utf-8" />
+<script type="text/javascript" src="/assets/min/core.min.201208121914.js" charset="utf-8"></script>
+<script type="text/javascript" src="/assets/min/plugins.jquery.min.201208121919.js" charset="utf-8"></script>
+{% endhighlight %}
 
+Notice the timestamps included in the filenames. These represent the lastest last modified date of any of the files that were compiled into the single minified file. This means that you *never* have to worry about users needing to clear their cache for changed CSS or JavaScript files. Conversly, if you deploy changes to one or two static files and not to the rest, your users may still use cached content for those files that have not changed (this is good).
 
 <a id="less"></a>
-## LESS
-### CfStatic now supports compiling of `.less` files!
+## LESS CSS
 
 If you've not heard of LESS CSS, head on over to [http://lesscss.org/](http://lesscss.org/) and fall to your knees in humble awe (and get all coder giddy).
 
 In CfStatic, simply create .less files with LESS css in them in exactly the same way you create .css files for CfStatic. CfStatic will take your .less files and compile them as css, saving the output to `yourfile.less.css`. It will then minify that compiled css file in accordance with the rules you configure.
 
-Neat eh?
+Additionaly, you can configure 'less globals'. These globals will be imported into every single LESS file before compiling, saving you from repeating yourself by using `@import url( ..\mygloballessdefinitions.less )` in every file.
 
 <a id="coffeescript"></a>
 ## CoffeeScript
@@ -610,4 +607,4 @@ By default, CoffeeScript will wrap the compiled `.js` in an anonymous function c
 })();
 {% endhighlight %}
 
-If you do not want this behaviour, CoffeeScript offers a "bare mode" switch so that the anonymous function wrapper is not included (which they do not recommend). In CfStatic, simply name your CoffeeScript files with the `.bare.coffee` extension to have them compiled in bare mode. -->
+If you do not want this behaviour, CoffeeScript offers a "bare mode" switch so that the anonymous function wrapper is not included (which they do not recommend). In CfStatic, simply name your CoffeeScript files with the `.bare.coffee` extension to have them compiled in bare mode.

@@ -43,8 +43,24 @@ echo "...done."
 echo "========================================"
 
 echo "========================================"
+echo "Trimming down code blocks..."
+sed -r 's/&lt;\/?cfscript&gt;\s+?//g' book.html > tmp && mv tmp book.html
+sed -r "s/<code class='[a-z]+'>/<code>/g" book.html > tmp && mv tmp book.html
+sed -r ':a;N;$!ba;s/<pre>\n/<pre>/g' book.html > tmp && mv tmp book.html
+sed -r ':a;N;$!ba;s/<code>\n/<code>/g' book.html > tmp && mv tmp book.html
+sed -r 's/<pre>\s+/<pre>/g' book.html > tmp && mv tmp book.html
+sed -r 's/<code>\s+/<code>/g' book.html > tmp && mv tmp book.html
+sed -r 's/\s+<\/pre>/<\/pre>/g' book.html > tmp && mv tmp book.html
+sed -r 's/\s+<\/code>/<\/code>/g' book.html > tmp && mv tmp book.html
+sed -r ':a;N;$!ba;s/\n<\/code>/<\/code>/g' book.html > tmp && mv tmp book.html
+sed -r ':a;N;$!ba;s/\n<\/pre>/<\/pre>/g' book.html > tmp && mv tmp book.html
+echo "...done."
+echo "========================================"
+
+
+echo "========================================"
 echo "Building eBooks using Calibre..."
-ebook-convert book.html ./cfstatic.mobi --max-levels=0 --chapter-mark=none --page-breaks-before='//h1' --cover=./cover.png --level1-toc="//h:h1" --level2-toc="//h:h2" --toc-filter="Table of contents" --breadth-first --mobi-toc-at-start
+ebook-convert book.html ./cfstatic.mobi --max-levels=0 --chapter-mark=none --page-breaks-before='//h1' --cover=./cover.png --level1-toc="//h:h1" --level2-toc="//h:h2"
 #ebook-convert ./book.html cfstatic.epub --extra-css ./css/epub.css --use-auto-toc --margin-left 10.0 --margin-right 10.0 --pretty-print --no-default-epub-cover
 #ebook-convert ./book.html cfstatic.pdf  --extra-css ./css/pdf.css  --use-auto-toc --margin-left 10.0 --margin-right 10.0
 echo "...done."
