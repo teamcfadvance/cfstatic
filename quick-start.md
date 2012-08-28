@@ -19,22 +19,18 @@ Choose a download from the [downloads page](downloads.html) and download it. Unz
 <a id="create-instance"></a>
 ## Create an instance of CfStatic
 
-CfStatic is designed to be a singleton so you will want to store the instance of CfStatic in a cacheable scope (i.e. the application scope). Here is an example using `Application.cfc`:
-
-**Application.cfc**
+CfStatic is designed to be a singleton so you will want to store the instance of CfStatic in a cacheable scope (i.e. the application scope). For example:
 
 {% highlight cfm %}
 <cfscript>
-    function onApplicationStart() {
-        application.cfstatic = CreateObject( 'component', 'org.cfstatic.CfStatic' ).init(
-            staticDirectory = ExpandPath('./static')
-          , staticUrl       = "/static/"
-        );
-    }
+application.cfstatic = CreateObject( 'org.cfstatic.CfStatic' ).init(
+    staticDirectory = ExpandPath('./static')
+  , staticUrl       = "/static/"
+);
 </cfscript>
 {% endhighlight %}
 
-For more detail, see the full guide for [instantiating cfstatic](full-guide.html#instance-creating) and [configuring cfstatic](full-guide.html#configuration)
+For more detail, see [configuring cfstatic](full-guide.html#configuration).
 
 <a id="configure-dependencies"></a>
 ## Configure dependencies
@@ -111,13 +107,14 @@ For example:
 
 {% highlight cfm %}
 <cfscript>
-    application.cfstatic.include( '/js/core/someJs.js' )
-                        .include( '/js/some/more.js' )
-                        .include( '/js/wholefolder/' )
-                        .include( '/css/core/' )
-                        .include( '/css/print/print.css' )
-                        .include( '/css/pages/#request.pageName#' )
-                        .includeData( someStructToBeAvailableToJs );
+application.cfstatic
+    .include( '/js/core/someJs.js' )
+    .include( '/js/some/more.js' )
+    .include( '/js/wholefolder/' )
+    .include( '/css/core/' )
+    .include( '/css/print/print.css' )
+    .include( '/css/pages/#request.pageName#' )
+    .includeData( someStructToBeAvailableToJs );
 </cfscript>
 {% endhighlight %}
 

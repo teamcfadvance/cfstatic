@@ -31,10 +31,12 @@ JavaDoc comments look like this and must be present at the top of your files for
 
 {% highlight js %}
 /**
- * Note the slash and double star to start the comments. The first paragraph of text
- * within the comment block is a free-text description (i.e. this text). CfStatic
- * will ignore this description but it can/should be used to document your code.
- * Key value pair properties are then defined using the @ symbol:
+ * Note the slash and double star to start the comments.
+ * The first paragraph of text within the comment block
+ * is a free-text description (i.e. this text). CfStatic
+ * will ignore this description but it can/should be
+ * used to document your code. Key value pair properties
+ * are then defined using the @ symbol:
  *
  * @property property value
  * @property another property value
@@ -44,10 +46,18 @@ JavaDoc comments look like this and must be present at the top of your files for
 
 CfStatic makes use of the following properties:
 
-* **@depends** used to indicate a file dependency (see below), e.g. `@depends /core/jquery.js`
-* **@minified** used to indicate that a file is already minified (do `@minified true`), CfStatic will not then re-minify the file
-* **@ie** used to indicate an Internet Explorer restriction for the file, e.g. `@ie LTE IE 8`
-* **@media** for CSS files only, used to indicate the target media for the CSS file, e.g. `@media print`
+#### @depends
+Used to indicate a file dependency (see below), e.g. `@depends /core/jquery.js`
+
+#### @minified
+Used to indicate that a file is already minified (do `@minified true`), CfStatic will not then re-minify the file
+
+####@ie
+Used to indicate an Internet Explorer restriction for the file, e.g. `@ie LTE IE 8`
+
+####@media
+For CSS files only, used to indicate the target media for the CSS file, e.g. `@media print`
+
 
 ### Documenting dependencies
 
@@ -139,12 +149,12 @@ Use the two configuration options, `jsDependencyFile` and `cssDependencyFile` to
 
 {% highlight cfm %}
 <cfscript>
-    application.cfstatic = CreateObject( 'component', 'org.cfstatic.CfStatic' ).init(
-        staticDirectory   = ExpandPath('./static')
-      , staticUrl         = "/static/"
-      , jsDependencyFile  = ExpandPath( './static/js/dependency.info' )
-      , cssDependencyFile = ExpandPath( './static/css/dependency.info' )
-    );
+application.cfstatic = CreateObject( org.cfstatic.CfStatic' ).init(
+    staticDirectory   = ExpandPath('./static')
+  , staticUrl         = "/static/"
+  , jsDependencyFile  = ExpandPath( './static/js/dependency.info' )
+  , cssDependencyFile = ExpandPath( './static/css/dependency.info' )
+);
 </cfscript>
 {% endhighlight %}
 
@@ -208,8 +218,8 @@ This is a perfect example of this kind of dependency. `jqGrid.js` is dependent o
 
 {% highlight cfm %}
 <cfscript>
-    cfstatic.include( '/js/shared/jqGrid/jqGrid.js' )
-            .include( '/js/shared/jqGrid/locales/#session.user.locale#.js' );
+cfstatic.include( '/js/shared/jqGrid/jqGrid.js' )
+        .include( '/js/shared/jqGrid/locales/#session.user.locale#.js' );
 </cfscript>
 {% endhighlight %}
 
@@ -220,89 +230,92 @@ This is a perfect example of this kind of dependency. `jqGrid.js` is dependent o
 
 The CfStatic init() method takes the following arguments. Do not be alarmed at the number of them, only two are mandatory, the rest have sensible defaults:
 
-    staticDirectory:     Full path to the directory in which static files
-                         reside (e.g. /webroot/static/)
-
-    staticUrl:           Url that maps to the static directory (e.g.
-                         http://mysite.com/static or /static)
-
-    jsDirectory:         Relative path to the directoy in which javascript
-                         files reside. Relative to static path. Default is
-                         'js'
-
-    cssDirectory:        Relative path to the directoy in which css files
-                         reside. Relative to static path. Default is 'css'
-
-    outputDirectory:     Relative path to the directory in which minified
-                         files will be output. Relative to static path.
-                         Default is 'min'
-
-    minifyMode:          The minify mode. Options are: 'none', 'file',
-                         'package' or 'all'. Default is 'package'.
-                         downloadExternals:   If set to true, CfMinify will
-                         download and minify locally any external
-                         dependencies (e.g.
-                         http://code.jquery.com/jquery-1.6.1.min,js). Default = false
-
-    debugAllowed:        Whether or not debug is allowed. Defaulting to
-                         true, even though this may seem like a dev setting.
-                         No real extra load is made on the server by a user
-                         making use of debug mode and it is useful by default.
-                         Default = true.
-
-    debugKey:            URL parameter name used to invoke debugging (if
-                         enabled). Default = 'debug'
-
-    debugPassword:       URL parameter value used to invoke debugging (if
-                         enabled). Default = 'true'
-
-    forceCompilation:    Whether or not to check for updated files before
-                         compiling (true = do not check). Default = false.
-
-    checkForUpdates:     Whether or not to attempt recompilation on every
-                         request. Default = false
-
-    includeAllByDefault: Whether or not to include all static files in a
-                         request when the .include() method is never called
-                         (default = true) *0.2.2*
-
-    embedCssImages:      Either 'none', 'all' or a regular expression to
-                         select css images that should be embedded in css
-                         files as base64 encoded strings, e.g. '\.gif$' for
-                         only gifs or '.*' for all images (default = 'none')
-                         *0.3.0*
-
-    includePattern:      Regex pattern indicating css and javascript files to
-                         be included in CfStatic's processing. Defaults to .*
-                         (all) *0.4.0*
-
-    excludePattern:      Regex pattern indicating css and javascript files to
-                         be excluded from CfStatic's processing. Defaults to
-                         blank (exclude none) *0.4.0*
-
-    outputCharset:       Character set to use when writing outputted minified
-                         files *0.4.0*
-
-    javaLoaderScope:     The scope in which instances of JavaLoader libraries
-                         for the compilers should be persisted, either
-                         'application' or 'server' (default is 'server' to
-                         prevent JavaLoader memory leaks). You may need to use
-                         'application' in a shared hosting environment *0.4.1*
-
-    lessGlobals:         Comma separated list of .LESS files to import when
-                         processing all .LESS files. Files will be included in
-                         the order of the list *0.4.2*
-
-    jsDataVariable       JavaScript variable name that will contain any data
-                         passed to the .includeData() method, default is
-                         'cfrequest' *0.6.0*
-
-    jsDependencyFile     Text file describing the dependencies between
-                         javascript files *0.6.0*
-
-    cssDependencyFile    Text file describing the dependencies between css
-                         files *0.6.0*
-
+<table class="config-table">
+    <tr>
+        <th>staticDirectory:</th>
+        <td>Full path to the directory in which static files reside (e.g. /webroot/static/)</td>
+    </tr>
+    <tr>
+        <th>staticUrl:</th>
+        <td>Url that maps to the static directory (e.g. http://mysite.com/static or /static)</td>
+    </tr>
+    <tr>
+        <th>jsDirectory:</th>
+        <td>Relative path to the directoy in which javascript files reside. Relative to static path. Default is 'js'</td>
+    </tr>
+    <tr>
+        <th>cssDirectory:</th>
+        <td>Relative path to the directoy in which css files reside. Relative to static path. Default is 'css'</td>
+    </tr>
+    <tr>
+        <th>outputDirectory:</th>
+        <td>Relative path to the directory in which minified files will be output. Relative to static path. Default is 'min'</td>
+    </tr>
+    <tr>
+        <th>minifyMode:</th>
+        <td>The minify mode. Options are: 'none', 'file', 'package' or 'all'. Default is 'package'. downloadExternals:   If set to true, CfMinify will download and minify locally any external dependencies (e.g. http://code.jquery.com/jquery-1.6.1.min,js). Default = false</td>
+    </tr>
+    <tr>
+        <th>debugAllowed:</th>
+        <td>Whether or not debug is allowed. Defaulting to true, even though this may seem like a dev setting. No real extra load is made on the server by a user making use of debug mode and it is useful by default. Default = true.</td>
+    </tr>
+    <tr>
+        <th>debugKey:</th>
+        <td>URL parameter name used to invoke debugging (if enabled). Default = 'debug'</td>
+    </tr>
+    <tr>
+        <th>debugPassword:</th>
+        <td>URL parameter value used to invoke debugging (if enabled). Default = 'true'</td>
+    </tr>
+    <tr>
+        <th>forceCompilation:</th>
+        <td>Whether or not to check for updated files before compiling (true = do not check). Default = false.</td>
+    </tr>
+    <tr>
+        <th>checkForUpdates:</th>
+        <td>Whether or not to attempt recompilation on every request. Default = false</td>
+    </tr>
+    <tr>
+        <th>includeAllByDefault:</th>
+        <td>Whether or not to include all static files in a request when the .include() method is never called (default = true) *0.2.2*</td>
+    </tr>
+    <tr>
+        <th>embedCssImages:</th>
+        <td>Either 'none', 'all' or a regular expression to select css images that should be embedded in css files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images (default = 'none') *0.3.0*</td>
+    </tr>
+    <tr>
+        <th>includePattern:</th>
+        <td>Regex pattern indicating css and javascript files to be included in CfStatic's processing. Defaults to .* (all) *0.4.0*</td>
+    </tr>
+    <tr>
+        <th>excludePattern:</th>
+        <td>Regex pattern indicating css and javascript files to be excluded from CfStatic's processing. Defaults to blank (exclude none) *0.4.0*</td>
+    </tr>
+    <tr>
+        <th>outputCharset:</th>
+        <td>Character set to use when writing outputted minified files *0.4.0*</td>
+    </tr>
+    <tr>
+        <th>javaLoaderScope:</th>
+        <td>The scope in which instances of JavaLoader libraries for the compilers should be persisted, either 'application' or 'server' (default is 'server' to prevent JavaLoader memory leaks). You may need to use 'application' in a shared hosting environment *0.4.1*</td>
+    </tr>
+    <tr>
+        <th>lessGlobals:</th>
+        <td>Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list *0.4.2*</td>
+    </tr>
+    <tr>
+        <th>jsDataVariable:</th>
+        <td>JavaScript variable name that will contain any data passed to the .includeData() method, default is 'cfrequest' *0.6.0*</td>
+    </tr>
+    <tr>
+        <th>jsDependencyFile:</th>
+        <td>Text file describing the dependencies between javascript files *0.6.0*</td>
+    </tr>
+    <tr>
+        <th>cssDependencyFile:</th>
+        <td>Text file describing the dependencies between css files *0.6.0*</td>
+    </tr>
+</table>
 
 
 ### Static paths
@@ -318,14 +331,12 @@ The minimal setup, ready for production, involves declaring your root static dir
 
 The minimal configuration might look like this:
 
-**Application.cfc**
-
 {% highlight cfm %}
 <cfscript>
-    application.cfstatic = CreateObject('component', 'org.cfstatic.CfStatic').init(
-          staticDirectory = ExpandPath('/includes')
-        , staticUrl       = "/includes"
-    );
+application.cfstatic = CreateObject('org.cfstatic.CfStatic').init(
+      staticDirectory = ExpandPath('/includes')
+    , staticUrl       = "/includes"
+);
 </cfscript>
 {% endhighlight %}
 
@@ -345,13 +356,13 @@ In this case, your configuration might look like:
 
 {% highlight cfm %}
 <cfscript>
-    application.cfstatic = CreateObject('component', 'org.cfstatic.CfStatic').init(
-          staticDirectory = ExpandPath('./')
-        , staticUrl       = "/"
-        , jsDirectory     = 'javascript'
-        , cssDirectory    = 'styles'
-        , outputDirectory = 'compiled'
-    );
+application.cfstatic = CreateObject('org.cfstatic.CfStatic').init(
+      staticDirectory = ExpandPath('./')
+    , staticUrl       = "/"
+    , jsDirectory     = 'javascript'
+    , cssDirectory    = 'styles'
+    , outputDirectory = 'compiled'
+);
 </cfscript>
 {% endhighlight %}
 
@@ -429,16 +440,14 @@ Once you have configured CfStatic and marked up your static files with the appro
 
 The API is published in the component, `org.cfstatic.CfStatic`. An instance should be created using the component's init() method, passing in any [configuration](#configuration) arguments for your environment, and stored in a cacheable scope. An example, without using any framework, might look like this:
 
-**Application.cfc**
+**Somewhere in Application.cfc**
 
 {% highlight cfm %}
 <cfscript>
-    function onApplicationStart() {
-        application.cfstatic = CreateObject('component', 'org.cfstatic.CfStatic').init(
-            staticDirectory = ExpandPath('./static')
-          , staticUrl       = "/static/"
-        );
-    }
+application.cfstatic = CreateObject('org.cfstatic.CfStatic').init(
+    staticDirectory = ExpandPath('./static')
+  , staticUrl       = "/static/"
+);
 </cfscript>
 {% endhighlight %}
 
@@ -447,9 +456,9 @@ All CfStatic operations can now be performed using this instance, e.g.
 **MyLayout.cfm**
 
 {% highlight cfm %}
-        ...
-        #application.cfstatic.renderIncludes( 'css' )#
-    </head>
+    ...
+    #application.cfstatic.renderIncludes( 'css' )#
+</head>
 {% endhighlight %}
 
 
@@ -459,17 +468,17 @@ You can use this method to include an entire package or a single file in the req
 
 {% highlight cfm %}
 <cfscript>
-    // include the layout.css file
-    cfStatic.include('/css/core/layout.css');
+// include the layout.css file
+cfStatic.include('/css/core/layout.css');
 
-    // include the 'core' css package (note the trailing slash on the directory name)
-    cfStatic.include('/css/core/');
+// include the 'core' css package (note the trailing slash on the directory name)
+cfStatic.include('/css/core/');
 
-    // include a bunch of js packages and files, chaining the method call
-    cfStatic.include('/js/core/')
-            .include('/js/core/ie-only/')
-            .include('/js/plugins/timers.js')
-            .include('/js/pagespecific/homepage/');
+// include a bunch of js packages and files, chaining the method call
+cfStatic.include('/js/core/')
+        .include('/js/core/ie-only/')
+        .include('/js/plugins/timers.js')
+        .include('/js/pagespecific/homepage/');
 </cfscript>
 {% endhighlight %}
 
@@ -479,8 +488,8 @@ If you try to include a package or file that does not exist, no error will be th
 
 {% highlight cfm %}
 <cfscript>
-     // where request.pageName is some variable set by your application:
-    cfStatic.include('/css/pageSpecific/#request.pageName#/');
+ // where request.pageName is some variable set by your application:
+cfStatic.include('/css/pageSpecific/#request.pageName#/');
 </cfscript>
 {% endhighlight %}
 
@@ -499,13 +508,13 @@ You can use the IncludeData method to make CF data available to your JavaScript.
 
 {% highlight cfm %}
 <cfscript>
-    data                    = StructNew();
-    data['userColorChoice'] = session.user.prefs.colorChoice;
-    data['fu']              = 'bar';
-    data.watchMyCase        = 'sensitive isn't it?';
+data                    = StructNew();
+data['userColorChoice'] = session.user.prefs.colorChoice;
+data['fu']              = 'bar';
+data.watchMyCase        = 'sensitive isn't it?';
 
-    cfStatic.includeData( data )
-            .includeData( {bar="fu"} ); // you can chain me too
+cfStatic.includeData( data )
+        .includeData( {bar="fu"} ); // you can chain me too
 </cfscript>
 {% endhighlight %}
 
@@ -584,21 +593,21 @@ CfStatic will compile any `.coffee` files in your JavaScript directories, conver
 JS comments are not valid CoffeeScript. To markup your CoffeeScript files ready for CfStatic, use the following format:
 
 {% highlight js %}
-    ###*
-    * This is my coffeescript file, its really neat.
-    *
-    * @depends /some/file.coffee.js
-    *
-    ###
+###*
+* This is my coffeescript file, its really neat.
+*
+* @depends /some/file.coffee.js
+*
+###
 {% endhighlight %}
 
 ### Bare mode
 By default, CoffeeScript will wrap the compiled `.js` in an anonymous function call to ensure no leaked variables:
 
 {% highlight js %}
-    (function(){
-        // your compiled js here
-    })();
+(function(){
+    // your compiled js here
+})();
 {% endhighlight %}
 
 If you do not want this behaviour, CoffeeScript offers a "bare mode" switch so that the anonymous function wrapper is not included (which they do not recommend). In CfStatic, simply name your CoffeeScript files with the `.bare.coffee` extension to have them compiled in bare mode. -->

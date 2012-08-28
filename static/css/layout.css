@@ -106,7 +106,8 @@ nav {
 #main h1,
 #main h2,
 #main h3,
-#main h4 {
+#main h4,
+.config-table th {
 	color : #376477;
 }
 
@@ -134,4 +135,11 @@ nav {
 	width  : 540px;
 	height : 390px;
 	margin : 1em auto;
+}
+
+.config-table th,
+.config-table td {
+	text-align     : left;
+	padding        : 0.5em;
+	vertical-align : top;
 }
