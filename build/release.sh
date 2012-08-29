@@ -26,6 +26,9 @@ else
 	mkdir docs
 	git checkout gh-pages
 	jekyll --safe --pygments docs
+	_ebooks/build.sh
+	mv cfstatic.mobi ./docs/cfstatic.mobi
+	mv cfstatic.epub ./docs/cfstatic.epub
 
 	echo "."
 	echo "."
