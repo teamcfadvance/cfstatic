@@ -13,6 +13,7 @@
 		_debugAllowed        = true;
 		_debugKey            = "debug";
 		_debugPassword       = true;
+		_debug               = false;
 		_forceCompilation    = false;
 		_checkForUpdates     = false;
 		_includeAllByDefault = true;
@@ -50,6 +51,7 @@
 		<cfargument name="debugAllowed"        type="boolean" required="false" default="true"      hint="Whether or not debug is allowed. Defaulting to true, even though this may seem like a dev setting. No real extra load is made on the server by a user making use of debug mode and it is useful by default." />
 		<cfargument name="debugKey"            type="string"  required="false" default="debug"     hint="URL parameter name used to invoke debugging (if enabled)" />
 		<cfargument name="debugPassword"       type="string"  required="false" default="true"      hint="URL parameter value used to invoke debugging (if enabled)" />
+		<cfargument name="debug"               type="boolean" required="false" default="false"     hint="Whether or not to start CfStatic in debug mode (regardless of other debug options). This is a permanent switch." />
 		<cfargument name="forceCompilation"    type="boolean" required="false" default="false"     hint="Whether or not to check for updated files before compiling" />
 		<cfargument name="checkForUpdates"     type="boolean" required="false" default="false"     hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
 		<cfargument name="includeAllByDefault" type="boolean" required="false" default="true"      hint="Whether or not to include all static files in a request when the .include() method is never called" />
@@ -100,7 +102,7 @@
 
 	<cffunction name="renderIncludes" access="public" returntype="string" output="false" hint="I am the renderIncludes() method. I return the html required for including all the static resources needed for the requested page. If no includes have been specified, I include *all* static resources.">
 		<cfargument name="type"      type="string"  required="false" hint="Either 'js' or 'css'. the type of include to render. If I am not specified, the method will render both css and javascript (css first)" />
-		<cfargument name="debugMode" type="boolean" required="false" default="#_getDebugAllowed() and StructKeyExists(url, _getDebugKey()) and url[_getDebugKey()] EQ _getDebugPassword()#" hint="Whether or not to render the source files (as opposed to the compiled files). You should use the debug url parameter (see cfstatic config options) rather than manually setting this argument, but it is included here should you need it." />
+		<cfargument name="debugMode" type="boolean" required="false" default="#_isDebugOnForRequest()#" hint="Whether or not to render the source files (as opposed to the compiled files). You should use the debug url parameter (see cfstatic config options) rather than manually setting this argument, but it is included here should you need it." />
 
 		<cfscript>
 			var filters      = "";
@@ -157,6 +159,7 @@
 		<cfargument name="debugAllowed"        type="boolean" required="false" default="true"      hint="Whether or not debug is allowed. Defaulting to true, even though this may seem like a dev setting. No real extra load is made on the server by a user making use of debug mode and it is useful by default." />
 		<cfargument name="debugKey"            type="string"  required="false" default="debug"     hint="URL parameter name used to invoke debugging (if enabled)" />
 		<cfargument name="debugPassword"       type="string"  required="false" default="true"      hint="URL parameter value used to invoke debugging (if enabled)" />
+		<cfargument name="debug"               type="boolean" required="false" default="false"     hint="Whether or not to start CfStatic in debug mode (regardless of other debug options). This is a permanent switch." />
 		<cfargument name="forceCompilation"    type="boolean" required="false" default="false"     hint="Whether or not to check for updated files before compiling" />
 		<cfargument name="checkForUpdates"     type="boolean" required="false" default="false"     hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
 		<cfargument name="includeAllByDefault" type="boolean" required="false" default="true"      hint="Whether or not to include all static files in a request when the .include() method is never called" />
@@ -184,6 +187,7 @@
 			_setDebugAllowed       ( debugAllowed                                 );
 			_setDebugKey           ( debugKey                                     );
 			_setDebugPassword      ( debugPassword                                );
+			_setDebug              ( debug                                        );
 			_setForceCompilation   ( forceCompilation                             );
 			_setCheckForUpdates    ( checkForUpdates                              );
 			_setAddCacheBusters    ( addCacheBusters                              );
@@ -1028,6 +1032,23 @@
     	</cfscript>
     </cffunction>
 
+    <cffunction name="_isDebugOnForRequest" access="private" returntype="boolean" output="false">
+
+    	<cfscript>
+    		// configured (permanent) debugging
+    		if ( _getDebug() ) {
+    			return true;
+    		}
+
+    		// request level debugging
+    		if ( _getDebugAllowed() ) {
+    			return StructKeyExists(url, _getDebugKey()) and url[_getDebugKey()] EQ _getDebugPassword();
+    		}
+
+    		return false;
+    	</cfscript>
+    </cffunction>
+
 <!--- plain old instance property accessors (private) --->
 	<cffunction name="_getRootDirectory" access="private" returntype="string" output="false">
     	<cfreturn _rootDirectory />
@@ -1147,6 +1168,14 @@
 	</cffunction>
 	<cffunction name="_getDebugPassword" access="private" returntype="string" output="false">
 		<cfreturn _debugPassword />
+	</cffunction>
+
+	<cffunction name="_getDebug" access="private" returntype="boolean" output="false">
+		<cfreturn _debug>
+	</cffunction>
+	<cffunction name="_setDebug" access="private" returntype="void" output="false">
+		<cfargument name="debug" type="boolean" required="true" />
+		<cfset _debug = arguments.debug />
 	</cffunction>
 
 	<cffunction name="_setForceCompilation" access="private" returntype="void" output="false">

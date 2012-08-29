@@ -371,6 +371,33 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t38_renderIncludes_shouldRenderSourceFiles_whenDebugModeSet" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+
+			rootDir &= 'goodFiles/standardFolders/';
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'selected_raw_includes_package_mode.html' );
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, minifyMode      = "package"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+				, debugPassword   = "thisIsATest"
+				, debug           = true
+			);
+
+			cfstatic.include('/css/someFolder/')
+			        .include('/js/core/');
+
+			renderedOutput = cfstatic.renderIncludes();
+
+			AssertEquals( _cleanupRenderedOutput(expectedOutput), _cleanupRenderedOutput( renderedOutput ) );
+		</cfscript>
+	</cffunction>
+
 	<cffunction name="t17_renderIncludes_shouldOnlyRenderJs_whenOnlyJsRequested" returntype="void">
 		<cfscript>
 			var renderedOutput = "";
