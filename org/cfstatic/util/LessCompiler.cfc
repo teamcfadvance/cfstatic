@@ -12,7 +12,7 @@
 			return this;
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="compile" access="public" returntype="string" output="false">
 		<cfargument name="filePath"    type="string" required="true"             />
 		<cfargument name="lessGlobals" type="string" required="false" default="" />
@@ -22,13 +22,13 @@
 			var compiled = "";
 			var tmpFile  = getDirectoryFromPath( arguments.filePath ) & CreateUuid() & '.less';
 			var content  = _injectLessGlobalsAsImports( arguments.filePath, arguments.lessGlobals );
-			
-			$fileWrite( tmpFile, content  );		
+
+			$fileWrite( tmpFile, content  );
 			file = CreateObject('java', 'java.io.File').init( tmpFile );
 
 			// attempt less compilation
 			try {
-				compiled = _getLessEngine().compile( file );				
+				compiled = _getLessEngine().compile( file );
 			} catch( any e ){
 				file = "";
 				$fileDelete( tmpFile );
@@ -58,6 +58,7 @@
 
 			if ( not fileIsGlobal ) {
 				for( i=1; i LTE ArrayLen(globals); i++ ){
+					globals[i] = $ensureFullFilePath( globals[i] );
 					if ( not FileExists( globals[i] ) ) {
 						$throw( "org.cfstatic.util.LessCompiler.missingGlobal", "Could not find LESS global, '#globals[i]#'" );
 					}

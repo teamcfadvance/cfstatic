@@ -582,9 +582,9 @@
 
 			rootDir &= 'goodFiles/lessIncludesTest/';
 
-			globals = ListAppend( globals, ExpandPath(rootDir & 'css/less/globals/global1.less') );
-			globals = ListAppend( globals, ExpandPath(rootDir & 'css/less/globals/global2.less') );
-			globals = ListAppend( globals, ExpandPath(rootDir & 'globals/more.less') );
+			globals = ListAppend( globals, ExpandPath( rootDir & 'css/less/globals/global1.less' ) );
+			globals = ListAppend( globals, ExpandPath( rootDir & 'css/less/globals/global2.less' ) );
+			globals = ListAppend( globals, rootDir & 'globals/more.less' ); // mapped paths should work too
 
 			try {
 				cfstatic.init(
