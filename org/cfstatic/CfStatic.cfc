@@ -494,15 +494,17 @@
 
 	<cffunction name="_getFileState" access="private" returntype="string" output="false">
 		<cfscript>
-			var jsDir    = $listAppend( _getRootDirectory(), _getJsDirectory() , '/' );
-			var cssDir   = $listAppend( _getRootDirectory(), _getCssDirectory(), '/' );
-			var jsFiles  = $directoryList( jsDir  );
-			var cssFiles = $directoryList( cssDir );
-			var state    = StructNew();
-			var ext      = "";
-			var path     = "";
-			var i        = 0;
-			var included = "";
+			var jsDir             = $listAppend( _getRootDirectory(), _getJsDirectory() , '/' );
+			var cssDir            = $listAppend( _getRootDirectory(), _getCssDirectory(), '/' );
+			var jsFiles           = $directoryList( jsDir  );
+			var cssFiles          = $directoryList( cssDir );
+			var jsDependencyFile  = $ensureFullFilePath( _getJsDependencyFile() );
+			var cssDependencyFile = $ensureFullFilePath( _getJsDependencyFile() );
+			var state             = StructNew();
+			var ext               = "";
+			var path              = "";
+			var i                 = 0;
+			var included          = "";
 
 			for( i=1; i LTE jsFiles.recordCount; i++ ){
 				ext      = ListLast( jsFiles.name[i], '.' );
@@ -521,6 +523,15 @@
 					state[path] = cssFiles.dateLastModified[i];
 				}
 			}
+
+			if ( Len( Trim( jsDependencyFile ) ) and FileExists( jsDependencyFile ) ) {
+				state[ jsDependencyFile ] = $fileLastModified( jsDependencyFile );
+			}
+			if ( Len( Trim( cssDependencyFile ) ) and FileExists( cssDependencyFile ) ) {
+				state[ cssDependencyFile ] = $fileLastModified( cssDependencyFile );
+			}
+
+
 
 			return Hash( SerializeJson( state ) );
 		</cfscript>

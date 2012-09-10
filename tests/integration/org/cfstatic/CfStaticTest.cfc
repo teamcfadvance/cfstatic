@@ -963,7 +963,7 @@
 			var renderedOutput = "";
 			var expectedOutput = "";
 			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
-			var tmpFile        = GetTempFile(GetTempDirectory(), 'test' );
+			var tmpFile        = GetTempFile('/tmp', 'test' );
 
 			rootDir &= 'goodFiles/dependenciesFile/';
 
