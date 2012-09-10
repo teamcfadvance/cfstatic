@@ -958,6 +958,42 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t39_cfstatic_shouldRebuildSourceFiles_whenChangesToDependencyFilesAreDetected" returntype="void">
+		<cfscript>
+			var renderedOutput = "";
+			var expectedOutput = "";
+			var outputHtmlRoot = ExpandPath( rootDir ) & 'renderedIncludes/';
+			var tmpFile        = GetTempFile(GetTempDirectory(), 'test' );
+
+			rootDir &= 'goodFiles/dependenciesFile/';
+
+			_fileCopy( rootDir & 'js.dependencies', tmpFile );
+
+			expectedOutput = _fileRead( outputHtmlRoot & 'selected_js_includes_package_mode_from_dependencies_file.html' );
+			cfstatic.init(
+				  staticDirectory  = rootDir
+				, staticUrl        = "/assets"
+				, minifyMode       = "package"
+				, jsDependencyFile = tmpFile
+				, debugKey         = "doNotLetMxUnitDebugScrewTests"
+				, checkForUpdates  = true
+			);
+			cfstatic.include('/js/folder/some.js')
+			        .include('/js/ui-pages/');
+
+			renderedOutput = cfstatic.renderIncludes('js');
+
+			AssertEquals( _cleanupRenderedOutput( expectedOutput ), _cleanupRenderedOutput( renderedOutput ) );
+
+			_fileWrite( tmpFile, "" ); // clear the dependencies (brute force! cfstatic should pick up this change)
+			StructClear( request );
+
+			renderedOutput = cfstatic.renderIncludes('js');
+			AssertNOTEquals( _cleanupRenderedOutput( expectedOutput ), _cleanupRenderedOutput( renderedOutput ) );
+
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
@@ -1041,6 +1077,20 @@
 		<cfset var content = "" />
 		<cffile action="read" file="#arguments.filePath#" variable="content" />
 		<cfreturn Replace(content, Chr(13), '', 'all') />
+	</cffunction>
+
+	<cffunction name="_fileWrite" access="private" returntype="void" output="false">
+		<cfargument name="filePath" type="string" required="true" />
+		<cfargument name="content" type="string" required="true" />
+
+		<cffile action="write" file="#filePath#" output="#content#" />
+	</cffunction>
+
+	<cffunction name="_fileCopy" access="private" returntype="void" output="false">
+		<cfargument name="source"      type="string" required="true" />
+		<cfargument name="destination" type="string" required="true" />
+
+		<cffile action="copy" source="#source#" destination="#destination#"  />
 	</cffunction>
 
 	<cffunction name="_findEquivalentFileThatMayHaveDifferentTimestamp" access="private" returntype="string" output="false">
