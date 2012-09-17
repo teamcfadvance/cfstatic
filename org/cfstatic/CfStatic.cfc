@@ -1,43 +1,5 @@
 <cfcomponent output="false" hint="I am the CfMinify api component. Instantiate me with configuration options and use my include(), includeData() and renderIncludes() methods to awesomely manage your static includes" extends="org.cfstatic.util.Base">
 
-<!--- private properties --->
-	<cfscript>
-		_staticDirectory     = "";
-		_staticUrl           = "";
-		_jsDirectory         = "js";
-		_cssDirectory        = "css";
-		_outputDirectory     = "min";
-		_minifyMode          = "package";
-		_downloadExternals   = false;
-		_addCacheBusters     = true;
-		_debugAllowed        = true;
-		_debugKey            = "debug";
-		_debugPassword       = true;
-		_debug               = false;
-		_forceCompilation    = false;
-		_checkForUpdates     = false;
-		_includeAllByDefault = true;
-		_embedCssImages      = "none";
-		_includePattern      = ".*";
-		_excludePattern      = "";
-		_outputCharset       = "utf-8";
-		_javaLoaderScope     = "server";
-		_lessGlobals         = "";
-		_jsDataVariable      = "cfrequest";
-		_jsDependencyFile    = "";
-		_cssDependencyFile   = "";
-		_fileStateCache      = "";
-
-		_jsPackages          = "";
-		_cssPackages         = "";
-		_yuiCompressor       = "";
-		_lessCompiler        = "";
-		_cssImageParser      = "";
-		_includeMappings     = StructNew();
-		_includeMappings.js  = StructNew();
-		_includeMappings.css = StructNew();
-	</cfscript>
-
 <!--- constructor --->
 	<cffunction name="init" access="public" returntype="any" output="false" hint="I am the constructor for CfStatic. Pass in your CfStatic configuration options to me.">
 		<cfargument name="staticDirectory"     type="string"  required="true"                      hint="Full path to the directoy in which static files reside" />
