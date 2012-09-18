@@ -1,11 +1,5 @@
 <cfcomponent output="false" hint="I am a base class providing common utility methods for all components. All CfStatic components extend me">
 
-<!--- properties --->
-	<cfscript>
-		_javaLoader		= "";
-		_useJavaLoader	= false;
-	</cfscript>
-
 <!--- utility methods --->
 	<cffunction name="$throw" access="private" returntype="void" output="false" hint="I throw an error">
 		<cfargument name="type"			type="string" required="false" default="CfMinify.error" />
@@ -206,13 +200,8 @@
 
 	<cffunction name="$loadJavaClass" access="private" returntype="any" output="false" hint="I isntanciate and return a java object">
 		<cfargument name="className" type="string" required="true" />
-		<cfscript>
-			if(_getUseJavaLoader()){
-				return _getJavaLoader().create(arguments.className);
-			}
 
-			return CreateObject('java', arguments.className);
-		</cfscript>
+		<cfreturn _getJavaLoader().create(arguments.className) />
 	</cffunction>
 
 	<cffunction name="$arrayRemoveDuplicates" access="private" returntype="array" output="false" hint="I remove duplicate elements from an array">
@@ -434,20 +423,11 @@
 <!--- accessors --->
 	<cffunction name="_setJavaLoader" access="private" returntype="void" output="false">
 		<cfargument name="javaLoader" required="true" type="any" />
-		<cfscript>
-			_javaLoader = arguments.javaLoader;
-			_setUseJavaLoader(true);
-		</cfscript>
+
+		<cfset _javaLoader = arguments.javaLoader />
 	</cffunction>
 	<cffunction name="_getJavaLoader" access="private" returntype="any" output="false">
 		<cfreturn _javaLoader />
 	</cffunction>
 
-	<cffunction name="_setUseJavaLoader" access="private" returntype="void" output="false">
-		<cfargument name="useJavaLoader" required="true" type="boolean" />
-		<cfset _useJavaLoader = arguments.useJavaLoader />
-	</cffunction>
-	<cffunction name="_getUseJavaLoader" access="private" returntype="boolean" output="false">
-		<cfreturn _useJavaLoader />
-	</cffunction>
 </cfcomponent>
