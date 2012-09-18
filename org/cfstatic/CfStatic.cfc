@@ -84,10 +84,10 @@
 						buffer.append( _renderRequestData() );
 					}
 
-					filters = _getRequestIncludeFilters( types[i], arguments.debugMode );
+					filters = _getRequestIncludeFilters( types[i], debugMode );
 
 					if ( _anythingToRender( filters ) ) {
-						renderCache = _getRenderedIncludeCache( types[i], arguments.debugMode )._ordered;
+						renderCache = _getRenderedIncludeCache( types[i], debugMode )._ordered;
 						includeAll  = not ArrayLen( filters ) and _getIncludeAllByDefault();
 
 						if ( includeAll ){
@@ -982,13 +982,13 @@
     	<cfscript>
     		var node = "";
     		if ( debug ) {
-    			node = _renderedIncludeCache.debug[ arguments.type ];
+    			node = _renderedIncludeCache.debug[ type ];
     		} else {
-    			node = _renderedIncludeCache[ arguments.type ];
+    			node = _renderedIncludeCache[ type ];
     		}
 
     		ArrayAppend( node['_ordered'], rendered );
-    		node[ arguments.path ] = ArrayLen( node['_ordered'] );
+    		node[ path ] = ArrayLen( node['_ordered'] );
     	</cfscript>
     </cffunction>
 
@@ -998,10 +998,10 @@
 
     	<cfscript>
     		if ( debug ) {
-    			return _renderedIncludeCache.debug[ arguments.type ];
+    			return _renderedIncludeCache.debug[ type ];
     		}
 
-    		return _renderedIncludeCache[ arguments.type ];
+    		return _renderedIncludeCache[ type ];
     	</cfscript>
     </cffunction>
 
@@ -1148,7 +1148,7 @@
 	</cffunction>
 	<cffunction name="_setDebug" access="private" returntype="void" output="false">
 		<cfargument name="debug" type="boolean" required="true" />
-		<cfset _debug = arguments.debug />
+		<cfset _debug = debug />
 	</cffunction>
 
 	<cffunction name="_setForceCompilation" access="private" returntype="void" output="false">
@@ -1318,7 +1318,7 @@
 	</cffunction>
 	<cffunction name="_setCssDependencyFile" access="private" returntype="void" output="false">
 		<cfargument name="cssDependencyFile" type="string" required="true" />
-		<cfset _cssDependencyFile = arguments.cssDependencyFile />
+		<cfset _cssDependencyFile = cssDependencyFile />
 	</cffunction>
 
 	<cffunction name="_getFileStateCache" access="private" returntype="string" output="false">
@@ -1326,7 +1326,7 @@
 	</cffunction>
 	<cffunction name="_setFileStateCache" access="private" returntype="void" output="false">
 		<cfargument name="fileStateCache" type="string" required="true" />
-		<cfset _fileStateCache = arguments.fileStateCache />
+		<cfset _fileStateCache = fileStateCache />
 	</cffunction>
 
 	<cffunction name="_getLessGlobals" access="private" returntype="string" output="false">
