@@ -59,9 +59,9 @@
 
 			for( file in files ){
 				fileDependencies = files[file].getDependencies( true, includeConditionals );
-				for( i=1; i LTE ArrayLen(fileDependencies); i++ ){
+				for( i=1; i LTE ArrayLen( fileDependencies ); i++ ){
 					if ( fileDependencies[i].getPackageName() NEQ _getPackageName() ) {
-						if ( not ListFind(ArrayToList(pkgDependencies), fileDependencies[i].getPackageName() ) ) {
+						if ( not ListFind( ArrayToList( pkgDependencies ), fileDependencies[i].getPackageName() ) ) {
 							ArrayAppend( pkgDependencies,  fileDependencies[i].getPackageName() );
 						}
 					}
@@ -78,7 +78,7 @@
 			var i     = 0;
 
 			for( i=1; i LTE ArrayLen(files); i++ ){
-				str.append( getStaticFile(files[i]).getContent() );
+				str.append( getStaticFile( files[i] ).getContent() );
 			}
 
 			return str.toString();
@@ -91,12 +91,13 @@
 		<cfargument name="charset"      type="string" required="false" default="utf-8" />
 
 		<cfscript>
-			var str   = "";
-			var files = "";
-			var i     = "";
-			var src   = "";
-			var media = "";
-			var ie    = "";
+			var str              = "";
+			var files            = "";
+			var i                = "";
+			var src              = "";
+			var media            = "";
+			var ie               = "";
+			var shouldBeRendered = "";
 
 			switch( minification ){
 				case 'none': case 'file':
@@ -104,8 +105,9 @@
 					files = getOrdered();
 
 					for( i=1; i LTE ArrayLen( files ); i++ ){
-						if ( not ArrayLen( includeFiles ) or includeFiles.contains( JavaCast('string', files[i]) ) ) {
-							str.append( getStaticFile(files[i]).renderInclude( minified = (minification EQ 'file'), charset = charset ) );
+						shouldBeRendered = not ArrayLen( includeFiles ) or includeFiles.contains( JavaCast('string', files[i] ) );
+						if ( shouldBeRendered ) {
+							str.append( getStaticFile( files[i] ).renderInclude( minified = (minification EQ 'file'), charset = charset ) );
 						}
 					}
 					return str.toString();
@@ -188,7 +190,7 @@
 			if ( _getPackageName() EQ '/' ) {
 				filename = "root.min";
 			} else {
-				filename = "#ListChangeDelims(_getPackageName(), '.', '/')#.min";
+				filename = "#ListChangeDelims( _getPackageName(), '.', '/' )#.min";
 			}
 
 			if( _getCacheBust() ){
@@ -247,14 +249,12 @@
 			var dependencies = file.getDependencies( true );
 			var i            = 0;
 
-			// first, add any *internal* dependencies
 			for( i=1; i LTE ArrayLen( dependencies ); i++ ){
 				if ( dependencies[i].getPackageName() EQ _getPackageName() ) {
 					_addFileToOrderedList( dependencies[i].getPath() );
 				}
 			}
 
-			// now add the file if not added already
 			if ( not ListFind( ArrayToList( _ordered ), filePath ) ) {
 				ArrayAppend( _ordered, filePath );
 			}
