@@ -45,11 +45,11 @@
 		<cfargument name="line" type="string" required="true" />
 
 		<cfscript>
-			if ( not Len(Trim(line)) ) {
+			if ( not Len( Trim( line ) ) ) {
 				return true;
 			}
 
-			return Left(line, 1) EQ '##';
+			return Left( line, 1 ) EQ '##';
 		</cfscript>
 	</cffunction>
 
@@ -93,8 +93,8 @@
 	</cffunction>
 
 	<cffunction name="_addDependents" access="private" returntype="array" output="false">
-		<cfargument name="files"       type="array" required="true"   />
-		<cfargument name="dependents"  type="array" required="true"   />
+		<cfargument name="files"       type="array"   required="true" />
+		<cfargument name="dependents"  type="array"   required="true" />
 		<cfargument name="conditional" type="boolean" required="true" />
 		<cfscript>
 			files[ ArrayLen( files ) ].dependents = $ArrayMerge( files[ ArrayLen( files ) ].dependents, dependents );
@@ -189,7 +189,7 @@
 	</cffunction>
 	<cffunction name="_setConditionalToken" access="private" returntype="void" output="false">
 		<cfargument name="conditionalToken" type="any" required="true" />
-		<cfset _conditionalToken = arguments.conditionalToken />
+		<cfset _conditionalToken = conditionalToken />
 	</cffunction>
 
 	<cffunction name="_appendCompiledFileTypeWhenNecessary" access="private" returntype="string" output="false">
