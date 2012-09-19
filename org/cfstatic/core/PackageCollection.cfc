@@ -70,48 +70,42 @@
 		<cfargument name="charset"           type="string"  required="false" default="utf-8" />
 
 		<cfscript>
-			var str      = $getStringBuffer();
-			var included = false;
-			var minify   = "";
-			var packages = "";
-			var i        = "";
-			var src      = "";
-			var media    = "";
-			var ie       = "";
+			var str              = $getStringBuffer();
+			var included         = false;
+			var minify           = "";
+			var packages         = "";
+			var i                = "";
+			var src              = "";
+			var media            = "";
+			var ie               = "";
+			var shouldBeRendered = "";
 
-			// rendering will be different depending on the minification mode
 			switch( minification ){
-				// minified at a level below the collection, loop through our packages
-				// and hand rendering responsibility to them
 				case 'none': case 'file': case 'package':
 					packages = getOrdered();
 					for( i=1; i LTE ArrayLen( packages ); i++ ){
+						shouldBeRendered = not ArrayLen( includePackages ) or includePackages.contains( JavaCast('string', packages[i]) );
 
-						// if this is the 'external' package and we're not downloading externals, force minification to none
-						if ( packages[i] EQ 'external' and not downloadExternals ) {
-							minify = 'none';
-						} else {
-							minify = minification;
-						}
+						if ( shouldBeRendered ) {
+							if ( packages[i] EQ 'external' and not downloadExternals ) {
+								minify = 'none';
+							} else {
+								minify = minification;
+							}
 
-						// add the package's rendering if it is not filtered out
-						if ( not ArrayLen( includePackages ) or includePackages.contains( JavaCast('string', packages[i]) ) ) {
 							str.append( getPackage( packages[i] ).renderIncludes( minification = minify, includeFiles = includeFiles, charset=charset ) );
 						}
 					}
 					break;
 
-				// minified at the 'all' level (package collection)
 				case 'all':
-					src = "#_getMinifiedUrl()#/#getMinifiedFileName()#";
-					ie  = _getIeRestriction();
-
-					// if we aren't downloading externals, render the external includes as unminified
 					if ( not downloadExternals and _packageExists('external') ) {
 						str.append( getPackage('external').renderIncludes( minification='none' ) );
 					}
 
-					// simple single include
+					src = "#_getMinifiedUrl()#/#getMinifiedFileName()#";
+					ie  = _getIeRestriction();
+
 					if ( _getFileType() EQ 'css' ) {
 						media = _getCssMedia();
 						str.append( $renderCssInclude( src, media, ie, charset ) );
