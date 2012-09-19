@@ -131,9 +131,9 @@
 	</cffunction>
 
 	<cffunction name="$httpGet" access="private" returntype="string" output="false" hint="I attempt to get and return the content of the passed url over http.">
-		<cfargument name="url" type="string" required="true" />
+		<cfargument name="urlToGet" type="string" required="true" />
 
-		<cfhttp url="#url#" method="get" />
+		<cfhttp url="#urlToGet#" method="get" />
 		<cfreturn cfhttp.filecontent />
 	</cffunction>
 
