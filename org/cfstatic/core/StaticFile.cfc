@@ -56,11 +56,10 @@
 			var i            = 0;
 			var n            = 0;
 
-
 			for( i=1; i LTE ArrayLen( _dependencies ); i++ ){
 				if ( recursive ) {
 					deep = _dependencies[i].getDependencies( true );
-					for( n=1; n LTE ArrayLen(deep); n++ ){
+					for( n=1; n LTE ArrayLen( deep ); n++ ){
 						if ( not StructKeyExists( added, deep[n].getPath() ) ) {
 							ArrayAppend( final, deep[n] );
 							added[ deep[n].getPath() ] = true;
@@ -125,6 +124,7 @@
 	<cffunction name="renderInclude" access="public" returntype="string" output="false" hint="I return the html needed to include the file">
 		<cfargument name="minified" type="boolean" required="true" hint="Whether or not to refer to the minified or non-minified file when rendering the html include"/>
 		<cfargument name="charset"  type="string"  required="false" default="utf-8" />
+
 		<cfscript>
 			var media = getProperty( 'media', 'all', 'string' );
 			var ie    = getProperty( 'IE', '', 'string' );
