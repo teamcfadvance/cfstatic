@@ -164,7 +164,7 @@
 				conditionals = dependencyArray[i].conditionalDependents;
 
 				for( n=1; n LTE ArrayLen( dependents ); n=n+1 ){
-					dependent = _appendCompiledFileTypeWhenNecessary( dependents[n] );
+					dependent = $appendCompiledFileTypeToFilePath( dependents[n] );
 					if ( not StructKeyExists( dependencyStruct.regular, dependent ) ) {
 						dependencyStruct.regular[ dependent ] = ArrayNew(1);
 					}
@@ -172,7 +172,7 @@
 					dependencyStruct.regular[ dependent ] = $ArrayMerge( dependencyStruct.regular[ dependent ], dependencies );
 				}
 				for( n=1; n LTE ArrayLen( conditionals ); n=n+1 ){
-					dependent = _appendCompiledFileTypeWhenNecessary( dependents[n] );
+					dependent = $appendCompiledFileTypeToFilePath( dependents[n] );
 					if ( not StructKeyExists( dependencyStruct.conditional, dependent ) ) {
 						dependencyStruct.conditional[ dependent ] = ArrayNew(1);
 					}
@@ -190,17 +190,5 @@
 	<cffunction name="_setConditionalToken" access="private" returntype="void" output="false">
 		<cfargument name="conditionalToken" type="any" required="true" />
 		<cfset _conditionalToken = conditionalToken />
-	</cffunction>
-
-	<cffunction name="_appendCompiledFileTypeWhenNecessary" access="private" returntype="string" output="false">
-		<cfargument name="filePath" type="string" required="true" />
-
-		<cfscript>
-			switch( ListLast( filePath, "." ) ){
-				case "coffee" : return filePath & ".js";
-				case "less"   : return filePath & ".css";
-				default       : return filePath;
-			}
-		</cfscript>
 	</cffunction>
 </cfcomponent>

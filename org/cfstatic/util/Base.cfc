@@ -329,6 +329,18 @@
 		<cfreturn CreateObject("java","java.lang.StringBuffer") />
 	</cffunction>
 
+	<cffunction name="$appendCompiledFileTypeToFilePath" access="private" returntype="string" output="false">
+		<cfargument name="filePath" type="string" required="true" />
+
+		<cfscript>
+			switch( ListLast( filePath, "." ) ){
+				case "coffee" : return filePath & ".js";
+				case "less"   : return filePath & ".css";
+				default       : return filePath;
+			}
+		</cfscript>
+	</cffunction>
+
 <!--- accessors --->
 	<cffunction name="_setJavaLoader" access="private" returntype="void" output="false">
 		<cfargument name="javaLoader" required="true" type="any" />

@@ -170,6 +170,7 @@
 	<cffunction name="_loadFromFiles" access="private" returntype="void" output="false" hint="I instantiate the collection by looking through all files in the collection's root directory">
 		<cfargument name="dependencies" type="struct" required="true" />
 		<cfargument name="outputDir"    type="string" required="true" />
+
 		<cfscript>
 			var files = $directoryList( _getRootDirectory(), '*.#_getFileType()#' );
 			var i     = 0;
@@ -192,12 +193,7 @@
 		<cfscript>
 			var packageName     = "";
 			var package         = "";
-			var dependencyArray = "";
-			var dependency      = "";
-			var dependencyPath  = "";
-			var dependencyPkg   = "";
 			var file            = "";
-			var i               = "";
 
 			if ( $shouldFileBeIncluded( path, _getIncludePattern(), _getExcludePattern() ) ) {
 				packageName = _getPackageNameFromPath( path );
@@ -211,45 +207,88 @@
 					package.addStaticFile( path );
 					file = package.getStaticFile( path );
 
-					// TODO, wrap the following in its own method?
-					dependencyArray	= file.getProperty( 'depends', ArrayNew(1), 'array' );
-					if ( StructCount( dependencies ) and StructKeyExists( dependencies.regular, path ) ) {
-						dependencyArray = $ArrayMerge( dependencyArray, dependencies.regular[path] );
-					}
-					if ( StructCount(dependencies) and StructKeyExists( dependencies.conditional, path ) ) {
-						file.setConditionalDependencies( dependencies.conditional[ path ] );
-					}
-
-					for( i=1; i LTE ArrayLen( dependencyArray ); i++ ){
-						dependency = dependencyArray[i];
-
-						if ( $isUrl( dependency ) or _dependencyIsFullPath( dependency ) ) {
-							dependencyPath = dependency;
-						} else {
-							dependencyPath = _getRootdirectory() & dependency;
-						}
-						dependencyPath = Trim( dependencyPath );
-
-						// add .css to .less dependencies and .js to .coffee??? (TODO)
-						if ( ListLast( dependencyPath, '.' ) EQ 'less' ) {
-							dependencyPath = dependencyPath & '.css';
-						}
-
-						dependencyPkg = _getPackageNameFromPath( dependencyPath );
-
-						try {
-							_addStaticFile( dependencyPath, dependencies );
-						} catch(any e) {
-							if ( e.type EQ 'org.cfstatic.missingDependency' ){
-								$throw( argumentCollection = e );
-							}
-							$throw( type="org.cfstatic.missingDependency", message="CFStatic Error: Could not find local dependency.", detail="The dependency, '#dependency#', could not be found or downloaded. CFStatic is expecting to find it at #dependencyPath#. The dependency is declared in '#path#'" );
-						}
-
-						file.addDependency( getPackage( dependencyPkg ).getStaticFile( dependencyPath ) );
-					}
+					_addDependentFiles( file, dependencies );
 				}
 			}
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_addDependentFiles" access="private" returntype="void" output="false">
+		<cfargument name="file"         type="any"    required="true" />
+		<cfargument name="dependencies" type="struct" required="true" />
+
+		<cfscript>
+			var dependencyArray = _getFileDependencies( file, dependencies );
+			var dependency      = "";
+			var package         = "";
+			var i               = "";
+
+			for( i=1; i LTE ArrayLen( dependencyArray ); i++ ){
+				dependency = _getFullPathOfFileDependency( dependencyArray[i] );
+				package    = _getPackageNameFromPath( dependency );
+
+				try {
+					_addStaticFile( dependency, dependencies );
+				} catch( any e ) {
+					if ( e.type EQ 'org.cfstatic.missingDependency' ){
+						$throw( argumentCollection = e );
+					}
+					$throw(
+						  type    = "org.cfstatic.missingDependency"
+						, message = "CFStatic Error: Could not find local dependency."
+						, detail  = "The dependency, '#dependencyArray[i]#', could not be found or downloaded. CFStatic is expecting to find it at #dependency#. The dependency is declared in '#file.getPath()#'"
+					);
+				}
+
+				file.addDependency( getPackage( package ).getStaticFile( dependency ) );
+			}
+
+			_setConditionalDependencies( file, dependencies );
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_getFileDependencies" access="private" returntype="array" output="false">
+		<cfargument name="file"         type="any"    required="true" />
+		<cfargument name="dependencies" type="struct" required="true" />
+
+		<cfscript>
+			var dependencyArray = file.getProperty( 'depends', ArrayNew(1), 'array' );
+			var path            = file.getPath();
+
+			if ( StructCount( dependencies ) and StructKeyExists( dependencies.regular, path ) ) {
+				dependencyArray = $ArrayMerge( dependencyArray, dependencies.regular[ path ] );
+			}
+
+			return dependencyArray;
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_setConditionalDependencies" access="private" returntype="void" output="false">
+		<cfargument name="file"         type="any"    required="true" />
+		<cfargument name="dependencies" type="struct" required="true" />
+
+		<cfscript>
+			var path = file.getPath();
+
+			if ( StructCount( dependencies ) and StructKeyExists( dependencies.conditional, path ) ) {
+				file.setConditionalDependencies( dependencies.conditional[ path ] );
+			}
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_getFullPathOfFileDependency" access="private" returntype="string" output="false">
+		<cfargument name="urlFullOrRelativePath" type="string" required="true" />
+
+		<cfscript>
+			var fullPath = "";
+
+			if ( $isUrl( urlFullOrRelativePath ) or _dependencyIsFullPath( urlFullOrRelativePath ) ) {
+				fullPath = urlFullOrRelativePath;
+			} else {
+				fullPath = _getRootdirectory() & urlFullOrRelativePath;
+			}
+
+			return $appendCompiledFileTypeToFilePath( Trim( fullPath ) );
 		</cfscript>
 	</cffunction>
 
