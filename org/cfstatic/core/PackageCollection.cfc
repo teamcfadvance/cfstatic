@@ -229,15 +229,16 @@
 
 				try {
 					_addStaticFile( dependency, dependencies );
-				} catch( any e ) {
-					if ( e.type EQ 'org.cfstatic.missingDependency' ){
-						$throw( argumentCollection = e );
+				} catch( application e ) {
+					if ( e.message contains dependency ) {
+						$throw(
+							  type    = "org.cfstatic.missingDependency"
+							, message = "CFStatic Error: Could not find local dependency."
+							, detail  = "The dependency, '#dependencyArray[i]#', could not be found or downloaded. CFStatic is expecting to find it at #dependency#. The dependency is declared in '#file.getPath()#'"
+						);
+					} else {
+						$throw( argumentCollection = e ); // (rethrow)
 					}
-					$throw(
-						  type    = "org.cfstatic.missingDependency"
-						, message = "CFStatic Error: Could not find local dependency."
-						, detail  = "The dependency, '#dependencyArray[i]#', could not be found or downloaded. CFStatic is expecting to find it at #dependency#. The dependency is declared in '#file.getPath()#'"
-					);
 				}
 
 				file.addDependency( getPackage( package ).getStaticFile( dependency ) );
