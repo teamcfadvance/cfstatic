@@ -202,30 +202,27 @@
 			if ( $shouldFileBeIncluded( path, _getIncludePattern(), _getExcludePattern() ) ) {
 				packageName = _getPackageNameFromPath( path );
 
-				// get the package object (create if it doesn't exist already)
 				if ( not _packageExists( packageName ) ) {
 					_addPackage( packageName );
 				}
 				package = getPackage( packageName );
 
-				// add the file to the package (if it doesn't exist already)
 				if ( not package.staticFileExists( path ) ) {
 					package.addStaticFile( path );
 					file = package.getStaticFile( path );
 
-					// ensure all dependencies are created as static files (including externals)
+					// TODO, wrap the following in its own method?
 					dependencyArray	= file.getProperty( 'depends', ArrayNew(1), 'array' );
-					if ( StructCount(dependencies) and StructKeyExists( dependencies.regular, path ) ) {
+					if ( StructCount( dependencies ) and StructKeyExists( dependencies.regular, path ) ) {
 						dependencyArray = $ArrayMerge( dependencyArray, dependencies.regular[path] );
 					}
 					if ( StructCount(dependencies) and StructKeyExists( dependencies.conditional, path ) ) {
-						file.setConditionalDependencies( dependencies.conditional[path] );
+						file.setConditionalDependencies( dependencies.conditional[ path ] );
 					}
 
-					for( i=1; i LTE ArrayLen(dependencyArray); i++ ){
+					for( i=1; i LTE ArrayLen( dependencyArray ); i++ ){
 						dependency = dependencyArray[i];
 
-						// calculate dependency path and package
 						if ( $isUrl( dependency ) or _dependencyIsFullPath( dependency ) ) {
 							dependencyPath = dependency;
 						} else {
@@ -233,26 +230,22 @@
 						}
 						dependencyPath = Trim( dependencyPath );
 
-						// add .css to .less dependencies
+						// add .css to .less dependencies and .js to .coffee??? (TODO)
 						if ( ListLast( dependencyPath, '.' ) EQ 'less' ) {
 							dependencyPath = dependencyPath & '.css';
 						}
 
 						dependencyPkg = _getPackageNameFromPath( dependencyPath );
 
-						// add the static file (yes, a call to this method - we want n depth recursion)
 						try {
 							_addStaticFile( dependencyPath, dependencies );
 						} catch(any e) {
-							// if the thrown error is one of ours, we should rethrow it (bubbling up)
 							if ( e.type EQ 'org.cfstatic.missingDependency' ){
 								$throw( argumentCollection = e );
 							}
-							// otherwise, throw our custom missing dependency error
 							$throw( type="org.cfstatic.missingDependency", message="CFStatic Error: Could not find local dependency.", detail="The dependency, '#dependency#', could not be found or downloaded. CFStatic is expecting to find it at #dependencyPath#. The dependency is declared in '#path#'" );
 						}
 
-						// add the static file object as a dependency to the file
 						file.addDependency( getPackage( dependencyPkg ).getStaticFile( dependencyPath ) );
 					}
 				}
