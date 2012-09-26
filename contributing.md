@@ -33,6 +33,7 @@ The following GitHub users have all contributed in some way; either by submittin
 * [joncarlson](https://github.com/joncarlson)
 * [mattlevine](https://github.com/mattlevine)
 * [mschierberl](https://github.com/mschierberl)
+* [nodoherty](https://github.com/nodoherty)
 * [richardherbert](https://github.com/richardherbert)
 * [sarram77](https://github.com/sarram77)
 * [sumitverma](https://github.com/sumitverma)
