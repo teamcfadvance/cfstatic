@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Full Useage Guide
+title: Full Usage Guide
 ---
 
 # {{ page.title }}
 
 1. [Preparing your static files](#preparation)
 2. [Configuration](#configuration)
-3. [API Useage](#useage)
+3. [API Usage](#usage)
 4. [LESS](#less)
 5. [CoffeeScript](#coffeescript)
 
