@@ -1,3 +1,3 @@
 markdown: rdiscount
 pygments: true
-exclude: WEB-INF _ebooks
+exclude: WEB-INF _ebooks tests mxunit
