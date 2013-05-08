@@ -150,6 +150,7 @@
 			var n                = 0;
 			var dependencyStruct = StructNew();
 			var dependencies     = "";
+			var dependenciesList = "";
 			var dependents       = "";
 			var dependent        = "";
 			var conditionals     = "";
@@ -159,25 +160,30 @@
 
 
 			for( i=1; i LTE ArrayLen( dependencyArray ); i=i+1 ){
-				dependents   = dependencyArray[i].dependents;
-				dependencies = dependencyArray[i].dependencies;
-				conditionals = dependencyArray[i].conditionalDependents;
+				dependents       = dependencyArray[i].dependents;
+				dependencies     = dependencyArray[i].dependencies;
+				dependenciesList = ArrayToList( dependencies );
+				conditionals     = dependencyArray[i].conditionalDependents;
 
 				for( n=1; n LTE ArrayLen( dependents ); n=n+1 ){
 					dependent = _appendCompiledFileTypeWhenNecessary( dependents[n] );
-					if ( not StructKeyExists( dependencyStruct.regular, dependent ) ) {
-						dependencyStruct.regular[ dependent ] = ArrayNew(1);
-					}
+					if ( not ListFindNoCase( dependenciesList, dependent ) and not ListFindNoCase( dependenciesList, dependents[n] ) ) {
+						if ( not StructKeyExists( dependencyStruct.regular, dependent ) ) {
+							dependencyStruct.regular[ dependent ] = ArrayNew(1);
+						}
 
-					dependencyStruct.regular[ dependent ] = $ArrayMerge( dependencyStruct.regular[ dependent ], dependencies );
+						dependencyStruct.regular[ dependent ] = $ArrayMerge( dependencyStruct.regular[ dependent ], dependencies );
+					}
 				}
 				for( n=1; n LTE ArrayLen( conditionals ); n=n+1 ){
 					dependent = _appendCompiledFileTypeWhenNecessary( dependents[n] );
-					if ( not StructKeyExists( dependencyStruct.conditional, dependent ) ) {
-						dependencyStruct.conditional[ dependent ] = ArrayNew(1);
-					}
+					if ( not ListFindNoCase( dependenciesList, dependent ) and not ListFindNoCase( dependenciesList, dependents[n] ) ) {
+						if ( not StructKeyExists( dependencyStruct.conditional, dependent ) ) {
+							dependencyStruct.conditional[ dependent ] = ArrayNew(1);
+						}
 
-					dependencyStruct.conditional[ dependent ] = $ArrayMerge( dependencyStruct.conditional[ dependent ], dependencies );
+						dependencyStruct.conditional[ dependent ] = $ArrayMerge( dependencyStruct.conditional[ dependent ], dependencies );
+					}
 				}
 			}
 			return dependencyStruct;
