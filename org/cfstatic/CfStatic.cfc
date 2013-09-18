@@ -535,7 +535,7 @@
 
 			jarsForYui[1]    = ExpandPath('/org/cfstatic/lib/yuiCompressor/yuicompressor-2.4.7.jar');
 			jarsForYui[2]    = ExpandPath('/org/cfstatic/lib/cfstatic.jar');
-			jarsForLess[1]   = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.3.0.jar');
+			jarsForLess[1]   = ExpandPath('/org/cfstatic/lib/less/lesscss-engine-1.4.2.jar');
 			jarsForCoffee[1] = ExpandPath('/org/cfstatic/lib/jcoffeescript/jcoffeescript-1.3.3.jar');
 
 			cfstaticJavaloaders.yui    = CreateObject('component','org.cfstatic.lib.javaloader.JavaLoader').init( jarsForYui    );
