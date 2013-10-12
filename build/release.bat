@@ -1,3 +1,4 @@
+@echo off
 set olddir=%CD%
 
 if "%1"=="" goto blank
@@ -9,6 +10,7 @@ set rootdir=%scriptdir%\..\
 set tagName=%1
 set releaseBranch=rb-%tagName%
 set versionFile=version_%tagName%.info
+set docsdir=%rootdir%\docs
 chdir %rootdir%
 goto checkoutnewreleasebranch
 
@@ -27,7 +29,7 @@ echo Building documentation using Jekyll and the gh-pages branch
 echo ===========================================================
 call mkdir docs
 call git checkout gh-pages
-call jekyll build -d .\docs\
+
 
 goto done
 
