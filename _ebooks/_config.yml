@@ -1,3 +1,0 @@
-markdown: rdiscount
-pygments: false
-exclude: build.sh
