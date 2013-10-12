@@ -1,4 +1,3 @@
-@echo off
 set olddir=%CD%
 
 if "%1"=="" goto blank
