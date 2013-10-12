@@ -176,7 +176,7 @@
 			var i     = 0;
 
 			for( i=1; i lte files.recordCount; i++ ){
-				if ( files.directory[i] neq outputDir ) {
+				if ( $normalizeUnixAndWindowsPaths( files.directory[i] ) neq outputDir ) {
 					_addStaticFile(
 						  path         = $normalizeUnixAndWindowsPaths( files.directory[i] & '/' & files.name[i] )
 					    , dependencies = dependencies
