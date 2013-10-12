@@ -230,7 +230,7 @@
 				try {
 					_addStaticFile( dependency, dependencies );
 				} catch( application e ) {
-					if ( e.message contains dependency ) {
+					if ( $normalizeUnixAndWindowsPaths( e.message ) contains dependency ) {
 						$throw(
 							  type    = "org.cfstatic.missingDependency"
 							, message = "CFStatic Error: Could not find local dependency."
