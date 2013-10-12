@@ -10,8 +10,9 @@ set rootdir=%scriptdir%\..\
 set tagName=%1
 set releaseBranch=rb-%tagName%
 set versionFile=version_%tagName%.info
-set docsdir=%rootdir%\docs
-chdir %rootdir%
+
+chdir /d %rootdir%
+
 goto checkoutnewreleasebranch
 
 :checkoutnewreleasebranch
@@ -29,7 +30,7 @@ echo Building documentation using Jekyll and the gh-pages branch
 echo ===========================================================
 call mkdir docs
 call git checkout gh-pages
-
+call jekyll build -d docs
 
 goto done
 
@@ -38,5 +39,6 @@ echo Useage: ./release.sh {tag name}
 goto done
 
 :done
-chdir %olddir%
+chdir /d %olddir%
+
 pause
