@@ -27,7 +27,7 @@ echo Building documentation using Jekyll and the gh-pages branch
 echo ===========================================================
 call mkdir docs
 call git checkout gh-pages
-echo jekyll build -d %rootdir%\docs
+call jekyll build -d .\docs\
 
 goto done
 
