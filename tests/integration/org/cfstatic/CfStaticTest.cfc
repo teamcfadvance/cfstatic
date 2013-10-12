@@ -674,7 +674,7 @@
 	<cffunction name="t27_cfstatic_shouldThrowError_whenOutputFolderDoesNotExistAndCannotBeCreated" returntype="void">
 		<cfscript>
 			var failed = false;
-			if ( not _isBlueDragon() ) {
+			if ( _isAdobeColdFusion() ) {
 				try {
 					cfstatic.init(
 						  staticDirectory = "/nonexistant/dir/"
