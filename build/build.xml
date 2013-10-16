@@ -1,5 +1,7 @@
 <project name="CfStatic Release Builder" default="tagRelease" basedir="../">
 
+	<property name="path.jekyll" value="C:\Ruby\bin\jekyll.bat" />
+
 	<target name="tagRelease" depends="createReleaseBranch,buildDocs,createReleaseFile,cleanup">
 		<exec executable="git">
 			<arg value="tag" />
@@ -41,9 +43,8 @@
 			<arg value="gh-pages" />
 		</exec>
 
-		<exec executable="C:\Ruby\bin\jekyll.bat">
-			<arg value="--safe" />
-			<arg value="--pygments" />
+		<exec executable="${path.jekyll}">
+			<arg value="build" />
 			<arg value="docs" />
 		</exec>
 
