@@ -41,8 +41,7 @@
 			<arg value="gh-pages" />
 		</exec>
 
-		<exec executable="ruby">
-			<arg value="jekyll" />
+		<exec executable="jekyll.bat">
 			<arg value="--safe" />
 			<arg value="--pygments" />
 			<arg value="docs" />
