@@ -1,0 +1,20 @@
+<project name="CfStatic Release Builder" default="release" basedir="../">
+
+	<target name="release" depends="init">
+	</target>
+
+	<target name="init">
+		<input message="Release number:" addproperty="release.no" />
+
+		<property name="release.branch"       value="rb-${release.no}" />
+		<property name="release.version.file" value="version_${release.no}.info" />
+	</target>
+
+	<target name="checkoutReleaseBranch">
+		<exec executable="git">
+			<arg value="checkout" />
+			<arg value="-b" />
+			<arg value="${release.branch}" />
+		</exec>
+	</target>
+</project>
