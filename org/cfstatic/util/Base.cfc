@@ -194,7 +194,11 @@
 		<cfargument name="include"       type="string" required="true" />
 		<cfargument name="ieConditional" type="string" required="true" />
 
-		<cfif Len( Trim( ieConditional ) )>
+		<cfif Trim( ieConditional ) eq "!IE">
+			<cfreturn '<!--[if #ieConditional#]>-->
+#include#
+<!-- <![endif]-->' />
+		<cfelseif Len( Trim( ieConditional ) )>
 			<cfreturn '<!--[if #ieConditional#]>#include#<![endif]-->' />
 		</cfif>
 
