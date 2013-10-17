@@ -45,6 +45,7 @@
 
 		<exec executable="${path.jekyll}">
 			<arg value="build" />
+			<arg value="-d" />
 			<arg value="docs" />
 		</exec>
 
