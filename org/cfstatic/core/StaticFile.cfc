@@ -155,7 +155,7 @@
 			filename = $listDeleteLast( filename, '.' );
 			filename = $listAppend( filename, 'min', '.' );
 			if ( _getCacheBust() ) {
-				filename = $listAppend( filename, $generateCacheBuster( getLastModified() ), '.' );
+				filename    = $listAppend(filename, Hash( getContent() ), '.');
 			}
 
 			return $listAppend( filename, ext, '.' );

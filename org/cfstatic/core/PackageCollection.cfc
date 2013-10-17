@@ -140,7 +140,7 @@
 			var filename = "#_getFileType()#.min";
 
 			if ( _getCacheBust() ) {
-				filename = $listAppend( filename, $generateCacheBuster( getLastModified() ), '.' );
+				filename = $listAppend(filename, Hash( getContent() ), '.');
 			}
 
 			return $listAppend( filename, _getFileType(), '.' );

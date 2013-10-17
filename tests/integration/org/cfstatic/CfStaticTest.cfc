@@ -1054,7 +1054,7 @@
 		<cfloop query="files1">
 			<cfif files1.type EQ 'file'>
 				<cfset file1 = ListAppend(files1.directory, files1.name, '/') />
-				<cfset file2 = _findEquivalentFileThatMayHaveDifferentTimestamp(files1.name, ValueList(files2.name)) />
+				<cfset file2 = _findEquivalentFileThatMayHaveDifferentCheckSum(files1.name, ValueList(files2.name)) />
 
 				<cfset super.Assert( file2 NEQ "", "The two folders did not contain the same files. Folder 1: #ValueList(files1.name)#. Folder 2: #ValueList(files2.name)#") />
 				<cfset subFolder = ReplaceNoCase( files1.directory, folder1, '' ) />
@@ -1093,14 +1093,14 @@
 		<cffile action="copy" source="#source#" destination="#destination#"  />
 	</cffunction>
 
-	<cffunction name="_findEquivalentFileThatMayHaveDifferentTimestamp" access="private" returntype="string" output="false">
+	<cffunction name="_findEquivalentFileThatMayHaveDifferentCheckSum" access="private" returntype="string" output="false">
 		<cfargument name="fileName"           type="string" required="true" />
 		<cfargument name="equivalentFileList" type="any"    required="true" />
 
 		<cfset var equivFile        = "" />
-		<cfset var strippedFileName = _removeTimeStampFromFileNames(arguments.fileName) />
+		<cfset var strippedFileName = _removeCheckSumFromFileNames(arguments.fileName) />
 		<cfloop list="#arguments.equivalentFileList#" index="equivFile">
-			<cfif _removeTimeStampFromFileNames(equivFile) EQ strippedFileName>
+			<cfif _removeCheckSumFromFileNames(equivFile) EQ strippedFileName>
 				<cfreturn equivFile />
 			</cfif>
 		</cfloop>
@@ -1108,10 +1108,10 @@
 		<cfreturn "" />
 	</cffunction>
 
-	<cffunction name="_removeTimeStampFromFileNames" access="private" returntype="string" output="false">
+	<cffunction name="_removeCheckSumFromFileNames" access="private" returntype="string" output="false">
 		<cfargument name="fileName" type="string" required="true" />
 
-		<cfreturn ReReplace( arguments.fileName, '\.[0-9]{14}', "", "all" ) />
+		<cfreturn ReReplace( arguments.fileName, '\.[0-9A-F]{32}', "", "all" ) />
 	</cffunction>
 
 	<cffunction name="_removeNewLines" access="private" returntype="string" output="false">
@@ -1123,7 +1123,7 @@
 	<cffunction name="_cleanupRenderedOutput" access="private" returntype="string" output="false">
 		<cfargument name="renderedOutput" type="string" required="true" />
 
-		<cfreturn _removeNewLines( _removeTimeStampFromFileNames( arguments.renderedOutput ) ) />
+		<cfreturn _removeNewLines( _removeCheckSumFromFileNames( arguments.renderedOutput ) ) />
 	</cffunction>
 
 	<cffunction name="_isBlueDragon" returntype="boolean" access="private" output="false">
