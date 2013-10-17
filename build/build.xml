@@ -88,6 +88,7 @@
 	<target name="cleanup">
 		<exec executable="git">
 			<arg value="rm" />
+			<arg value="-r" />
 			<arg value="--cached" />
 			<arg value="./build" />
 		</exec>
