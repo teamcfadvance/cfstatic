@@ -97,8 +97,82 @@ Purpose:    Utlitity class for loading Java Classes
 	<cfreturn instance.ClassLoader />
 </cffunction>
 
+<cffunction name="getClassLoadPaths" access="public" returntype="array" output="false">
+	<cfreturn instance.classLoadPaths />
+</cffunction>
+
+	
+<cffunction name="switchThreadContextClassLoader" hint="Sometimes you will need to switch out the ThreadContextClassLoader with the classloader used by JavaLoader.<br/>
+			It has :
+			switchThreadContextClassLoader(function object, [classLoader=getURLClassLoader()])
+			switchThreadContextClassLoader(function name, [classLoader=getURLClassLoader()])
+			switchThreadContextClassLoader(object, function name, [classLoader=getURLClassLoader()])
+			This method can be used in 3 different ways:
+			<ol>
+				<li>Pass it the UDF itself</li>
+				<li>Pass it the current object and method name that you wish to have called</li>
+				<li>Inject it into your CFC/Page that you want to use, and call it from there, telling it what function to call (you will need to pass in the URLClassLoader)</li>
+			</ol>"
+			access="public" returntype="any" output="false">
+	<cfscript>
+		var local = {};
+		var System = createObject("java", "java.lang.System");
+		var Thread = createObject("java", "java.lang.Thread");
+		var currentClassloader = Thread.currentThread().getContextClassLoader();
+
+		if(structCount(arguments) == 2 && !isSimpleValue(arguments[2]))
+		{
+			classLoader = arguments[2];
+		}
+		else if(structCount(arguments) == 3)
+		{
+			classLoader = arguments[3];
+		}
+		else //assume we are still in JL
+		{
+			classLoader = getURLClassLoader();
+		}
+	</cfscript>
+
+	<cftry>
+		<cfscript>
+			Thread.currentThread().setContextClassLoader(classloader);
+		</cfscript>
+
+		<cfif isSimpleValue(arguments[1])>
+			<cfinvoke method="#arguments[1]#" returnvariable="local.return" />
+		<cfelseif isCustomFunction(arguments[1])>
+			<cfscript>
+				local.func = arguments[1];
+				local.return = local.func();
+			</cfscript>
+		<cfelseif isObject(arguments[1]) AND isSimpleValue(arguments[2])>
+			<cfinvoke component="#arguments[1]#" method="#arguments[2]#" returnvariable="local.return" />
+		<cfelse>
+			<cfthrow type="javaloader.InvalidInvocationException" message="Unable to determine what method to invoke" detail="Please check the documentation for switchThreadContextClassLoader."/>
+		</cfif>
+
+		<cfcatch>
+			<cfscript>
+				Thread.currentThread().setContextClassLoader(currentClassloader);
+			</cfscript>
+			<cfrethrow>
+		</cfcatch>
+	</cftry>
+
+	<cfscript>
+		//need to do this twice, as cf8 has no finally.
+		Thread.currentThread().setContextClassLoader(currentClassloader);
+
+		if(structKeyExists(local, "return"))
+		{
+			return local.return;
+		}
+	</cfscript>
+</cffunction>
+	
 <cffunction name="getVersion" hint="Retrieves the version of the loader you are using" access="public" returntype="string" output="false">
-	<cfreturn "1.0">
+	<cfreturn "1.1">
 </cffunction>
 
 <!------------------------------------------- PACKAGE ------------------------------------------->
@@ -375,10 +449,6 @@ Purpose:    Utlitity class for loading Java Classes
 	</cfloop>
 
 	<cfreturn aJars>
-</cffunction>
-
-<cffunction name="getClassLoadPaths" access="private" returntype="array" output="false">
-	<cfreturn instance.classLoadPaths />
 </cffunction>
 
 <cffunction name="setClassLoadPaths" access="private" returntype="void" output="false">
