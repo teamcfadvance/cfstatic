@@ -1007,7 +1007,7 @@
 		<cfif DirectoryExists(ExpandPath(dir))>
 			<cfdirectory action="list" directory="#ExpandPath(dir)#" name="files" />
 			<cfloop query="files">
-		    	<cffile action="delete" file="#directory#/#name#" />
+		    	<cffile action="delete" file="#files.directory#/#files.name#" />
 			</cfloop>
 			<cfdirectory action="delete" directory="#ExpandPath(dir)#" />
 		</cfif>
@@ -1015,8 +1015,8 @@
 		<!--- compiled less files --->
 		<cfdirectory action="list" directory="#ExpandPath(rootDir)#" filter="*.less.css" recurse="true" name="files" />
 		<cfloop query="files">
-			<cfif type EQ "file">
-				<cffile action="delete" file="#directory#/#name#" />
+			<cfif files.type EQ "file">
+				<cffile action="delete" file="#files.directory#/#files.name#" />
 			</cfif>
 		</cfloop>
 
@@ -1024,8 +1024,8 @@
 		<cfif DirectoryExists( ExpandPath( rootDir & '/js') )>
 			<cfdirectory action="list" directory="#ExpandPath(rootDir)#/js" filter="*.coffee.js" recurse="true" name="files" />
 			<cfloop query="files">
-				<cfif type EQ "file">
-					<cffile action="delete" file="#directory#/#name#" />
+				<cfif files.type EQ "file">
+					<cffile action="delete" file="#files.directory#/#files.name#" />
 				</cfif>
 			</cfloop>
 		</cfif>
