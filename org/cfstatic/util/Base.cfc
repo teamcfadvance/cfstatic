@@ -171,17 +171,15 @@
 		<cfargument name="src"           type="string" required="true"                  />
 		<cfargument name="media"         type="string" required="true"                  />
 		<cfargument name="ieConditional" type="string" required="false" default=""      />
-		<cfargument name="charset"       type="string" required="false" default="utf-8" />
 
-		<cfreturn $renderIeConditional( '<link rel="stylesheet" href="#src#" media="#media#" charset="#charset#" />', ieConditional ) & $newline() />
+		<cfreturn $renderIeConditional( '<link rel="stylesheet" href="#src#" media="#media#" />', ieConditional ) & $newline() />
 	</cffunction>
 
 	<cffunction name="$renderJsInclude" access="private" returntype="string" output="false" hint="I return the html nevessary to include the given javascript file">
 		<cfargument name="src"           type="string" required="true"                  />
 		<cfargument name="ieConditional" type="string" required="false" default=""      />
-		<cfargument name="charset"       type="string" required="false" default="utf-8" />
 
-		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#src#" charset="#charset#"></script>', ieConditional ) & $newline() />
+		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#src#"></script>', ieConditional ) & $newline() />
 	</cffunction>
 
 	<cffunction name="$generateCacheBuster" access="private" returntype="string" output="false" hint="I return a cachebuster string for a given date">

@@ -357,12 +357,10 @@
 			_addRenderedIncludeToCache( 'js',  '/', _getJsPackages().renderIncludes(
 				  minification      = _getMinifyMode()
 				, downloadExternals = _getDownloadExternals()
-				, charset           = _getOutputCharset()
 			)  );
 			_addRenderedIncludeToCache( 'css', '/', _getCssPackages().renderIncludes(
 				  minification      = _getMinifyMode()
 				, downloadExternals = _getDownloadExternals()
-				, charset           = _getOutputCharset()
 			) );
 		</cfscript>
 	</cffunction>
@@ -399,8 +397,7 @@
 					}
 
 					_addRenderedIncludeToCache( type, packages[i], package.renderIncludes(
-						  minification      = minifyMode
-						, charset           = _getOutputCharset()
+						minification = minifyMode
 					) );
 				}
 			}
@@ -444,8 +441,7 @@
 							, path     = files[x]
 							, debug    = debug
 							, rendered = file.renderInclude(
-								  minified  = minified and ( packages[i] neq 'external' or _getDownloadExternals() )
-								, charset   = _getOutputCharset()
+								minified  = minified and ( packages[i] neq 'external' or _getDownloadExternals() )
 							)
 						);
 					}
@@ -841,7 +837,7 @@
 				return "";
 			}
 
-			return '<script type="text/javascript" charset="#_getOutputCharset()#">var #_getJsDataVariable()# = #SerializeJson(data)#</script>' & $newline();
+			return '<script type="text/javascript">var #_getJsDataVariable()# = #SerializeJson(data)#</script>' & $newline();
 		</cfscript>
     </cffunction>
 

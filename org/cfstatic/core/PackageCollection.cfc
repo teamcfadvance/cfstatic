@@ -67,7 +67,6 @@
 		<cfargument name="downloadExternals" type="boolean" required="true" />
 		<cfargument name="includePackages"   type="array"   required="false" default="#ArrayNew(1)#" />
 		<cfargument name="includeFiles"      type="array"   required="false" default="#ArrayNew(1)#" />
-		<cfargument name="charset"           type="string"  required="false" default="utf-8" />
 
 		<cfscript>
 			var str              = $getStringBuffer();
@@ -93,7 +92,7 @@
 								minify = minification;
 							}
 
-							str.append( getPackage( packages[i] ).renderIncludes( minification = minify, includeFiles = includeFiles, charset=charset ) );
+							str.append( getPackage( packages[i] ).renderIncludes( minification = minify, includeFiles = includeFiles ) );
 						}
 					}
 					break;
@@ -108,9 +107,9 @@
 
 					if ( _getFileType() EQ 'css' ) {
 						media = _getCssMedia();
-						str.append( $renderCssInclude( src, media, ie, charset ) );
+						str.append( $renderCssInclude( src, media, ie ) );
 					} else {
-						str.append( $renderJsInclude( src, ie, charset ) );
+						str.append( $renderJsInclude( src, ie ) );
 					}
 					break;
 			}
