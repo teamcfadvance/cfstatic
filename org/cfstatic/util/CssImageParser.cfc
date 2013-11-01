@@ -15,9 +15,10 @@
 
 <!--- public methods --->
 	<cffunction name="parse" access="public" returntype="string" output="false" hint="I take a css input string (and path to the css file) and return css with full image paths and cachebusters">
-		<cfargument name="source"           type="string" required="true" />
-		<cfargument name="filePath"         type="string" required="true" />
-		<cfargument name="embedImagesRegex" type="string" required="true" />
+		<cfargument name="source"           type="string"  required="true" />
+		<cfargument name="filePath"         type="string"  required="true" />
+		<cfargument name="embedImagesRegex" type="string"  required="true" />
+		<cfargument name="addCachebusters"  type="boolean" required="true" />
 
 		<cfscript>
 			var originalCss     = source;
@@ -42,7 +43,7 @@
 						finalCss      = Replace( finalCss, 'url(#imageReferences[i]#)', 'url(data:#imageMimeType#;base64,#base64Encoded#)', 'all' );
 
 					} else {
-						fullUrl  = _calculateFullUrl( img, filePath );
+						fullUrl  = _calculateFullUrl( img, filePath, addCachebusters );
 						finalCss = Replace( finalCss, 'url(#imageReferences[i]#)', 'url(#fullUrl#)', 'all' );
 					}
 				}
@@ -54,8 +55,9 @@
 
 <!--- private methods --->
 	<cffunction name="_calculateFullUrl" access="public" returntype="string" output="false" hint="I calculate the full path from a relative image path, appending a cachebuster based on the last modified date of the image file">
-		<cfargument name="relativeUrl" type="string" required="true" />
-		<cfargument name="cssFilePath" type="string" required="true" />
+		<cfargument name="relativeUrl"     type="string"  required="true" />
+		<cfargument name="cssFilePath"     type="string"  required="true" />
+		<cfargument name="addCachebusters" type="boolean" required="true" />
 
 		<cfscript>
 			var fullUrl           = relativeUrl;
@@ -92,11 +94,13 @@
 				}
 
 				// calculate a cache buster if we can
-				imagePath = $listAppend( getDirectoryFromPath( cssFilePath ), relativeUrl, '/' );
-				if ( FileExists( imagePath ) ){
-					imageLastModified = $fileLastModified( imagePath );
-					cacheBuster = DateFormat( imageLastModified, 'yyyymmdd' ) & TimeFormat( imageLastModified, 'hhmmss' );
-					fullUrl = fullUrl & '?' & cacheBuster;
+				if ( addCachebusters ) {
+					imagePath = $listAppend( getDirectoryFromPath( cssFilePath ), relativeUrl, '/' );
+					if ( FileExists( imagePath ) ){
+						imageLastModified = $fileLastModified( imagePath );
+						cacheBuster = DateFormat( imageLastModified, 'yyyymmdd' ) & TimeFormat( imageLastModified, 'hhmmss' );
+						fullUrl = fullUrl & '?' & cacheBuster;
+					}
 				}
 			}
 
