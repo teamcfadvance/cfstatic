@@ -1040,6 +1040,30 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t42_include_shouldThrowAnError_whenIncludeDoesNotExistAndThrowOnMissingIsGloballyDefaultedToTrue" returntype="void">
+		<cfscript>
+			var errorThrown = false;
+
+			rootDir &= 'goodFiles/standardFolders/';
+
+			cfstatic.init(
+				  staticDirectory       = rootDir
+				, staticUrl             = "/assets"
+				, debugKey              = "doNotLetMxUnitDebugScrewTests"
+				, throwOnMissingInclude = true
+			);
+
+			try {
+				cfstatic.include( '/js/whatever/' );
+			} catch( "cfstatic.missing.include" e ) {
+				super.assertEquals( "CfStatic include() error: The requested include, [/js/whatever/], does not exist.", e.message );
+				errorThrown = true;
+			}
+
+			super.assert( errorThrown, "An informative error was not thrown" );
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />

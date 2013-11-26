@@ -2,31 +2,32 @@
 
 <!--- constructor --->
 	<cffunction name="init" access="public" returntype="any" output="false" hint="I am the constructor for CfStatic. Pass in your CfStatic configuration options to me.">
-		<cfargument name="staticDirectory"      type="string"  required="true"                      hint="Full path to the directoy in which static files reside" />
-		<cfargument name="staticUrl"            type="string"  required="true"                      hint="Url that maps to the static directory" />
-		<cfargument name="jsDirectory"          type="string"  required="false" default="js"        hint="Relative path to the directoy in which javascript files reside. Relative to static path." />
-		<cfargument name="cssDirectory"         type="string"  required="false" default="css"       hint="Relative path to the directoy in which css files reside. Relative to static path." />
-		<cfargument name="outputDirectory"      type="string"  required="false" default="min"       hint="Relative path to the directory in which minified files will be output. Relative to static path." />
-		<cfargument name="minifyMode"           type="string"  required="false" default="package"   hint="The minify mode. Options are: 'none', 'file', 'package' or 'all'." />
-		<cfargument name="downloadExternals"    type="boolean" required="false" default="false"     hint="If set to true, CfMinify will download and minify locally any external dependencies (e.g. http://code.jquery.com/jquery-1.6.1.min.js)" />
-		<cfargument name="addCacheBusters"      type="boolean" required="false" default="true"      hint="If set to true (default), CfStatic will use HD5 checksum as part of generated minified filenames"/>
-		<cfargument name="addImageCacheBusters" type="boolean" required="false" default="true"      hint="If set to true (default), CfStatic will use last modified date of css images as part of the css image incdle"/>
-		<cfargument name="debugAllowed"         type="boolean" required="false" default="true"      hint="Whether or not debug is allowed. Defaulting to true, even though this may seem like a dev setting. No real extra load is made on the server by a user making use of debug mode and it is useful by default." />
-		<cfargument name="debugKey"             type="string"  required="false" default="debug"     hint="URL parameter name used to invoke debugging (if enabled)" />
-		<cfargument name="debugPassword"        type="string"  required="false" default="true"      hint="URL parameter value used to invoke debugging (if enabled)" />
-		<cfargument name="debug"                type="boolean" required="false" default="false"     hint="Whether or not to start CfStatic in debug mode (regardless of other debug options). This is a permanent switch." />
-		<cfargument name="forceCompilation"     type="boolean" required="false" default="false"     hint="Whether or not to check for updated files before compiling" />
-		<cfargument name="checkForUpdates"      type="boolean" required="false" default="false"     hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
-		<cfargument name="includeAllByDefault"  type="boolean" required="false" default="true"      hint="Whether or not to include all static files in a request when the .include() method is never called" />
-		<cfargument name="embedCssImages"       type="string"  required="false" default="none"      hint="Either 'none', 'all' or a regular expression to select css images that should be embedded in css files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images"/>
-		<cfargument name="includePattern"       type="string"  required="false" default=".*"        hint="Regex pattern indicating css and javascript files to be included in CfStatic's processing. Defaults to .* (all)" />
-		<cfargument name="excludePattern"       type="string"  required="false" default=""          hint="Regex pattern indicating css and javascript files to be excluded from CfStatic's processing. Defaults to blank (exclude none)" />
-		<cfargument name="outputCharset"        type="string"  required="false" default="utf-8"     hint="Character set to use when writing outputted minified files" />
-		<cfargument name="javaLoaderScope"      type="string"  required="false" default="server"    hint="The scope in which instances of JavaLoader libraries for the compilers should be persisted, either 'application' or 'server' (default is 'server' to prevent JavaLoader memory leaks)" />
-		<cfargument name="lessGlobals"          type="string"  required="false" default=""          hint="Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list" />
-		<cfargument name="jsDataVariable"       type="string"  required="false" default="cfrequest" hint="JavaScript variable name that will contain any data passed to the .includeData() method" />
-		<cfargument name="jsDependencyFile"     type="string"  required="false" default=""          hint="Text file describing the dependencies between javascript files" />
-		<cfargument name="cssDependencyFile"    type="string"  required="false" default=""          hint="Text file describing the dependencies between css files" />
+		<cfargument name="staticDirectory"       type="string"  required="true"                      hint="Full path to the directoy in which static files reside" />
+		<cfargument name="staticUrl"             type="string"  required="true"                      hint="Url that maps to the static directory" />
+		<cfargument name="jsDirectory"           type="string"  required="false" default="js"        hint="Relative path to the directoy in which javascript files reside. Relative to static path." />
+		<cfargument name="cssDirectory"          type="string"  required="false" default="css"       hint="Relative path to the directoy in which css files reside. Relative to static path." />
+		<cfargument name="outputDirectory"       type="string"  required="false" default="min"       hint="Relative path to the directory in which minified files will be output. Relative to static path." />
+		<cfargument name="minifyMode"            type="string"  required="false" default="package"   hint="The minify mode. Options are: 'none', 'file', 'package' or 'all'." />
+		<cfargument name="downloadExternals"     type="boolean" required="false" default="false"     hint="If set to true, CfMinify will download and minify locally any external dependencies (e.g. http://code.jquery.com/jquery-1.6.1.min.js)" />
+		<cfargument name="addCacheBusters"       type="boolean" required="false" default="true"      hint="If set to true (default), CfStatic will use HD5 checksum as part of generated minified filenames"/>
+		<cfargument name="addImageCacheBusters"  type="boolean" required="false" default="true"      hint="If set to true (default), CfStatic will use last modified date of css images as part of the css image incdle"/>
+		<cfargument name="debugAllowed"          type="boolean" required="false" default="true"      hint="Whether or not debug is allowed. Defaulting to true, even though this may seem like a dev setting. No real extra load is made on the server by a user making use of debug mode and it is useful by default." />
+		<cfargument name="debugKey"              type="string"  required="false" default="debug"     hint="URL parameter name used to invoke debugging (if enabled)" />
+		<cfargument name="debugPassword"         type="string"  required="false" default="true"      hint="URL parameter value used to invoke debugging (if enabled)" />
+		<cfargument name="debug"                 type="boolean" required="false" default="false"     hint="Whether or not to start CfStatic in debug mode (regardless of other debug options). This is a permanent switch." />
+		<cfargument name="forceCompilation"      type="boolean" required="false" default="false"     hint="Whether or not to check for updated files before compiling" />
+		<cfargument name="checkForUpdates"       type="boolean" required="false" default="false"     hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
+		<cfargument name="includeAllByDefault"   type="boolean" required="false" default="true"      hint="Whether or not to include all static files in a request when the .include() method is never called" />
+		<cfargument name="embedCssImages"        type="string"  required="false" default="none"      hint="Either 'none', 'all' or a regular expression to select css images that should be embedded in css files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images"/>
+		<cfargument name="includePattern"        type="string"  required="false" default=".*"        hint="Regex pattern indicating css and javascript files to be included in CfStatic's processing. Defaults to .* (all)" />
+		<cfargument name="excludePattern"        type="string"  required="false" default=""          hint="Regex pattern indicating css and javascript files to be excluded from CfStatic's processing. Defaults to blank (exclude none)" />
+		<cfargument name="outputCharset"         type="string"  required="false" default="utf-8"     hint="Character set to use when writing outputted minified files" />
+		<cfargument name="javaLoaderScope"       type="string"  required="false" default="server"    hint="The scope in which instances of JavaLoader libraries for the compilers should be persisted, either 'application' or 'server' (default is 'server' to prevent JavaLoader memory leaks)" />
+		<cfargument name="lessGlobals"           type="string"  required="false" default=""          hint="Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list" />
+		<cfargument name="jsDataVariable"        type="string"  required="false" default="cfrequest" hint="JavaScript variable name that will contain any data passed to the .includeData() method" />
+		<cfargument name="jsDependencyFile"      type="string"  required="false" default=""          hint="Text file describing the dependencies between javascript files" />
+		<cfargument name="cssDependencyFile"     type="string"  required="false" default=""          hint="Text file describing the dependencies between css files" />
+		<cfargument name="throwOnMissingInclude" type="boolean" required="false" default="false"     hint="Whether or not to throw an error by default when the include() method is passed a resource that does not exist. The default is false (no error will be thrown)" />
 
 		<cfscript>
 			_setProperties( argumentCollection = arguments );
@@ -39,8 +40,8 @@
 
 <!--- public methods --->
 	<cffunction name="include" access="public" returntype="any" output="false" hint="I am the include() method. Call me on each request to specify that a static resource should be included in the requested page. I return a reference to the cfstatic object and can therefore be chained. e.g. cfstatic.include('/css/core/').include('/css/homepage/homepage.css');">
-		<cfargument name="resource"       type="string"  required="true"  hint="A url path, relative to the base static url, specifiying a static file or entire static package. e.g. '/css/core/layout.css' to include a single file, or '/css/core/' to include all files in the core css package." />
-		<cfargument name="throwOnMissing" type="boolean" required="false" default="false" hint="If set to true and the resource does not exist, an informative error will be thrown. Defaults to false (no error will be thrown)" />
+		<cfargument name="resource"       type="string"  required="true"                                          hint="A url path, relative to the base static url, specifiying a static file or entire static package. e.g. '/css/core/layout.css' to include a single file, or '/css/core/' to include all files in the core css package." />
+		<cfargument name="throwOnMissing" type="boolean" required="false" default="#_getThrowOnMissingInclude()#" hint="If set to true and the resource does not exist, an informative error will be thrown. Defaults to false (no error will be thrown)" />
 
 		<cfscript>
 			var includes = _getRequestIncludes();
@@ -116,60 +117,62 @@
 
 <!--- private methods --->
 	<cffunction name="_setProperties" access="private" returntype="void" output="false">
-		<cfargument name="staticDirectory"     type="string"  required="true"                      hint="Full path to the directoy in which static files reside" />
-		<cfargument name="staticUrl"           type="string"  required="true"                      hint="Url that maps to the static directory" />
-		<cfargument name="jsDirectory"         type="string"  required="false" default="js"        hint="Relative path to the directoy in which javascript files reside. Relative to static path." />
-		<cfargument name="cssDirectory"        type="string"  required="false" default="css"       hint="Relative path to the directoy in which css files reside. Relative to static path." />
-		<cfargument name="outputDirectory"     type="string"  required="false" default="min"       hint="Relative path to the directory in which minified files will be output. Relative to static path." />
-		<cfargument name="minifyMode"          type="string"  required="false" default="package"   hint="The minify mode. Options are: 'none', 'file', 'package' or 'all'." />
-		<cfargument name="downloadExternals"   type="boolean" required="false" default="false"     hint="If set to true, CfMinify will download and minify locally any external dependencies (e.g. http://code.jquery.com/jquery-1.6.1.min.js)" />
-		<cfargument name="addCacheBusters"     type="boolean" required="false" default="true"      hint="If set to true (default), CfStatic will use last modified date as part of generated minified filenames"/>
-		<cfargument name="addImageCacheBusters"type="boolean" required="false" default="true"      hint="If set to true (default), CfStatic will use last modified date of css images as part of the css image incdle"/>
-		<cfargument name="debugAllowed"        type="boolean" required="false" default="true"      hint="Whether or not debug is allowed. Defaulting to true, even though this may seem like a dev setting. No real extra load is made on the server by a user making use of debug mode and it is useful by default." />
-		<cfargument name="debugKey"            type="string"  required="false" default="debug"     hint="URL parameter name used to invoke debugging (if enabled)" />
-		<cfargument name="debugPassword"       type="string"  required="false" default="true"      hint="URL parameter value used to invoke debugging (if enabled)" />
-		<cfargument name="debug"               type="boolean" required="false" default="false"     hint="Whether or not to start CfStatic in debug mode (regardless of other debug options). This is a permanent switch." />
-		<cfargument name="forceCompilation"    type="boolean" required="false" default="false"     hint="Whether or not to check for updated files before compiling" />
-		<cfargument name="checkForUpdates"     type="boolean" required="false" default="false"     hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
-		<cfargument name="includeAllByDefault" type="boolean" required="false" default="true"      hint="Whether or not to include all static files in a request when the .include() method is never called" />
-		<cfargument name="embedCssImages"      type="string"  required="false" default="none"      hint="Either 'none', 'all' or a regular expression to select css images that should be embedded in css files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images"/>
-		<cfargument name="includePattern"      type="string"  required="false" default=".*"        hint="Regex pattern indicating css and javascript files to be included in CfStatic's processing. Defaults to .* (all)" />
-		<cfargument name="excludePattern"      type="string"  required="false" default=""          hint="Regex pattern indicating css and javascript files to be excluded from CfStatic's processing. Defaults to blank (exclude none)" />
-		<cfargument name="outputCharset"       type="string"  required="false" default="utf-8"     hint="Character set to use when writing outputted minified files" />
-		<cfargument name="lessGlobals"         type="string"  required="false" default=""          hint="Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list" />
-		<cfargument name="jsDataVariable"      type="string"  required="false" default="cfrequest" hint="JavaScript variable name that will contain any data passed to the .includeData() method" />
-		<cfargument name="jsDependencyFile"    type="string"  required="false" default=""          hint="Text file describing the dependencies between javascript files" />
-		<cfargument name="cssDependencyFile"   type="string"  required="false" default=""          hint="Text file describing the dependencies between css files" />
+		<cfargument name="staticDirectory"       type="string"  required="true"                      hint="Full path to the directoy in which static files reside" />
+		<cfargument name="staticUrl"             type="string"  required="true"                      hint="Url that maps to the static directory" />
+		<cfargument name="jsDirectory"           type="string"  required="false" default="js"        hint="Relative path to the directoy in which javascript files reside. Relative to static path." />
+		<cfargument name="cssDirectory"          type="string"  required="false" default="css"       hint="Relative path to the directoy in which css files reside. Relative to static path." />
+		<cfargument name="outputDirectory"       type="string"  required="false" default="min"       hint="Relative path to the directory in which minified files will be output. Relative to static path." />
+		<cfargument name="minifyMode"            type="string"  required="false" default="package"   hint="The minify mode. Options are: 'none', 'file', 'package' or 'all'." />
+		<cfargument name="downloadExternals"     type="boolean" required="false" default="false"     hint="If set to true, CfMinify will download and minify locally any external dependencies (e.g. http://code.jquery.com/jquery-1.6.1.min.js)" />
+		<cfargument name="addCacheBusters"       type="boolean" required="false" default="true"      hint="If set to true (default), CfStatic will use last modified date as part of generated minified filenames"/>
+		<cfargument name="addImageCacheBusters"  type="boolean" required="false" default="true"      hint="If set to true (default), CfStatic will use last modified date of css images as part of the css image incdle"/>
+		<cfargument name="debugAllowed"          type="boolean" required="false" default="true"      hint="Whether or not debug is allowed. Defaulting to true, even though this may seem like a dev setting. No real extra load is made on the server by a user making use of debug mode and it is useful by default." />
+		<cfargument name="debugKey"              type="string"  required="false" default="debug"     hint="URL parameter name used to invoke debugging (if enabled)" />
+		<cfargument name="debugPassword"         type="string"  required="false" default="true"      hint="URL parameter value used to invoke debugging (if enabled)" />
+		<cfargument name="debug"                 type="boolean" required="false" default="false"     hint="Whether or not to start CfStatic in debug mode (regardless of other debug options). This is a permanent switch." />
+		<cfargument name="forceCompilation"      type="boolean" required="false" default="false"     hint="Whether or not to check for updated files before compiling" />
+		<cfargument name="checkForUpdates"       type="boolean" required="false" default="false"     hint="Whether or not to attempt a recompile every request. Useful in development, should absolutely not be enabled in production." />
+		<cfargument name="includeAllByDefault"   type="boolean" required="false" default="true"      hint="Whether or not to include all static files in a request when the .include() method is never called" />
+		<cfargument name="embedCssImages"        type="string"  required="false" default="none"      hint="Either 'none', 'all' or a regular expression to select css images that should be embedded in css files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images"/>
+		<cfargument name="includePattern"        type="string"  required="false" default=".*"        hint="Regex pattern indicating css and javascript files to be included in CfStatic's processing. Defaults to .* (all)" />
+		<cfargument name="excludePattern"        type="string"  required="false" default=""          hint="Regex pattern indicating css and javascript files to be excluded from CfStatic's processing. Defaults to blank (exclude none)" />
+		<cfargument name="outputCharset"         type="string"  required="false" default="utf-8"     hint="Character set to use when writing outputted minified files" />
+		<cfargument name="lessGlobals"           type="string"  required="false" default=""          hint="Comma separated list of .LESS files to import when processing all .LESS files. Files will be included in the order of the list" />
+		<cfargument name="jsDataVariable"        type="string"  required="false" default="cfrequest" hint="JavaScript variable name that will contain any data passed to the .includeData() method" />
+		<cfargument name="jsDependencyFile"      type="string"  required="false" default=""          hint="Text file describing the dependencies between javascript files" />
+		<cfargument name="cssDependencyFile"     type="string"  required="false" default=""          hint="Text file describing the dependencies between css files" />
+		<cfargument name="throwOnMissingInclude" type="boolean" required="false" default="false"     hint="Whether or not to throw an error by default when the include() method is passed a resource that does not exist. The default is false (no error will be thrown)" />
 
 		<cfscript>
 			var rootDir = $normalizeUnixAndWindowsPaths( $ensureFullDirectoryPath( staticDirectory ) );
 
-			_setRootDirectory       ( rootDir                                      );
-			_setJsDirectory         ( jsDirectory                                  );
-			_setCssDirectory        ( cssDirectory                                 );
-			_setOutputDirectory     ( $listAppend(rootDir  , outputDirectory, '/') );
-			_setJsUrl               ( $listAppend(staticUrl, jsDirectory    , '/') );
-			_setCssUrl              ( $listAppend(staticUrl, cssDirectory   , '/') );
-			_setMinifiedUrl         ( $listAppend(staticUrl, outputDirectory, '/') );
-			_setMinifyMode          ( minifyMode                                   );
-			_setDownloadExternals   ( downloadExternals                            );
-			_setDebugAllowed        ( debugAllowed                                 );
-			_setDebugKey            ( debugKey                                     );
-			_setDebugPassword       ( debugPassword                                );
-			_setDebug               ( debug                                        );
-			_setForceCompilation    ( forceCompilation                             );
-			_setCheckForUpdates     ( checkForUpdates                              );
-			_setAddCacheBusters     ( addCacheBusters                              );
-			_setAddImageCacheBusters( addImageCacheBusters                         );
-			_setIncludeAllByDefault ( includeAllByDefault                          );
-			_setEmbedCssImages      ( embedCssImages                               );
-			_setIncludePattern      ( includePattern                               );
-			_setExcludePattern      ( excludePattern                               );
-			_setOutputCharset       ( outputCharset                                );
-			_setLessGlobals         ( lessGlobals                                  );
-			_setJsDataVariable      ( jsDataVariable                               );
-			_setJsDependencyFile    ( jsDependencyFile                             );
-			_setCssDependencyFile   ( cssDependencyFile                            );
+			_setRootDirectory        ( rootDir                                      );
+			_setJsDirectory          ( jsDirectory                                  );
+			_setCssDirectory         ( cssDirectory                                 );
+			_setOutputDirectory      ( $listAppend(rootDir  , outputDirectory, '/') );
+			_setJsUrl                ( $listAppend(staticUrl, jsDirectory    , '/') );
+			_setCssUrl               ( $listAppend(staticUrl, cssDirectory   , '/') );
+			_setMinifiedUrl          ( $listAppend(staticUrl, outputDirectory, '/') );
+			_setMinifyMode           ( minifyMode                                   );
+			_setDownloadExternals    ( downloadExternals                            );
+			_setDebugAllowed         ( debugAllowed                                 );
+			_setDebugKey             ( debugKey                                     );
+			_setDebugPassword        ( debugPassword                                );
+			_setDebug                ( debug                                        );
+			_setForceCompilation     ( forceCompilation                             );
+			_setCheckForUpdates      ( checkForUpdates                              );
+			_setAddCacheBusters      ( addCacheBusters                              );
+			_setAddImageCacheBusters ( addImageCacheBusters                         );
+			_setIncludeAllByDefault  ( includeAllByDefault                          );
+			_setEmbedCssImages       ( embedCssImages                               );
+			_setIncludePattern       ( includePattern                               );
+			_setExcludePattern       ( excludePattern                               );
+			_setOutputCharset        ( outputCharset                                );
+			_setLessGlobals          ( lessGlobals                                  );
+			_setJsDataVariable       ( jsDataVariable                               );
+			_setJsDependencyFile     ( jsDependencyFile                             );
+			_setCssDependencyFile    ( cssDependencyFile                            );
+			_setThrowOnMissingInclude( throwOnMissingInclude                        );
 		</cfscript>
 	</cffunction>
 
@@ -1190,6 +1193,14 @@
 	</cffunction>
 	<cffunction name="_getCssPackages" access="private" returntype="org.cfstatic.core.PackageCollection" output="false">
 		<cfreturn _cssPackages />
+	</cffunction>
+
+	<cffunction name="_getThrowOnMissingInclude" access="private" returntype="boolean" output="false">
+		<cfreturn _throwOnMissingInclude>
+	</cffunction>
+	<cffunction name="_setThrowOnMissingInclude" access="private" returntype="void" output="false">
+		<cfargument name="throwOnMissingInclude" type="boolean" required="true" />
+		<cfset _throwOnMissingInclude = arguments.throwOnMissingInclude />
 	</cffunction>
 
 	<cffunction name="_clearPackageObjects" access="private" returntype="void" output="false">
