@@ -47,7 +47,7 @@
 			var include  = _appendFileTypesToSpecialIncludes( resource );
 
 			if ( arguments.throwOnMissing and not _resourceExists( arguments.resource ) ) {
-				$throw( type="cfstatic.missing.include" );
+				$throw( type="cfstatic.missing.include", message="CfStatic include() error: The requested include, [#arguments.resource#], does not exist." );
 			}
 
 			ArrayAppend( includes, include );

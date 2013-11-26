@@ -1009,6 +1009,7 @@
 			try {
 				cfstatic.include( resource='/css/core/iDoNotExist.css', throwOnMissing=true );
 			} catch( "cfstatic.missing.include" e ) {
+				super.assertEquals( "CfStatic include() error: The requested include, [/css/core/iDoNotExist.css], does not exist.", e.message );
 				errorThrown = true;
 			}
 
