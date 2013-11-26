@@ -1424,8 +1424,6 @@
 	<cffunction name="_resourceExists" access="private" returntype="boolean" output="false">
 		<cfargument name="resource" type="string" required="true" />
 
-		<cfscript>
-			return StructKeyExists( _renderedIncludeCache.js, arguments.resource ) or StructKeyExists( _renderedIncludeCache.css, arguments.resource );
-		</cfscript>
+		<cfreturn StructKeyExists( _getIncludeMappings( 'js' ), arguments.resource ) or StructKeyExists( _getIncludeMappings( 'css' ), arguments.resource ) />
 	</cffunction>
 </cfcomponent>

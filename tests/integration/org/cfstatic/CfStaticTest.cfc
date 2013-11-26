@@ -1007,7 +1007,7 @@
 			);
 
 			try {
-				cfstatic.include( resource='/css/core/', throwOnMissing=true );
+				cfstatic.include( resource='/css/core/iDoNotExist.css', throwOnMissing=true );
 			} catch( "cfstatic.missing.include" e ) {
 				errorThrown = true;
 			}
