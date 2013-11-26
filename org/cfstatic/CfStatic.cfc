@@ -39,11 +39,16 @@
 
 <!--- public methods --->
 	<cffunction name="include" access="public" returntype="any" output="false" hint="I am the include() method. Call me on each request to specify that a static resource should be included in the requested page. I return a reference to the cfstatic object and can therefore be chained. e.g. cfstatic.include('/css/core/').include('/css/homepage/homepage.css');">
-		<cfargument name="resource" type="string" required="true" hint="A url path, relative to the base static url, specifiying a static file or entire static package. e.g. '/css/core/layout.css' to include a single file, or '/css/core/' to include all files in the core css package." />
+		<cfargument name="resource"       type="string"  required="true"  hint="A url path, relative to the base static url, specifiying a static file or entire static package. e.g. '/css/core/layout.css' to include a single file, or '/css/core/' to include all files in the core css package." />
+		<cfargument name="throwOnMissing" type="boolean" required="false" default="false" hint="If set to true and the resource does not exist, an informative error will be thrown. Defaults to false (no error will be thrown)" />
 
 		<cfscript>
 			var includes = _getRequestIncludes();
 			var include  = _appendFileTypesToSpecialIncludes( resource );
+
+			if ( arguments.throwOnMissing and not _resourceExists( arguments.resource ) ) {
+				$throw( type="cfstatic.missing.include" );
+			}
 
 			ArrayAppend( includes, include );
 
@@ -1413,6 +1418,14 @@
 			}
 
 			return lastModified;
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_resourceExists" access="private" returntype="boolean" output="false">
+		<cfargument name="resource" type="string" required="true" />
+
+		<cfscript>
+			return StructKeyExists( _renderedIncludeCache.js, arguments.resource ) or StructKeyExists( _renderedIncludeCache.css, arguments.resource );
 		</cfscript>
 	</cffunction>
 </cfcomponent>
