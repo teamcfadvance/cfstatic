@@ -1016,6 +1016,29 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t41_includeShouldNotThrowAnError_whenIncludeExistsAndThrowOnMissingIsSetToTrue" returntype="void">
+		<cfscript>
+			var errorThrown = false;
+
+			rootDir &= 'goodFiles/standardFolders/';
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/assets"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			try {
+				cfstatic.include( resource='/css/core/', throwOnMissing=true );
+				cfstatic.include( resource='/css/someFolder/someCss.css', throwOnMissing=true );
+			} catch( any e ) {
+				errorThrown = true;
+			}
+
+			super.assertFalse( errorThrown, "An error was thrown and it should't have been, the resource exists!" );
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
