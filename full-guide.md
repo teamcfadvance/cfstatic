@@ -7,7 +7,7 @@ title: Full Usage Guide
 
 1. [Preparing your static files](#preparation)
 2. [Configuration](#configuration)
-3. [API Usage](#usage)
+3. [API Usage](#useage)
 4. [LESS](#less)
 5. [CoffeeScript](#coffeescript)
 
@@ -330,6 +330,10 @@ The CfStatic init() method takes the following arguments. Do not be alarmed at t
         <th>cssDependencyFile:</th>
         <td>Text file describing the dependencies between css files *0.6.0*</td>
     </tr>
+    <tr>
+        <th>throwOnMissingInclude:</th>
+        <td>Whether or not to throw an error by default when the include() method is passed a resource that does not exist. Default is `false` (no error will be thrown). *0.7.0*</td>
+    </tr>
 </table>
 
 
@@ -445,12 +449,12 @@ Or only include any resources under a `raw` folder that do not contain an unders
 
 Once you have configured CfStatic and marked up your static files with the appropriate dependency documentation, you arrive at the pleasing point of having very little left to do. The CfStatic API provides 3 public methods:
 
-1. **include( *resource* )**: used to instruct CfStatic that a particular file or package (folder) is required for this request
+1. **include( *resource*, *[throwOnMissing]* )**: used to instruct CfStatic that a particular file or package (folder) is required for this request
 2. **includeData( *data* )**: used to output data to a JavaScript variable when the javascript is rendered
 3. **renderIncludes( *[type]* )**: used to render the CSS or JavaScript includes
 
 
-### Include( *required string resource* )
+### Include( *required string resource*, *[boolean throwOnMissing]* )
 
 You can use this method to include an entire package (folder) or a single file in the requested page. Paths start at the root static directory, so the following are all valid:
 
@@ -472,18 +476,27 @@ cfStatic.include('/js/core/')
 </cfscript>
 {% endhighlight %}
 
-#### Including non existent packages or files
+#### The throwOnMissing argument / Including non existent packages or files
 
-If you attempt to include a package or file that does not exist, CfStatic will *not* throw an error. This is to allow you to create dynamic includes based on any rules you like. For instance, you might want to try to include page specific css when it is available, something like:
+The `throwOnMissing` argument is not required and will default to whatever the [configuration](#configuration) option, `throwOnMissingInclude`, is set to. The default, production ready setting is `false` (no errors will be thrown). If true, an error will be thrown if you attempt to include a resource that does not exist.
+
+By setting this option to `false`, or simply sticking with the default, CfStatic will *not* throw an error when you attempt to include a resource that does not exist. This allows you to create dynamic includes based on any rules you like. For instance, you might want to try to include page specific css when it is available, something like:
 
 {% highlight cfm %}
 <cfscript>
- // where request.pageName is some variable set by your application:
-cfStatic.include('/css/pageSpecific/#request.pageName#/');
+// where request.pageName is some variable set by your application:
+cfStatic.include(
+      resource       = '/css/pageSpecific/#request.pageName#/'
+    , throwOnMissing = false
+);
 </cfscript>
+
 {% endhighlight %}
 
-You can then include page specific css simply by creating a directory of css files with the appropriate name.
+You can then include page specific css by convention; creating directories and files that match the naming convention of your pages / modules / framework events, etc.
+
+*Prior to **0.7.0**, the `throwOnMissing` argument was not available and CfStatic would never throw an error on missing include.*
+
 
 #### Don't worry about the order
 
