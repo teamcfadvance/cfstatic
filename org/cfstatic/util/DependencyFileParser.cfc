@@ -45,11 +45,11 @@
 		<cfargument name="line" type="string" required="true" />
 
 		<cfscript>
-			if ( not Len(Trim(line)) ) {
+			if ( not Len( Trim( line ) ) ) {
 				return true;
 			}
 
-			return Left(line, 1) EQ '##';
+			return Left( line, 1 ) EQ '##';
 		</cfscript>
 	</cffunction>
 
@@ -93,8 +93,8 @@
 	</cffunction>
 
 	<cffunction name="_addDependents" access="private" returntype="array" output="false">
-		<cfargument name="files"       type="array" required="true"   />
-		<cfargument name="dependents"  type="array" required="true"   />
+		<cfargument name="files"       type="array"   required="true" />
+		<cfargument name="dependents"  type="array"   required="true" />
 		<cfargument name="conditional" type="boolean" required="true" />
 		<cfscript>
 			files[ ArrayLen( files ) ].dependents = $ArrayMerge( files[ ArrayLen( files ) ].dependents, dependents );
@@ -166,7 +166,7 @@
 				conditionals     = dependencyArray[i].conditionalDependents;
 
 				for( n=1; n LTE ArrayLen( dependents ); n=n+1 ){
-					dependent = _appendCompiledFileTypeWhenNecessary( dependents[n] );
+					dependent = $appendCompiledFileTypeToFilePath( dependents[n] );
 					if ( not ListFindNoCase( dependenciesList, dependent ) and not ListFindNoCase( dependenciesList, dependents[n] ) ) {
 						if ( not StructKeyExists( dependencyStruct.regular, dependent ) ) {
 							dependencyStruct.regular[ dependent ] = ArrayNew(1);
@@ -176,7 +176,7 @@
 					}
 				}
 				for( n=1; n LTE ArrayLen( conditionals ); n=n+1 ){
-					dependent = _appendCompiledFileTypeWhenNecessary( dependents[n] );
+					dependent = $appendCompiledFileTypeToFilePath( dependents[n] );
 					if ( not ListFindNoCase( dependenciesList, dependent ) and not ListFindNoCase( dependenciesList, dependents[n] ) ) {
 						if ( not StructKeyExists( dependencyStruct.conditional, dependent ) ) {
 							dependencyStruct.conditional[ dependent ] = ArrayNew(1);
@@ -195,18 +195,6 @@
 	</cffunction>
 	<cffunction name="_setConditionalToken" access="private" returntype="void" output="false">
 		<cfargument name="conditionalToken" type="any" required="true" />
-		<cfset _conditionalToken = arguments.conditionalToken />
-	</cffunction>
-
-	<cffunction name="_appendCompiledFileTypeWhenNecessary" access="private" returntype="string" output="false">
-		<cfargument name="filePath" type="string" required="true" />
-
-		<cfscript>
-			switch( ListLast( filePath, "." ) ){
-				case "coffee" : return filePath & ".js";
-				case "less"   : return filePath & ".css";
-				default       : return filePath;
-			}
-		</cfscript>
+		<cfset _conditionalToken = conditionalToken />
 	</cffunction>
 </cfcomponent>

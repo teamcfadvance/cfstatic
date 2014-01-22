@@ -1,0 +1,9 @@
+/**
+ * Testing for correct !IE syntax when rendering includes
+ *
+ * @ie !IE
+ */
+
+a {
+	color : blue;
+}

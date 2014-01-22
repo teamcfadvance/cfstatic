@@ -3,27 +3,27 @@
 	<cffunction name="init" access="public" returntype="org.cfstatic.util.CoffeeScriptCompiler" output="false" hint="Constructor, taking a javaloader instance preloaded with the path to the Less Compiler jar.">
 		<cfargument name="javaloader" type="any" required="true" hint="An instance of the javaloader with class path of Less Compiler jar preloaded." />
 		<cfscript>
-			if(StructKeyExists(arguments, 'javaloader')){
-				super._setJavaLoader(arguments.javaloader);
+			if ( StructKeyExists( arguments, 'javaloader' ) ) {
+				super._setJavaLoader( javaloader );
 			}
 
-			_setCoffeeScriptEngine( $loadJavaClass('org.jcoffeescript.JCoffeeScriptCompiler') );
+			_setCoffeeScriptEngine( $loadJavaClass( 'org.jcoffeescript.JCoffeeScriptCompiler' ) );
 
 			return this;
 		</cfscript>
 	</cffunction>
-	
+
 	<cffunction name="compile" access="public" returntype="string" output="false">
-		<cfargument name="filePath"    type="string" required="true"             />
+		<cfargument name="filePath" type="string" required="true" />
 
 		<cfscript>
-			var fileContent = $fileRead( arguments.filePath );
-			var compileBare = Right( arguments.filePath, 11 ) EQ 'bare.coffee';
+			var fileContent = $fileRead( filePath );
+			var compileBare = Right( filePath, 11 ) EQ 'bare.coffee';
 
 			try {
 				return _getCoffeeScriptEngine().compile( fileContent, compileBare );
 			} catch ( any e ) {
-				$throw( 'org.cfstatic.util.CoffeeScriptCompiler.badCoffee', 'There was a problem with your coffee-script file, #ListLast(arguments.filePath, "\/")#. Message: #e.message#', e.detail );
+				$throw( 'org.cfstatic.util.CoffeeScriptCompiler.badCoffee', 'There was a problem with your coffee-script file, #ListLast(filePath, "\/")#. Message: #e.message#', e.detail );
 			}
 		</cfscript>
 	</cffunction>
@@ -37,6 +37,6 @@
 	<cffunction name="_setCoffeeScriptEngine" access="private" returntype="void" output="false">
 		<cfargument name="coffeeScriptEngine" type="any" required="true" />
 
-		<cfset _coffeeScriptEngine = arguments.coffeeScriptEngine />
+		<cfset _coffeeScriptEngine = coffeeScriptEngine />
 	</cffunction>
 </cfcomponent>

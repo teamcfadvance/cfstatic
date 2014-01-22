@@ -9,6 +9,7 @@
 		this.mappings['/mxunit']        = '#root#mxunit';
 		this.mappings['/org/cfstatic']  = '#root#../org/cfstatic';
 		this.mappings['/tests']         = Left(root, Len(root)-1); // remove trailing slash - breaks openBDs ExpandPath() method...
+		this.mappings['/tmp']           = GetTempDirectory();
 	</cfscript>
 
 	<cffunction name="_initCfStatic" access="private" returntype="any" output="false">

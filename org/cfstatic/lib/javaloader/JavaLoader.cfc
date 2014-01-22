@@ -97,8 +97,122 @@ Purpose:    Utlitity class for loading Java Classes
 	<cfreturn instance.ClassLoader />
 </cffunction>
 
+<cffunction name="getClassLoadPaths" access="public" returntype="array" output="false">
+	<cfreturn instance.classLoadPaths />
+</cffunction>
+
+	
+<cffunction name="switchThreadContextClassLoader" hint="Sometimes you will need to switch out the ThreadContextClassLoader with the classloader used by JavaLoader.<br/>
+			It has :
+			switchThreadContextClassLoader(function object, [struct function arguments], [classLoader=getURLClassLoader()])
+			switchThreadContextClassLoader(function name, [struct function arguments], [classLoader=getURLClassLoader()])
+			switchThreadContextClassLoader(object, function name, [struct function arguments], [classLoader=getURLClassLoader()])
+			This method can be used in 3 different ways:
+			<ol>
+				<li>Pass it the UDF itself</li>
+				<li>Pass it the current object and method name that you wish to have called</li>
+				<li>Inject it into your CFC/Page that you want to use, and call it from there, telling it what function to call (you will need to pass in the URLClassLoader)</li>
+			</ol>"
+			access="public" returntype="any" output="false">
+	<cfscript>
+		var local = {};
+		var func = 0; //need this as cf8 doesn't like the structure with functions.
+		var System = createObject("java", "java.lang.System");
+		var Thread = createObject("java", "java.lang.Thread");
+		var currentClassloader = Thread.currentThread().getContextClassLoader();
+		var classLoader = "";
+
+		if (structCount(arguments) == 4) 
+		{	
+			// the last 2 arguments are the function arguments and class loader
+			classLoader = arguments[4];
+			local.funcArgs = arguments[3];
+		} 
+		else if (structCount(arguments) == 3) 
+		{	
+			// 2nd argument could be classloader or function arguments
+			if (isInstanceOf(arguments[2],"java.lang.ClassLoader")) 
+			{
+				classLoader = arguments[2];
+			}
+			else if (isStruct(arguments[2])) 
+			{
+				local.funcArgs = arguments[2];	
+			}
+			
+			// 3rd argument could be classloader or function arguments
+			if (isInstanceOf(arguments[3],"java.lang.ClassLoader")) 
+			{
+				classLoader = arguments[3];
+			} 
+			else if (isStruct(arguments[3])) 
+			{
+				local.funcArgs = arguments[3];	
+			}
+		} 
+		else if (structCount(arguments) == 2) 
+		{	
+			// the 2nd argument could be a class loader or function arguments
+			if (isInstanceOf(arguments[2],"java.lang.ClassLoader")) 
+			{
+				classLoader = arguments[2];	
+			} 
+			else if (isStruct(arguments[2])) 
+			{
+				local.funcArgs = arguments[2];	
+			}
+		}
+		
+		if (!structKeyExists(local,"funcArgs")) 
+		{
+			local.funcArgs = {};	
+		}
+		
+		if (isSimpleValue(classLoader)) 
+		{
+			classLoader = getURLClassLoader();	
+		}
+	</cfscript>
+
+	<cftry>
+		<cfscript>
+			Thread.currentThread().setContextClassLoader(classloader);
+		</cfscript>
+
+		<cfif isSimpleValue(arguments[1])>
+			<cfinvoke method="#arguments[1]#" returnvariable="local.return" argumentCollection="#local.funcArgs#" />
+		<cfelseif isCustomFunction(arguments[1])>
+			<cfscript>
+				func = arguments[1];
+				local.return = func(argumentCollection = local.funcArgs);
+			</cfscript>
+		<cfelseif isObject(arguments[1]) AND isSimpleValue(arguments[2])>
+			<cfinvoke component="#arguments[1]#" method="#arguments[2]#" returnvariable="local.return" argumentCollection="#local.funcArgs#" />
+		<cfelse>
+			<cfthrow type="javaloader.InvalidInvocationException" message="Unable to determine what method to invoke" detail="Please check the documentation for switchThreadContextClassLoader."/>
+		</cfif>
+
+		<cfcatch>
+			<cfscript>
+				Thread.currentThread().setContextClassLoader(currentClassloader);
+			</cfscript>
+			<cfrethrow>
+		</cfcatch>
+	</cftry>
+
+	<cfscript>
+		//need to do this twice, as cf8 has no finally.
+		Thread.currentThread().setContextClassLoader(currentClassloader);
+
+		if(structKeyExists(local, "return"))
+		{
+			return local.return;
+		}
+	</cfscript>
+</cffunction>
+	
 <cffunction name="getVersion" hint="Retrieves the version of the loader you are using" access="public" returntype="string" output="false">
-	<cfreturn "1.0">
+	<cfreturn "1.1">
 </cffunction>
 
 <!------------------------------------------- PACKAGE ------------------------------------------->
@@ -201,7 +315,7 @@ Purpose:    Utlitity class for loading Java Classes
 			for(; counter lte len; counter = counter + 1)
 			{
 				dir = directories[counter];
-				directoryCopy(dir, path);
+				$directoryCopy(dir, path);
 			}
 
 			//then we compile it, and grab that jar
@@ -364,21 +478,17 @@ Purpose:    Utlitity class for loading Java Classes
 	<cfdirectory action="list" name="qJars" directory="#path#" filter="*.jar" sort="name desc"/>
 	<cfloop query="qJars">
 		<cfscript>
-			libName = ListGetAt(name, 1, "-");
+			libName = ListGetAt(qJars.name, 1, "-");
 			//let's not use the lib's that have the same name, but a lower datestamp
 			if(NOT ListFind(jarList, libName))
 			{
-				ArrayAppend(aJars, path & "/" & name);
+				ArrayAppend(aJars, path & "/" & qJars.name);
 				jarList = ListAppend(jarList, libName);
 			}
 		</cfscript>
 	</cfloop>
 
 	<cfreturn aJars>
-</cffunction>
-
-<cffunction name="getClassLoadPaths" access="private" returntype="array" output="false">
-	<cfreturn instance.classLoadPaths />
 </cffunction>
 
 <cffunction name="setClassLoadPaths" access="private" returntype="void" output="false">
@@ -474,7 +584,7 @@ Copies a directory.
 @author Joe Rinehart (joe.rinehart@gmail.com)
 @version 1, July 27, 2005
 --->
-<cffunction name="directoryCopy" access="private" output="true">
+<cffunction name="$directoryCopy" access="private" output="true">
     <cfargument name="source" required="true" type="string">
     <cfargument name="destination" required="true" type="string">
     <cfargument name="nameconflict" required="true" default="overwrite">
@@ -492,7 +602,7 @@ Copies a directory.
         <cfif contents.type eq "file">
             <cffile action="copy" source="#arguments.source#/#name#" destination="#arguments.destination#/#name#" nameconflict="#arguments.nameConflict#">
         <cfelseif contents.type eq "dir">
-            <cfset directoryCopy(arguments.source & dirDelim & name, arguments.destination & dirDelim & name) />
+            <cfset $directoryCopy(arguments.source & dirDelim & name, arguments.destination & dirDelim & name) />
         </cfif>
     </cfloop>
 </cffunction>

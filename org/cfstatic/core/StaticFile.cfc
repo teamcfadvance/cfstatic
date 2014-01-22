@@ -2,35 +2,35 @@
 
 <!--- properties --->
 	<cfscript>
-		_path			         = "";
-		_url			         = "";
-		_minifiedUrl	         = "";
-		_fileType		         = "";
-		_cacheBust		         = true;
-		_dependencies	         = ArrayNew(1);
-		_properties		         = StructNew();
-		_lastModified	         = CreateDateTime(1900,1,1,0,0,0);
+		_path                    = "";
+		_url                     = "";
+		_minifiedUrl             = "";
+		_fileType                = "";
+		_cacheBust               = true;
+		_dependencies            = ArrayNew(1);
+		_properties              = StructNew();
+		_lastModified            = CreateDateTime(1900,1,1,0,0,0);
 		_conditionalDependencies = ArrayNew(1);
 	</cfscript>
 
 <!--- constructor --->
 	<cffunction name="init" access="public" returntype="StaticFile" output="false" hint="I am the constructor">
-		<cfargument name="path"			type="string"  required="true" />
-		<cfargument name="packageName"	type="string"  required="true" />
-		<cfargument name="fileUrl"		type="string"  required="true" />
-		<cfargument name="minifiedUrl"	type="string"  required="true" />
-		<cfargument name="fileType"     type="string"  required="true" />
-		<cfargument name="cacheBust"    type="boolean" required="true" />
+		<cfargument name="path"        type="string"  required="true" />
+		<cfargument name="packageName" type="string"  required="true" />
+		<cfargument name="fileUrl"     type="string"  required="true" />
+		<cfargument name="minifiedUrl" type="string"  required="true" />
+		<cfargument name="fileType"    type="string"  required="true" />
+		<cfargument name="cacheBust"   type="boolean" required="true" />
 
 		<cfscript>
-			_setPath( arguments.path );
-			_setPackageName( arguments.packageName );
-			_setUrl( arguments.fileUrl );
-			_setCacheBust( arguments.cacheBust );
-			_setMinifiedUrl( $listAppend( arguments.minifiedUrl, getMinifiedFileName(), '/' ));
-			_setFileType( arguments.fileType );
+			_setPath       ( path                                                   );
+			_setPackageName( packageName                                            );
+			_setUrl        ( fileUrl                                                );
+			_setCacheBust  ( cacheBust                                              );
+			_setMinifiedUrl( $listAppend( minifiedUrl, getMinifiedFileName(), '/' ) );
+			_setFileType   ( fileType                                               );
 
-			if(_isLocal()){
+			if (_isLocal() ) {
 				_parseProperties();
 			}
 
@@ -41,35 +41,34 @@
 <!--- public methods --->
 	<cffunction name="addDependency" access="public" returntype="void" output="false" hint="I allow calling code to add a dependency to me. i.e. another static file on which I depend.">
 		<cfargument name="dependency" required="true" type="StaticFile" />
-		<cfset ArrayAppend(_dependencies, dependency) />
+		<cfset ArrayAppend( _dependencies, dependency ) />
 	</cffunction>
 
 	<cffunction name="getDependencies" access="public" returntype="array" output="false"  hint="I return an array, in the correct order, of all the file''s dependencies">
-		<cfargument name="recursive"	       type="boolean" required="false" default="false" />
+		<cfargument name="recursive"           type="boolean" required="false" default="false" />
 		<cfargument name="includeConditionals" type="boolean" required="false" default="true"  />
 
 		<cfscript>
-			var final	     = ArrayNew(1);
-			var added	     = StructNew();
-			var deep	     = "";
+			var final        = ArrayNew(1);
+			var added        = StructNew();
+			var deep         = "";
 			var conditionals = "";
-			var i		     = 0;
-			var n		     = 0;
+			var i            = 0;
+			var n            = 0;
 
-
-			for(i = 1; i LTE ArrayLen(_dependencies); i++){
-				if(recursive){
-					deep = _dependencies[i].getDependencies(true);
-					for(n=1; n LTE ArrayLen(deep); n++){
-						if(not StructKeyExists(added, deep[n].getPath())){
-							ArrayAppend(final, deep[n]);
-							added[deep[n].getPath()] = true;
+			for( i=1; i LTE ArrayLen( _dependencies ); i++ ){
+				if ( recursive ) {
+					deep = _dependencies[i].getDependencies( true );
+					for( n=1; n LTE ArrayLen( deep ); n++ ){
+						if ( not StructKeyExists( added, deep[n].getPath() ) ) {
+							ArrayAppend( final, deep[n] );
+							added[ deep[n].getPath() ] = true;
 						}
 					}
 				}
-				if(not StructKeyExists(added, _dependencies[i].getPath())){
-					ArrayAppend(final, _dependencies[i]);
-					added[_dependencies[i].getPath()] = true;
+				if ( not StructKeyExists( added, _dependencies[i].getPath() ) ) {
+					ArrayAppend( final, _dependencies[i] );
+					added[ _dependencies[i].getPath() ] = true;
 				}
 			}
 			if ( not includeConditionals ) {
@@ -86,25 +85,25 @@
 	</cffunction>
 
 	<cffunction name="getProperty" access="public" returntype="any" output="false" hint="I return the value of a given property for the file. Properties are defined in static files using javadoc notation (a property being equivalent to a javadoc attribute). Calling code can force the returned value to be simple or an array (for when single or multiple values are expected). Calling code may also define a default value should the property not exist.">
-		<cfargument name="propertyName"			type="string"	required="true" />
-		<cfargument name="defaultValue"			type="any"		required="false" default="" />
-		<cfargument name="forceType"			type="string"	required="false" default="any" />
+		<cfargument name="propertyName"type="string" required="true" />
+		<cfargument name="defaultValue"type="any"    required="false" default="" />
+		<cfargument name="forceType"   type="string" required="false" default="any" />
 
 		<cfscript>
-			var prop	= "";
-			var arr		= "";
+			var prop = "";
+			var arr  = "";
 
-			if(not StructKeyExists(_properties, arguments.propertyName)){
-				return arguments.defaultValue;
+			if ( not StructKeyExists( _properties, propertyName ) ) {
+				return defaultValue;
 			}
 
-			prop = _properties[arguments.propertyName];
-			if( IsArray(prop) and arguments.forceType Eq 'string' ){
+			prop = _properties[ propertyName ];
+			if ( IsArray( prop ) and forceType eq 'string' ) {
 				return prop[1];
 			}
-			if( not IsArray(prop) and arguments.forceType Eq 'array' ){
+			if ( not IsArray( prop ) and forceType Eq 'array' ) {
 				arr = ArrayNew(1);
-				ArrayAppend(arr, prop);
+				ArrayAppend( arr, prop );
 				return arr;
 			}
 
@@ -114,7 +113,7 @@
 
 	<cffunction name="getContent" access="public" returntype="string" output="false" hint="I return the content of the file (through a local file read when a local file and http get when an external file)">
 		<cfscript>
-			if( _isLocal() ){
+			if ( _isLocal() ) {
 				return $fileRead( getPath() );
 			}
 
@@ -124,17 +123,17 @@
 
 	<cffunction name="renderInclude" access="public" returntype="string" output="false" hint="I return the html needed to include the file">
 		<cfargument name="minified" type="boolean" required="true" hint="Whether or not to refer to the minified or non-minified file when rendering the html include"/>
-		<cfargument name="charset"  type="string"  required="false" default="utf-8" />
-		<cfscript>
-			var media		= getProperty('media', 'all', 'string');
-			var ie			= getProperty('IE', '', 'string');
-			var src			= iif(arguments.minified, DE(_getMinifiedUrl()), DE(_getUrl()));
 
-			if(_getFileType() EQ 'css'){
-				return $renderCssInclude( src, media, ie, arguments.charset );
+		<cfscript>
+			var media = getProperty( 'media', 'all', 'string' );
+			var ie    = getProperty( 'IE', '', 'string' );
+			var src   = iif( minified, DE( _getMinifiedUrl() ), DE( _getUrl() ) );
+
+			if ( _getFileType() EQ 'css' ) {
+				return $renderCssInclude( src, media, ie );
 
 			} else {
-				return $renderJsInclude( src, ie, arguments.charset );
+				return $renderJsInclude( src, ie );
 			}
 		</cfscript>
 	</cffunction>
@@ -142,29 +141,29 @@
 	<cffunction name="getMinifiedFileName" access="public" returntype="string" output="false" hint="I return the filename to be used when this file is minified">
 		<cfscript>
 			var packageName = getPackageName();
-			var filename	= "";
+			var filename    = "";
 			var path        = getPath();
-			var ext			= ListLast(path, '.');
+			var ext         = ListLast(path, '.');
 
-			if(packageName EQ '/'){
-				filename = ListLast(path, '\/');
+			if ( packageName EQ '/' ) {
+				filename = ListLast( path, '\/' );
 			} else {
-				filename = "#ListChangeDelims(packageName, '.', '/')#.#ListLast(path,'\/')#";
+				filename = "#ListChangeDelims( packageName, '.', '/' )#.#ListLast( path, '\/' )#";
 			}
 
-			filename 		= $listDeleteLast(filename, '.');
-			filename 		= $listAppend(filename, 'min', '.');
-			if(_getCacheBust()){
-				filename    = $listAppend(filename, $generateCacheBuster( getLastModified() ), '.');
+			filename = $listDeleteLast( filename, '.' );
+			filename = $listAppend( filename, 'min', '.' );
+			if ( _getCacheBust() ) {
+				filename    = $listAppend(filename, Hash( getContent() ), '.');
 			}
 
-			return $listAppend(filename, ext, '.');
+			return $listAppend( filename, ext, '.' );
 		</cfscript>
 	</cffunction>
 
 	<cffunction name="getlastModified" access="public" returntype="date" output="false" hint="I return the last modified date of the static file">
 		<cfscript>
-			if(_isLocal()){
+			if ( _isLocal() ) {
 				return $fileLastModified( getPath() );
 			}
 			return '1900-01-01 00:00:00';
@@ -174,40 +173,40 @@
 	<cffunction name="setConditionalDependencies" access="public" returntype="void" output="false">
 		<cfargument name="conditionals" type="array" required="true" />
 
-		<cfset _conditionalDependencies = arguments.conditionals />
+		<cfset _conditionalDependencies = conditionals />
 	</cffunction>
 
 <!--- private methods --->
 	<cffunction name="_parseProperties" access="private" returntype="void" output="false" hint="I read the file's content and parse it's javadoc comments to calculate properties and dependencies">
 		<cfscript>
-			var content			= $fileRead( getPath() );
-			var metaBlock		= $reSearch('/\*\*(.*?)\*/', content); // grab the first entire block of meta comments
-			var meta			= "";
-			var i				= 1;
-			var tmp				= "";
-			var prop			= "";
-			var value			= "";
+			var content   = $fileRead( getPath() );
+			var metaBlock = $reSearch( '/\*\*(.*?)\*/', content ); // grab the first entire block of meta comments
+			var meta      = "";
+			var i         = 1;
+			var tmp       = "";
+			var prop      = "";
+			var value     = "";
 
-			_properties			= StructNew();
+			_properties = StructNew();
 
-			if( StructKeyExists(metaBlock, '$1') ){
-				content 	= metaBlock.$1[1] & '*/';
-				meta		= $reSearch('\*.*?@([A-Za-z0-9]+?) (.*?)\*', content); // search for the attributes and their values
-				if( StructKeyExists( meta, '$1' ) and StructKeyExists( meta, '$2') ){
-					for(i=1; i LTE ArrayLen(meta.$1); i++){
-						prop	= meta.$1[i];
-						value	= Trim(meta.$2[i]);
+			if ( StructKeyExists( metaBlock, '$1' ) ) {
+				content = metaBlock.$1[1] & '*/';
+				meta    = $reSearch( '\*.*?@([A-Za-z0-9]+?) (.*?)\*', content ); // search for the attributes and their values
+				if ( StructKeyExists( meta, '$1' ) and StructKeyExists( meta, '$2' ) ) {
+					for( i=1; i LTE ArrayLen(meta.$1); i++ ){
+						prop  = meta.$1[i];
+						value = Trim( meta.$2[i] );
 
-						if(StructKeyExists(_properties, prop)){
-							if(not IsArray(_properties[prop])){
+						if ( StructKeyExists( _properties, prop ) ) {
+							if ( not IsArray( _properties[prop] ) ) {
 								tmp = _properties[prop];
 								_properties[prop] = ArrayNew(1);
-								ArrayAppend(_properties[prop], tmp);
+								ArrayAppend( _properties[prop], tmp );
 							}
-							ArrayAppend(_properties[prop], value);
+							ArrayAppend( _properties[prop], value );
 
 						} else {
-							_properties[prop] = value;
+							_properties[ prop ] = value;
 						}
 					}
 				}
@@ -229,24 +228,24 @@
 
 			while( sortingHappened ) {
 				sortingHappened = false;
-				for( i=1; i LT ArrayLen(arguments.fileArray); i++ ) {
-					if( arguments.fileArray[i].getPath() GT arguments.fileArray[i+1].getPath() ) {
-						sortingHappened          = true;
-						tmp                      = arguments.fileArray[i];
-						arguments.fileArray[i]   = arguments.fileArray[i+1];
-						arguments.fileArray[i+1] = tmp;
+				for( i=1; i LT ArrayLen( fileArray ); i++ ) {
+					if ( fileArray[i].getPath() GT fileArray[i+1].getPath() ) {
+						sortingHappened = true;
+						tmp             = fileArray[i];
+						fileArray[i]    = fileArray[i+1];
+						fileArray[i+1]  = tmp;
 					}
 				}
 			}
 
-			return arguments.fileArray;
+			return fileArray;
 		</cfscript>
 	</cffunction>
 
 <!--- accessors --->
 	<cffunction name="_setPath" access="private" returntype="void" output="false">
 		<cfargument name="path" required="true" type="string" />
-		<cfset _path = arguments.path />
+		<cfset _path = path />
 	</cffunction>
 	<cffunction name="getPath" access="public" returntype="string" output="false">
 		<cfreturn _path />
@@ -254,15 +253,15 @@
 
 	<cffunction name="_setPackageName" access="private" returntype="void" output="false">
 		<cfargument name="packageName" required="true" type="string" />
-		<cfset _packageName = arguments.packageName />
+		<cfset _packageName = packageName />
 	</cffunction>
 	<cffunction name="getPackageName" access="public" returntype="string" output="false">
 		<cfreturn _packageName />
 	</cffunction>
 
 	<cffunction name="_setUrl" access="private" returntype="void" output="false">
-		<cfargument name="url" required="true" type="string" />
-		<cfset _url = arguments.url />
+		<cfargument name="fileUrl" required="true" type="string" />
+		<cfset _url = fileUrl />
 	</cffunction>
 	<cffunction name="_getUrl" access="private" returntype="string" output="false">
 		<cfreturn _url />
@@ -270,7 +269,7 @@
 
 	<cffunction name="_setMinifiedUrl" access="private" returntype="void" output="false">
 		<cfargument name="minifiedUrl" required="true" type="string" />
-		<cfset _minifiedUrl = arguments.minifiedUrl />
+		<cfset _minifiedUrl = minifiedUrl />
 	</cffunction>
 	<cffunction name="_getMinifiedUrl" access="private" returntype="string" output="false">
 		<cfreturn _minifiedUrl />
@@ -278,7 +277,7 @@
 
 	<cffunction name="_setFileType" access="private" returntype="void" output="false">
 		<cfargument name="fileType" required="true" type="string" />
-		<cfset _fileType = arguments.fileType />
+		<cfset _fileType = fileType />
 	</cffunction>
 	<cffunction name="_getFileType" access="private" returntype="string" output="false">
 		<cfreturn _fileType />
@@ -289,7 +288,7 @@
 	</cffunction>
 	<cffunction name="_setCacheBust" access="private" returntype="void" output="false">
 		<cfargument name="cacheBust" type="boolean" required="true" />
-		<cfset _cacheBust = arguments.cacheBust />
+		<cfset _cacheBust = cacheBust />
 	</cffunction>
 
 	<cffunction name="_getConditionalDependencies" access="private" returntype="array" output="false">
