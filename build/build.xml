@@ -50,8 +50,17 @@
 		</exec>
 
 		<exec executable="git">
+			<arg value="stash" />
+		</exec>
+
+		<exec executable="git">
 			<arg value="checkout" />
 			<arg value="${release.branch}" />
+		</exec>
+
+		<exec executable="git">
+			<arg value="stash" />
+			<arg value="apply" />
 		</exec>
 
 		<exec executable="git">
