@@ -2,7 +2,7 @@
 
 	<property name="path.jekyll" value="C:\Ruby\bin\jekyll.bat" />
 
-	<target name="tagRelease" depends="createReleaseBranch,buildDocs,createReleaseFile,cleanup">
+	<target name="tagRelease" depends="createReleaseBranch,buildDocs">
 		<exec executable="git">
 			<arg value="tag" />
 			<arg value="${release.no}" />
@@ -50,19 +50,10 @@
 		</exec>
 
 		<exec executable="git">
-			<arg value="stash" />
-		</exec>
-
-		<exec executable="git">
 			<arg value="checkout" />
 			<arg value="${release.branch}" />
 		</exec>
-
-		<exec executable="git">
-			<arg value="stash" />
-			<arg value="apply" />
-		</exec>
-
+<!--
 		<exec executable="git">
 			<arg value="add" />
 			<arg value="docs/*" />
@@ -73,6 +64,7 @@
 			<arg value="-m" />
 			<arg value="'Built documentation for tagged release ${release.branch}'" />
 		</exec>
+	-->
 	</target>
 
 
