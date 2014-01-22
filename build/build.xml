@@ -3,6 +3,7 @@
 	<property name="path.jekyll" value="C:\Ruby\bin\jekyll.bat" />
 
 	<target name="tagRelease" depends="createReleaseBranch,buildDocs">
+		<!--
 		<exec executable="git">
 			<arg value="tag" />
 			<arg value="${release.no}" />
@@ -18,6 +19,7 @@
 			<arg value="-D" />
 			<arg value="${release.branch}" />
 		</exec>
+	-->
 	</target>
 
 	<target name="init">
