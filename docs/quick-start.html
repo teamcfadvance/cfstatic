@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>Quick Start Guide: CfStatic</title>
+		<meta name="description" content="CfStatic, CSS and JavaScript control for CFML applications">
+		<meta name="author" content="Dominic Watson">
+
+		<!--[if lt IE 9]>
+		<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+
+		<!-- css -->
+		<link rel="stylesheet" type="text/css" href="static/css/lib/normalize.css">
+		<link rel="stylesheet" type="text/css" href="static/css/typography.css">
+		<link rel="stylesheet" type="text/css" href="static/css/lib/syntax.css">
+		<link rel="stylesheet" type="text/css" href="static/css/layout.css">
+		<link rel="stylesheet" type="text/css" href="static/css/article.css">
+		<link rel="stylesheet" type="text/css" href="static/css/print.css">
+
+		<script type="text/javascript">
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-34474336-1']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		</script>
+	</head>
+	<body>
+		<div id="container">
+			<header>
+				<div class="centerizer hide-in-ebook">
+					<h1><a href="/">CfStatic</a></h1>
+					<p>CSS and JavaScript control for CFML applications</p>
+					<a id="fork-me"   class="no-print" target="_blank" href="https://github.com/dominicwatson/cfstatic" title="Fork me on GitHub">Fork me on GitHub</a>
+				</div>
+			</header>
+			<nav class="no-print hide-in-ebook">
+				<ul class="centerizer">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="quick-start.html">Quick Start</a></li>
+					<li><a href="full-guide.html">Full Guide</a></li>
+					<li><a href="downloads.html">Downloads</a></li>
+					<li><a href="contributing.html">Contributing</a></li>
+				</ul>
+			</nav>
+			<div id="main" role="main">
+				<div class="centerizer">
+					<h1>Quick Start Guide</h1>
+
+<ol>
+<li><a href="#install">Download and install</a></li>
+<li><a href="#create-instance">Create an instance of CfStatic</a></li>
+<li><a href="#configure-dependencies">Configure dependencies</a></li>
+<li><a href="#include-resources">Include static resources in your request</a></li>
+<li><a href="#render-includes">Render includes</a></li>
+</ol>
+
+
+<p><a id="install"></a></p>
+
+<h2>Download and install</h2>
+
+<p>Choose a download from the <a href="downloads.html">downloads page</a> and download it. Unzip the contents of the download to some directory on your machine and create a mapping to the <code>org/cfstatic</code> directory. The logical path of the mapping should be <code>/org/cfstatic</code>.</p>
+
+<p><a id="create-instance"></a></p>
+
+<h2>Create an instance of CfStatic</h2>
+
+<p>CfStatic is designed to be a singleton so you will want to store the instance of CfStatic in a cacheable scope (i.e. the application scope). For example:</p>
+
+<div class="highlight"><pre><code class="cfm"><span class="nb">&lt;cfscript&gt;</span>
+<span class="nv">application.cfstatic</span> <span class="o">=</span> <span class="nf">CreateObject</span><span class="p">(</span> <span class="s1">&#39;org.cfstatic.CfStatic&#39;</span> <span class="p">).</span><span class="nf">init</span><span class="p">(</span>
+    <span class="nv">staticDirectory</span> <span class="o">=</span> <span class="nf">ExpandPath</span><span class="p">(</span><span class="s1">&#39;./static&#39;</span><span class="p">)</span>
+  <span class="p">,</span> <span class="nv">staticUrl</span>       <span class="o">=</span> <span class="s2">&quot;/static/&quot;</span>
+<span class="p">);</span>
+<span class="nb">&lt;/cfscript&gt;</span>
+</code></pre></div>
+
+
+<p>For more detail, see <a href="full-guide.html#configuration">configuring cfstatic</a>.</p>
+
+<p><a id="configure-dependencies"></a></p>
+
+<h2>Configure dependencies</h2>
+
+<p>In order for CfStatic to render static includes in the correct order and satisfy dependencies, it must know how your static files relate to each other. It offers three ways in which to do this:</p>
+
+<ol>
+<li>JavaDoc style documentation in each file</li>
+<li>Plain text 'dependencies' file</li>
+<li>File and folder name ordering</li>
+</ol>
+
+
+<p>All three methods may be used. Dependencies declared in JavaDoc style comments and in the dependencies file will be merged. When there is no dependency information, CfStatic will use the file and folder names for ordering of includes.</p>
+
+<h4>JavaDoc example:</h4>
+
+<div class="highlight"><pre><code class="js"><span class="cm">/**</span>
+<span class="cm"> * myplugin does this and that...</span>
+<span class="cm"> *</span>
+<span class="cm"> * @depends http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js</span>
+<span class="cm"> * @depends /core/jquery.ui.js</span>
+<span class="cm"> * @depends /core/api.js</span>
+<span class="cm"> * @author joe bloggs</span>
+<span class="cm"> */</span>
+<span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">$</span><span class="p">){</span>
+     <span class="c1">// my plugin code here...</span>
+<span class="p">})(</span><span class="nx">jQuery</span><span class="p">);</span>
+</code></pre></div>
+
+
+<p>See an in-depth explanation in the <a href="full-guide.html#javadoc">full guide</a>.</p>
+
+<h4>Dependency file example:</h4>
+
+<div class="highlight"><pre><code class="sh"><span class="c">##</span>
+<span class="c"># This file details dependencies between</span>
+<span class="c"># javascript files.</span>
+<span class="c">#</span>
+<span class="c"># Indented files have dependencies on the</span>
+<span class="c"># unindented file(s) above them. Dependent</span>
+<span class="c"># files marked with (conditional), only depend</span>
+<span class="c"># on the file above when it is already included</span>
+<span class="c"># in the request and can be included without</span>
+<span class="c"># the dependency.</span>
+<span class="c">##</span>
+
+http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js
+    http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
+    *.js
+
+http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
+    /folder/some.js
+    /core/bootstrap.js
+    /ui-pages/*.js
+
+/core/bootstrap.js
+    /folder/*.js
+    /ui-pages/*.js
+    /shared/*.js
+
+/folder/some.js
+    /folder/some-more.js
+
+/shared/swfLoader/swfLoader.js
+    /folder/some.js
+
+/shared/jqGrid/locales/*.js
+    /shared/jqGrid/jqGrid.js <span class="o">(</span>conditional<span class="o">)</span>
+
+/shared/jqGrid/jqGrid.js
+    /folder/some-more.js
+</code></pre></div>
+
+
+<p>See an in-depth explanation in the <a href="full-guide.html#dependency-file">full guide</a>.</p>
+
+<p><a id="include-resources"></a></p>
+
+<h2>Include static resources in your request</h2>
+
+<p>For example:</p>
+
+<div class="highlight"><pre><code class="cfm"><span class="nb">&lt;cfscript&gt;</span>
+<span class="nv">application.cfstatic</span>
+    <span class="p">.</span><span class="nf">include</span><span class="p">(</span> <span class="s1">&#39;/js/core/someJs.js&#39;</span> <span class="p">)</span>
+    <span class="p">.</span><span class="nf">include</span><span class="p">(</span> <span class="s1">&#39;/js/some/more.js&#39;</span> <span class="p">)</span>
+    <span class="p">.</span><span class="nf">include</span><span class="p">(</span> <span class="s1">&#39;/js/wholefolder/&#39;</span> <span class="p">)</span>
+    <span class="p">.</span><span class="nf">include</span><span class="p">(</span> <span class="s1">&#39;/css/core/&#39;</span> <span class="p">)</span>
+    <span class="p">.</span><span class="nf">include</span><span class="p">(</span> <span class="s1">&#39;/css/print/print.css&#39;</span> <span class="p">)</span>
+    <span class="p">.</span><span class="nf">include</span><span class="p">(</span> <span class="s1">&#39;/css/pages/#request.pageName#&#39;</span> <span class="p">)</span>
+    <span class="p">.</span><span class="nf">includeData</span><span class="p">(</span> <span class="nv">someStructToBeAvailableToJs</span> <span class="p">);</span>
+<span class="nb">&lt;/cfscript&gt;</span>
+</code></pre></div>
+
+
+<p>You can make as many <code>include</code> and <code>includeData</code> calls in your request as you wish, and in any order. Note that both methods are chainable. CfStatic will take care of removing duplicates, including dependent files and rendering the includes in the correct order.</p>
+
+<p><a id="render-includes"></a></p>
+
+<h2>Render the includes</h2>
+
+<div class="highlight"><pre><code class="cfm"><span class="nt">&lt;html&gt;</span>
+    <span class="nt">&lt;head&gt;</span>
+        ...
+        #application.cfstatic.renderIncludes( &#39;css&#39; )#
+    <span class="nt">&lt;/head&gt;</span>
+    <span class="nt">&lt;body&gt;</span>
+        ...
+        #application.cfstatic.renderIncludes( &#39;js&#39; )#
+    <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div>
+
+
+<p>Or, to render both CSS and JS includes at once:</p>
+
+<div class="highlight"><pre><code class="cfm"><span class="nt">&lt;html&gt;</span>
+    <span class="nt">&lt;head&gt;</span>
+        ...
+        #application.cfstatic.renderIncludes()#
+    <span class="nt">&lt;/head&gt;</span>
+    ...
+</code></pre></div>
+
+
+<p>And that is CfStatic in a nutshell. See the <a href="full-guide.html">full useage guide</a> for full useage details, including how to process <code>.less</code> and <code>.coffee</code> files.</p>
+
+				</div>
+			</div>
+    		<footer>
+				<div class="centerizer hide-in-ebook">
+    				<p>&copy; Dominic Watson 2012.</p>
+				</div>
+    		</footer>
+  		</div><!--! end of #container -->
+	</body>
+</html>
