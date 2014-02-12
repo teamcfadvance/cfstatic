@@ -180,22 +180,25 @@
 		<cfscript>
 			var jsDir  = $listAppend( _getRootDirectory(), _getJsDirectory() , '/' );
 			var cssDir = $listAppend( _getRootDirectory(), _getCssDirectory(), '/' );
-
-			_scanForImportedLessFiles();
-			_compileLess();
-			_compileCoffeeScript();
-
-			_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js' , _getDependenciesFromFile( 'js'  ) ) );
-			_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css', _getDependenciesFromFile( 'css' ) ) );
-
-			_cacheRenderedIncludes();
-			_cacheIncludeMappings();
-			_compileCssAndJavascript();
-
-			if( _getCheckForUpdates() ) {
-				_setFileStateCache( _getFileState() );
-			}
 		</cfscript>
+		<cflock type="exclusive" name="cfstatic-processing-#_getRootDirectory()#" timeout="1" throwontimeout="false">
+			<cfscript>
+				_scanForImportedLessFiles();
+				_compileLess();
+				_compileCoffeeScript();
+
+				_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js' , _getDependenciesFromFile( 'js'  ) ) );
+				_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css', _getDependenciesFromFile( 'css' ) ) );
+
+				_cacheRenderedIncludes();
+				_cacheIncludeMappings();
+				_compileCssAndJavascript();
+
+				if( _getCheckForUpdates() ) {
+					_setFileStateCache( _getFileState() );
+				}
+			</cfscript>
+		</cflock>
 	</cffunction>
 
 	<cffunction name="_packageDirectory" access="private" returntype="org.cfstatic.core.PackageCollection" output="false" hint="I take a directory and return a processed PackageCollection object (with stored metadata about the packages and files within it)">
