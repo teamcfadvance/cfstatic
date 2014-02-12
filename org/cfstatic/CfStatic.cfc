@@ -825,7 +825,7 @@
 				  source           = content
 				, filePath         = file.getPath()
 				, embedImagesRegex = _getEmbedCssImages()
-				, addCachebusters  = _getAddImageCacheBusters()
+				, addCachebusters  = _getAddCacheBusters()
 			);
 
 			return content;
