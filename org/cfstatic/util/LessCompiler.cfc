@@ -21,7 +21,7 @@
 		<cfscript>
 			var file     = "";
 			var compiled = "";
-			var tmpFile  = getDirectoryFromPath( filePath ) & CreateUuid() & '.less';
+			var tmpFile  = getDirectoryFromPath( filePath ) & $createTemporaryFilename( "less" );
 			var content  = _injectLessGlobalsAsImports( filePath, lessGlobals );
 
 			$fileWrite( tmpFile, content  );

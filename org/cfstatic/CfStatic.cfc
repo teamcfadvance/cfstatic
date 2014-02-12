@@ -180,22 +180,26 @@
 		<cfscript>
 			var jsDir  = $listAppend( _getRootDirectory(), _getJsDirectory() , '/' );
 			var cssDir = $listAppend( _getRootDirectory(), _getCssDirectory(), '/' );
-
-			_scanForImportedLessFiles();
-			_compileLess();
-			_compileCoffeeScript();
-
-			_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js' , _getDependenciesFromFile( 'js'  ) ) );
-			_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css', _getDependenciesFromFile( 'css' ) ) );
-
-			_cacheRenderedIncludes();
-			_cacheIncludeMappings();
-			_compileCssAndJavascript();
-
-			if( _getCheckForUpdates() ) {
-				_setFileStateCache( _getFileState() );
-			}
 		</cfscript>
+		<cflock type="exclusive" name="cfstatic-processing-#_getRootDirectory()#" timeout="1" throwontimeout="false">
+			<cfscript>
+				_clearoutTemporaryLessFiles();
+				_scanForImportedLessFiles();
+				_compileLess();
+				_compileCoffeeScript();
+
+				_setJsPackages ( _packageDirectory( jsDir , _getJsUrl() , _getMinifiedUrl(), 'js' , _getDependenciesFromFile( 'js'  ) ) );
+				_setCssPackages( _packageDirectory( cssDir, _getCssUrl(), _getMinifiedUrl(), 'css', _getDependenciesFromFile( 'css' ) ) );
+
+				_cacheRenderedIncludes();
+				_cacheIncludeMappings();
+				_compileCssAndJavascript();
+
+				if( _getCheckForUpdates() ) {
+					_setFileStateCache( _getFileState() );
+				}
+			</cfscript>
+		</cflock>
 	</cffunction>
 
 	<cffunction name="_packageDirectory" access="private" returntype="org.cfstatic.core.PackageCollection" output="false" hint="I take a directory and return a processed PackageCollection object (with stored metadata about the packages and files within it)">
@@ -1358,12 +1362,30 @@
 	</cffunction>
 
 	<cffunction name="_getLessGlobals" access="private" returntype="string" output="false">
-		<cfreturn _LessGlobals>
+		<cfreturn _lessGlobals>
 	</cffunction>
+
 	<cffunction name="_setLessGlobals" access="private" returntype="void" output="false">
-		<cfargument name="LessGlobals" type="string" required="true" />
-		<cfset _LessGlobals = $normalizeUnixAndWindowsPaths( LessGlobals ) />
+		<cfargument name="lessGlobals" type="string" required="true" />
+		<cfset _lessGlobals = $normalizeUnixAndWindowsPaths( lessGlobals ) />
 	</cffunction>
+
+	<cffunction name="_clearoutTemporaryLessFiles" access="private" returntype="void" output="false">
+		<cfscript>
+			var cssDir = $listAppend(_getRootdirectory(), _getCssdirectory(), '/');
+			var files  = $directoryList( cssDir, '*.less' );
+			var file   = "";
+			var i      = "";
+
+			for( i=1; i LTE files.recordCount; i++ ){
+				file = $normalizeUnixAndWindowsPaths( $listAppend( files.directory[i], files.name[i], '/') );
+				if ( $isTemporaryFileName( file ) ) {
+					$fileDelete( file );
+				}
+			}
+		</cfscript>
+	</cffunction>
+
 	<cffunction name="_scanForImportedLessFiles" access="private" returntype="any" output="false">
 		<cfscript>
 			var cssDir        = $listAppend(_getRootdirectory(), _getCssdirectory(), '/');
@@ -1377,7 +1399,9 @@
 
 			for( i=1; i LTE files.recordCount; i++ ){
 				file    = $normalizeUnixAndWindowsPaths( $listAppend( files.directory[i], files.name[i], '/') );
-				imports = ListAppend( imports, _readLessImports( file ) );
+				if ( not $isTemporaryFileName( file ) ) {
+					imports = ListAppend( imports, _readLessImports( file ) );
+				}
 			}
 
 			for( i=1; i LTE ArrayLen(globals); i++ ) {
@@ -1387,6 +1411,7 @@
 			_lessImports = $uniqueList( imports );
 		</cfscript>
 	</cffunction>
+
 	<cffunction name="_readLessImports" access="private" returntype="string" output="false">
 		<cfargument name="filePath" type="string" required="true" />
 

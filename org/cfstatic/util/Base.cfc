@@ -237,6 +237,11 @@
 
 		<cfscript>
 			filepath = $normalizeUnixAndWindowsPaths(filepath);
+
+			if ( $isTemporaryFileName( filePath ) ) {
+				return false;
+			}
+
 			if ( Len( Trim( includePattern ) ) AND NOT ReFindNoCase( includePattern, filePath ) ) {
 				return false;
 			}
@@ -279,6 +284,9 @@
 
 			/* Build the prefix for the relative path (../../etc.) */
 			for ( i=ArrayLen( basePathArray ) - pathStart; i GTE 0; i=i-1 ) {
+				if ( ArrayLen( finalPath ) and finalPath[1] eq "." ) {
+					ArrayDeleteAt( finalPath, 1 );
+				}
 				ArrayAppend( finalPath, ".." );
 			}
 
@@ -341,6 +349,18 @@
 				default       : return filePath;
 			}
 		</cfscript>
+	</cffunction>
+
+	<cffunction name="$createTemporaryFilename" access="private" returntype="string" output="false">
+		<cfargument name="extension" type="string" required="true" />
+
+		<cfreturn ".tmp." & Hash( CreateUUId() ) & "." & LCase( extension ) />
+	</cffunction>
+
+	<cffunction name="$isTemporaryFileName" access="private" returntype="boolean" output="false">
+		<cfargument name="filePath"  type="string" required="true" />
+
+		<cfreturn ReFind( "/\.tmp\.[0-9A-F]{32}\.[a-z0-9]+$", filePath ) />
 	</cffunction>
 
 <!--- accessors --->
