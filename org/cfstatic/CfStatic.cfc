@@ -1361,11 +1361,11 @@
 	</cffunction>
 
 	<cffunction name="_getLessGlobals" access="private" returntype="string" output="false">
-		<cfreturn _LessGlobals>
+		<cfreturn _lessGlobals>
 	</cffunction>
 	<cffunction name="_setLessGlobals" access="private" returntype="void" output="false">
-		<cfargument name="LessGlobals" type="string" required="true" />
-		<cfset _LessGlobals = $normalizeUnixAndWindowsPaths( LessGlobals ) />
+		<cfargument name="lessGlobals" type="string" required="true" />
+		<cfset _lessGlobals = $normalizeUnixAndWindowsPaths( lessGlobals ) />
 	</cffunction>
 	<cffunction name="_scanForImportedLessFiles" access="private" returntype="any" output="false">
 		<cfscript>
