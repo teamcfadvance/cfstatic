@@ -183,6 +183,7 @@
 		</cfscript>
 		<cflock type="exclusive" name="cfstatic-processing-#_getRootDirectory()#" timeout="1" throwontimeout="false">
 			<cfscript>
+				_initStateCache();
 				_clearoutTemporaryLessFiles();
 				_scanForImportedLessFiles();
 				_compileLess();
@@ -195,8 +196,10 @@
 				_cacheIncludeMappings();
 				_compileCssAndJavascript();
 
-				if( _getCheckForUpdates() ) {
-					_setFileStateCache( _getFileState() );
+				_getStateCache().saveState();
+
+				if ( _getCheckForUpdates() ) {
+					_setFileStateHash( _generateFileStateHash() );
 				}
 			</cfscript>
 		</cflock>
@@ -219,6 +222,7 @@
 			, excludePattern = _getExcludePattern()
 			, dependencies   = dependencies
 			, outputDir      = _getOutputDirectory()
+			, stateCache     = _getStateCache()
 		) />
 	</cffunction>
 
@@ -465,7 +469,7 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="_getFileState" access="private" returntype="string" output="false">
+	<cffunction name="_generateFileStateHash" access="private" returntype="string" output="false">
 		<cfscript>
 			var jsDir             = $listAppend( _getRootDirectory(), _getJsDirectory() , '/' );
 			var cssDir            = $listAppend( _getRootDirectory(), _getCssDirectory(), '/' );
@@ -511,7 +515,7 @@
 	</cffunction>
 
 	<cffunction name="_filesHaveChanged" access="private" returntype="boolean" output="false">
-		<cfreturn _getFileStateCache() NEQ _getFileState() />
+		<cfreturn _getFileStateHash() NEQ _generateFileStateHash() />
 	</cffunction>
 
 
@@ -1353,12 +1357,12 @@
 		<cfset _cssDependencyFile = cssDependencyFile />
 	</cffunction>
 
-	<cffunction name="_getFileStateCache" access="private" returntype="string" output="false">
-		<cfreturn _fileStateCache />
+	<cffunction name="_getFileStateHash" access="private" returntype="string" output="false">
+		<cfreturn _fileStateHash />
 	</cffunction>
-	<cffunction name="_setFileStateCache" access="private" returntype="void" output="false">
-		<cfargument name="fileStateCache" type="string" required="true" />
-		<cfset _fileStateCache = fileStateCache />
+	<cffunction name="_setFileStateHash" access="private" returntype="void" output="false">
+		<cfargument name="fileStateHash" type="string" required="true" />
+		<cfset _fileStateHash = fileStateHash />
 	</cffunction>
 
 	<cffunction name="_getLessGlobals" access="private" returntype="string" output="false">
@@ -1461,5 +1465,16 @@
 		<cfargument name="resource" type="string" required="true" />
 
 		<cfreturn StructKeyExists( _getIncludeMappings( 'js' ), arguments.resource ) or StructKeyExists( _getIncludeMappings( 'css' ), arguments.resource ) />
+	</cffunction>
+
+	<cffunction name="_initStateCache" access="private" returntype="void" output="false">
+		<cfscript>
+			var stateFilePath = _getRootDirectory() & "/.cfstaticstatecache";
+
+			_stateCache = CreateObject( "component", "org.cfstatic.util.FileStateCache" ).init( stateFilePath );
+		</cfscript>
+	</cffunction>
+	<cffunction name="_getStateCache" access="public" returntype="any" output="false">
+		<cfreturn _stateCache />
 	</cffunction>
 </cfcomponent>

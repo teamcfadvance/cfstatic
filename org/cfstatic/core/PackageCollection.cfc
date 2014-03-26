@@ -24,6 +24,7 @@
 		<cfargument name="excludePattern" type="string"  required="true" />
 		<cfargument name="dependencies"   type="struct"  required="true" />
 		<cfargument name="outputDir"      type="string"  required="true" />
+		<cfargument name="stateCache"     type="any"     required="true" />
 
 		<cfscript>
 			_setRootDirectory ( rootDirectory  );
@@ -33,6 +34,7 @@
 			_setCacheBust     ( cacheBust      );
 			_setIncludePattern( includePattern );
 			_setExcludePattern( excludePattern );
+			_setStateCache    ( stateCache     );
 
 			_loadFromFiles(
 				  dependencies = dependencies
@@ -179,6 +181,7 @@
 					_addStaticFile(
 						  path         = $normalizeUnixAndWindowsPaths( files.directory[i] & '/' & files.name[i] )
 					    , dependencies = dependencies
+					    , lastModified = files.dateLastModified
 					);
 				}
 			}
@@ -186,8 +189,9 @@
 	</cffunction>
 
 	<cffunction name="_addStaticFile" access="private" returntype="void" output="false" hint="I add a static file to the collection">
-		<cfargument name="path"         type="string" required="true" />
-		<cfargument name="dependencies" type="struct" required="true" />
+		<cfargument name="path"         type="string"  required="true" />
+		<cfargument name="dependencies" type="struct"  required="true" />
+		<cfargument name="lastModified" type="date"    required="true" />
 
 		<cfscript>
 			var packageName     = "";
@@ -203,7 +207,7 @@
 				package = getPackage( packageName );
 
 				if ( not package.staticFileExists( path ) ) {
-					package.addStaticFile( path );
+					package.addStaticFile( path, lastModified );
 					file = package.getStaticFile( path );
 
 					_addDependentFiles( file, dependencies );
@@ -227,7 +231,11 @@
 				package    = _getPackageNameFromPath( dependency );
 
 				try {
-					_addStaticFile( dependency, dependencies );
+					if ( $isUrl( dependency ) ) {
+						_addStaticFile( dependency, dependencies, "1900-01-01 00:00:00" );
+					} else {
+						_addStaticFile( dependency, dependencies, $fileLastModified( dependency ) );
+					}
 				} catch( application e ) {
 					if ( $normalizeUnixAndWindowsPaths( e.message ) contains dependency ) {
 						$throw(
@@ -319,7 +327,7 @@
 				rootUrl = rootUrl & packageName;
 			}
 
-			return CreateObject( 'component', 'Package' ).init( packageName, rootUrl, _getMinifiedUrl(), _getFileType(), _getCacheBust() );
+			return CreateObject( 'component', 'Package' ).init( packageName, rootUrl, _getMinifiedUrl(), _getFileType(), _getCacheBust(), _getStateCache() );
 		</cfscript>
 	</cffunction>
 
@@ -476,6 +484,14 @@
 	<cffunction name="_setExcludePattern" access="private" returntype="void" output="false">
 		<cfargument name="excludePattern" type="string" required="true" />
 		<cfset _excludePattern = excludePattern />
+	</cffunction>
+
+	<cffunction name="_getStateCache" access="private" returntype="any" output="false">
+		<cfreturn _stateCache>
+	</cffunction>
+	<cffunction name="_setStateCache" access="private" returntype="void" output="false">
+		<cfargument name="stateCache" type="any" required="true" />
+		<cfset _stateCache = stateCache />
 	</cffunction>
 
 </cfcomponent>

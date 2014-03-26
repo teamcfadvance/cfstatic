@@ -1099,6 +1099,11 @@
 				</cfif>
 			</cfloop>
 		</cfif>
+
+		<!--- state cache file --->
+		<cfif FileExists( rootDir & "/.cfstaticstatecache" )>
+			<cffile action="delete" file="#rootDir#/.cfstaticstatecache" />
+		</cfif>
 	</cffunction>
 
 	<cffunction name="_assertFoldersAreEqual" access="private" returntype="void" output="false">

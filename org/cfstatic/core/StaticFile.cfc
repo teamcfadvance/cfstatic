@@ -15,22 +15,26 @@
 
 <!--- constructor --->
 	<cffunction name="init" access="public" returntype="StaticFile" output="false" hint="I am the constructor">
-		<cfargument name="path"        type="string"  required="true" />
-		<cfargument name="packageName" type="string"  required="true" />
-		<cfargument name="fileUrl"     type="string"  required="true" />
-		<cfargument name="minifiedUrl" type="string"  required="true" />
-		<cfargument name="fileType"    type="string"  required="true" />
-		<cfargument name="cacheBust"   type="boolean" required="true" />
+		<cfargument name="path"         type="string"  required="true" />
+		<cfargument name="packageName"  type="string"  required="true" />
+		<cfargument name="fileUrl"      type="string"  required="true" />
+		<cfargument name="minifiedUrl"  type="string"  required="true" />
+		<cfargument name="fileType"     type="string"  required="true" />
+		<cfargument name="cacheBust"    type="boolean" required="true" />
+		<cfargument name="lastModified" type="date"    required="true" />
+		<cfargument name="stateCache"   type="any"     required="true" />
 
 		<cfscript>
-			_setPath       ( path                                                   );
-			_setPackageName( packageName                                            );
-			_setUrl        ( fileUrl                                                );
-			_setCacheBust  ( cacheBust                                              );
-			_setMinifiedUrl( $listAppend( minifiedUrl, getMinifiedFileName(), '/' ) );
-			_setFileType   ( fileType                                               );
+			_setPath        ( path                                                   );
+			_setPackageName ( packageName                                            );
+			_setUrl         ( fileUrl                                                );
+			_setCacheBust   ( cacheBust                                              );
+			_setLastModified( lastModified                                           );
+			_setStateCache  ( stateCache                                             );
+			_setMinifiedUrl ( $listAppend( minifiedUrl, getMinifiedFileName(), '/' ) );
+			_setFileType    ( fileType                                               );
 
-			if (_isLocal() ) {
+			if ( _isLocal() ) {
 				_parseProperties();
 			}
 
@@ -140,33 +144,34 @@
 
 	<cffunction name="getMinifiedFileName" access="public" returntype="string" output="false" hint="I return the filename to be used when this file is minified">
 		<cfscript>
-			var packageName = getPackageName();
+			var cachedState = _getState()
 			var filename    = "";
-			var path        = getPath();
-			var ext         = ListLast(path, '.');
+			var packageName = "";
+			var path        = "";
+			var ext         = "";
 
-			if ( packageName EQ '/' ) {
-				filename = ListLast( path, '\/' );
-			} else {
-				filename = "#ListChangeDelims( packageName, '.', '/' )#.#ListLast( path, '\/' )#";
+			if ( not StructKeyExists( cachedState, "minifiedFileName" ) ) {
+				packageName = getPackageName();
+				path        = getPath();
+				ext         = ListLast(path, '.');
+
+				if ( packageName EQ '/' ) {
+					filename = ListLast( path, '\/' );
+				} else {
+					filename = "#ListChangeDelims( packageName, '.', '/' )#.#ListLast( path, '\/' )#";
+				}
+
+				filename = $listDeleteLast( filename, '.' );
+				filename = $listAppend( filename, 'min', '.' );
+				if ( _getCacheBust() ) {
+					filename    = $listAppend(filename, Hash( getContent() ), '.');
+				}
+
+				cachedState.minifiedFileName = $listAppend( filename, ext, '.' );
+				_saveState( cachedState );
 			}
 
-			filename = $listDeleteLast( filename, '.' );
-			filename = $listAppend( filename, 'min', '.' );
-			if ( _getCacheBust() ) {
-				filename    = $listAppend(filename, Hash( getContent() ), '.');
-			}
-
-			return $listAppend( filename, ext, '.' );
-		</cfscript>
-	</cffunction>
-
-	<cffunction name="getlastModified" access="public" returntype="date" output="false" hint="I return the last modified date of the static file">
-		<cfscript>
-			if ( _isLocal() ) {
-				return $fileLastModified( getPath() );
-			}
-			return '1900-01-01 00:00:00';
+			return cachedState.minifiedFileName;
 		</cfscript>
 	</cffunction>
 
@@ -179,14 +184,22 @@
 <!--- private methods --->
 	<cffunction name="_parseProperties" access="private" returntype="void" output="false" hint="I read the file's content and parse it's javadoc comments to calculate properties and dependencies">
 		<cfscript>
-			var content   = $fileRead( getPath() );
-			var metaBlock = $reSearch( '/\*\*(.*?)\*/', content ); // grab the first entire block of meta comments
-			var meta      = "";
-			var i         = 1;
-			var tmp       = "";
-			var prop      = "";
-			var value     = "";
+			var content     = "";
+			var metaBlock   = "";
+			var meta        = "";
+			var i           = 1;
+			var tmp         = "";
+			var prop        = "";
+			var value       = "";
+			var cachedState = _getState();
 
+			if ( StructKeyExists( cachedState, "properties" ) ) {
+				_properties = cachedState.properties;
+				return;
+			}
+
+			content     = $fileRead( getPath() );
+			metaBlock   = $reSearch( '/\*\*(.*?)\*/', content ); // grab the first entire block of meta comments
 			_properties = StructNew();
 
 			if ( StructKeyExists( metaBlock, '$1' ) ) {
@@ -211,6 +224,9 @@
 					}
 				}
 			}
+
+			cachedState.properties = _properties;
+			_saveState( cachedState );
 		</cfscript>
 	</cffunction>
 
@@ -289,6 +305,44 @@
 	<cffunction name="_setCacheBust" access="private" returntype="void" output="false">
 		<cfargument name="cacheBust" type="boolean" required="true" />
 		<cfset _cacheBust = cacheBust />
+	</cffunction>
+
+	<cffunction name="getLastModified" access="public" returntype="date" output="false">
+		<cfreturn _lastModified>
+	</cffunction>
+	<cffunction name="_setLastModified" access="private" returntype="void" output="false">
+		<cfargument name="lastModified" type="date" required="true" />
+		<cfset _lastModified = arguments.lastModified />
+	</cffunction>
+
+	<cffunction name="_getStateCache" access="private" returntype="any" output="false">
+		<cfreturn _stateCache>
+	</cffunction>
+	<cffunction name="_setStateCache" access="private" returntype="void" output="false">
+		<cfargument name="stateCache" type="any" required="true" />
+		<cfset _stateCache = arguments.stateCache />
+	</cffunction>
+
+	<cffunction name="_getState" access="private" returntype="struct" output="false">
+		<cfscript>
+			var state = _getStateCache().getFileState( getPath() );
+
+			if ( StructKeyExists( state, "lastModified" ) and IsDate( state.lastModified ) and state.lastModified lt getLastModified() ) {
+				state = {};
+			}
+			if ( not StructKeyExists( state, "lastModified" ) ) {
+				state.lastModified = getLastModified();
+				_saveState( state );
+			}
+
+			return state;
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_saveState" access="private" returntype="void" output="false">
+		<cfargument name="state" type="struct" required="true" />
+
+		<cfset _getStateCache().setFileState( getPath(), state ) />
 	</cffunction>
 
 	<cffunction name="_getConditionalDependencies" access="private" returntype="array" output="false">

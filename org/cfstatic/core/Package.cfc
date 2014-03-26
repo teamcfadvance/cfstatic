@@ -16,6 +16,7 @@
 		<cfargument name="minifiedUrl" type="string"  required="true" />
 		<cfargument name="fileType"    type="string"  required="true" />
 		<cfargument name="cacheBust"   type="boolean" required="true" />
+		<cfargument name="stateCache"  type="any"     required="true" />
 
 		<cfscript>
 			_setPackageName( packageName );
@@ -23,6 +24,7 @@
 			_setMinifiedUrl( minifiedUrl );
 			_setFileType   ( fileType    );
 			_setCacheBust  ( cacheBust   );
+			_setStateCache ( stateCache  );
 
 			return this;
 		</cfscript>
@@ -30,9 +32,10 @@
 
 <!--- public methods --->
 	<cffunction name="addStaticFile" access="public" returntype="void" output="false" hint="I add a static file to the package">
-		<cfargument name="path" required="true" type="string" />
+		<cfargument name="path"         required="true" type="string" />
+		<cfargument name="lastModified" required="true" type="date"   />
 
-		<cfset _staticFiles[ path ] = _newStaticfile( path ) />
+		<cfset _staticFiles[ path ] = _newStaticfile( path, lastModified ) />
 	</cffunction>
 
 	<cffunction name="getStaticFile" access="public" returntype="StaticFile" output="false" hint="I return the static file object for the given file path">
@@ -212,7 +215,8 @@
 
 <!--- private methods --->
 	<cffunction name="_newStaticFile" access="private" returntype="StaticFile" output="false" hint="I return an instanciated staticFile object based on the supplied file path">
-		<cfargument name="path" type="string" required="true" />
+		<cfargument name="path"         type="string" required="true" />
+		<cfargument name="lastModified" type="date"   required="true" />
 
 		<cfscript>
 			var fileUrl     = "";
@@ -224,7 +228,7 @@
 				fileUrl = _getRootUrl() & ListLast( path, '/' );
 			}
 
-			return CreateObject( 'component', 'org.cfstatic.core.StaticFile' ).init( Trim(path), _getPackageName(), fileUrl, _getMinifiedUrl(), _getFileType(), _getCacheBust() );
+			return CreateObject( 'component', 'org.cfstatic.core.StaticFile' ).init( Trim(path), _getPackageName(), fileUrl, _getMinifiedUrl(), _getFileType(), _getCacheBust(), lastModified, _getStateCache() );
 		</cfscript>
 	</cffunction>
 
@@ -303,6 +307,14 @@
 	<cffunction name="_setCacheBust" access="private" returntype="void" output="false">
 		<cfargument name="cacheBust" type="boolean" required="true" />
 		<cfset _cacheBust = cacheBust />
+	</cffunction>
+
+	<cffunction name="_getStateCache" access="private" returntype="any" output="false">
+		<cfreturn _stateCache>
+	</cffunction>
+	<cffunction name="_setStateCache" access="private" returntype="void" output="false">
+		<cfargument name="stateCache" type="any" required="true" />
+		<cfset _stateCache = stateCache />
 	</cffunction>
 
 </cfcomponent>
