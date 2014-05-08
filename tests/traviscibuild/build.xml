@@ -95,7 +95,7 @@ Valid values are:
   <property name="server.name" value="localhost"/>
   <property name="server.port" value="8888"/>
   <property name="stop.port" value="8887"/>
-  <property name="output.dir" value="results/"/>
+  <property name="output.dir" value="/${test.project}/tests/traviscibuild/results/"/>
 
   <!-- TestBox Properties -->
   <property name="testbox.directory" value="tests.testbox" />
@@ -158,7 +158,7 @@ Valid values are:
     <taskdef classname="au.com.imagichine.ant.MxunitOutputAntTask" classpath="${mxunit.output.jar}" name="mxunitoutputtask"/>
     <mxunittask
       defaultrunner="/${test.project}/tests/traviscibuild/HttpAntRunner.cfc"
-      outputdir="/${test.project}/tests/traviscibuild/${output.dir}"
+      outputdir="${output.dir}"
       port="${server.port}" server="${server.name}"
       testResultsSummary="${test.project}.summary"
       verbose="true"
