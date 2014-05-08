@@ -106,7 +106,7 @@ Valid values are:
   <property name="mxunit.output.jar" value="mxunit-output-ant.jar"/>
 
   <target name="install-ci-deps">
-    <exec executable="/bin/bash" failonerror="true">
+    <exec executable="/bin/bash" failonerror="true" outputproperty="output.log">
       <env key="WORK_DIR" value="${work.dir}" />
       <env key="BUILD_DIR" value="${build.dir}" />
       <env key="PLATFORM_URL" value="${platform.url}" />
@@ -119,7 +119,7 @@ Valid values are:
   </target>
 
   <target name="start-server">
-    <exec executable="/bin/bash" spawn="false" failonerror="true">
+    <exec executable="/bin/bash" spawn="false" failonerror="true" outputproperty="output.log">
       <env key="WORK_DIR" value="${work.dir}" />
       <env key="BUILD_DIR" value="${build.dir}" />
       <env key="SERVER_PORT" value="${server.port}" />
@@ -128,7 +128,7 @@ Valid values are:
   </target>
 
   <target name="stop-server">
-    <exec executable="/bin/bash" spawn="false" failonerror="true">
+    <exec executable="/bin/bash" spawn="false" failonerror="true" outputproperty="output.log">
       <env key="WORK_DIR" value="${work.dir}" />
       <env key="BUILD_DIR" value="${build.dir}" />
       <env key="SERVER_PORT" value="${server.port}" />
