@@ -1,4 +1,6 @@
 language: java
+jdk:
+  - openjdk6
 env:
   matrix:
     - PLATFORM=railo40 TESTFRAMEWORK=mxunit
