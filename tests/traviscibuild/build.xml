@@ -122,7 +122,7 @@ Valid values are:
       <env key="WORK_DIR" value="${work.dir}" />
       <env key="BUILD_DIR" value="${build.dir}" />
       <env key="SERVER_PORT" value="${server.port}" />
-      <arg line="tests/ci/scripts/ci-helper-${platform.helper}.sh start"/>
+      <arg line="scripts/ci-helper-${platform.helper}.sh start"/>
     </exec>
   </target>
 
@@ -131,7 +131,7 @@ Valid values are:
       <env key="WORK_DIR" value="${work.dir}" />
       <env key="BUILD_DIR" value="${build.dir}" />
       <env key="SERVER_PORT" value="${server.port}" />
-      <arg line="tests/ci/scripts/ci-helper-${platform.helper}.sh stop"/>
+      <arg line="scripts/ci-helper-${platform.helper}.sh stop"/>
     </exec>
   </target>
 
