@@ -2,6 +2,10 @@ language: java
 env:
   matrix:
     - PLATFORM=railo40 TESTFRAMEWORK=mxunit
+    - PLATFORM=railo41 TESTFRAMEWORK=mxunit
+    - PLATFORM=railo42beta TESTFRAMEWORK=mxunit
+    - PLATFORM=acf10-linux64 TESTFRAMEWORK=mxunit
+    - PLATFORM=acf902-linux64 TESTFRAMEWORK=mxunit
 
 install: ant -f tests/traviscibuild/build.xml -Dtest.framework=$TESTFRAMEWORK -Dsource=remote -Dwork.dir=$HOME/work -Dbuild.dir=$TRAVIS_BUILD_DIR -Dplatform=$PLATFORM install-ci-deps
 script: ant -f tests/traviscibuild/build.xml -Dtest.framework=$TESTFRAMEWORK -Dsource=remote -Dwork.dir=$HOME/work -Dbuild.dir=$TRAVIS_BUILD_DIR -Dplatform=$PLATFORM test-ci

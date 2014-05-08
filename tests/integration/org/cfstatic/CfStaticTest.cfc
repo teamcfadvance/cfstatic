@@ -15,6 +15,7 @@
 			super.teardown();
 			rootDir = "";
 			cfstatic = "";
+			StructClear(request);
 		</cfscript>
 	</cffunction>
 
