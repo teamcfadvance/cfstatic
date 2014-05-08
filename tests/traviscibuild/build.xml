@@ -101,8 +101,8 @@ Valid values are:
   <property name="testbox.directory" value="tests.testbox" />
 
   <!-- MXUnit Properties -->
-  <property name="mxunit.jar" value="tests/ci/mxunit-ant.jar"/>
-  <property name="mxunit.output.jar" value="tests/ci/mxunit-output-ant.jar"/>
+  <property name="mxunit.jar" value="mxunit-ant.jar"/>
+  <property name="mxunit.output.jar" value="mxunit-output-ant.jar"/>
 
   <target name="install-ci-deps">
     <exec executable="/bin/bash" failonerror="true">
