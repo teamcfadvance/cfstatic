@@ -1,4 +1,6 @@
 component{
+	setting requesttimeout="600";
+
 	this.name = 'CfStatic Travis CI Test suite';
 
 	root = GetDirectoryFromPath( GetCurrentTemplatePath() );
