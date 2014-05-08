@@ -113,7 +113,7 @@ Valid values are:
       <env key="TESTFRAMEWORK_URL" value="${test.framework.url}" />
       <env key="SERVER_PORT" value="${server.port}" />
       <env key="STOP_PORT" value="${stop.port}" />
-      <arg line="tests/traviscibuild/scripts/ci-helper-${platform.helper}.sh install ${test.project}"/>
+      <arg line="scripts/ci-helper-${platform.helper}.sh install ${test.project}"/>
     </exec>
   </target>
 
