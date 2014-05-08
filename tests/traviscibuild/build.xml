@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project basedir="." default="test" name="CFML CI">
+
+  <!--
+    The CFML CI template project.
+
+    For integration instructions, see the Github project page:
+
+    https://github.com/marcins/cfml-ci
+  -->
+
+  <!-- you should change this value to a short name for your project
+    will be used a symlink so shouldn't contain spaces -->
+  <property name="test.project" value="cfml-ci" />
+
+  <!-- these properties can either be passed in from your build server
+    (recommended), or set here if you're sure about that -->
+
+  <!-- the directory where the web server will be installed, WARNING
+    this directory WILL BE DELETED if it already exists -->
+  <property name="work.dir" value="/tmp/work" />
+
+  <!-- the directory containing your project web root, this will be symlinked
+    in to the webserver.  Might be able to be left blank -->
+  <property name="build.dir" value="" />
+
+  <property name="test.framework" value="mxunit" />
+
+  <!-- PLATFORMS -->
+
+  <!-- Local URLs: Set these to locally available copies of the test server
+  platforms if available to avoid a remote HTTP download - won't work for Travis CI -->
+  <property name="railo41.local.url" value="/opt/ci/railo-express-4.1.2.005-nojre.tar.gz" />
+  <property name="railo41-osx.local.url" value="/opt/ci/railo-express-4.1.2.005-macosx.zip" />
+  <property name="acf10-linux32.local.url" value="/opt/ci/cf10-linux32.tar.gz" />
+  <property name="acf10-linux64.local.url" value="/opt/ci/cf10-linux64.tar.gz" />
+  <property name="acf902-linux64.local.url" value="/opt/ci/cf902-linux64.tar.gz" />
+
+  <!-- test frameworks -->
+  <property name="testbox.local.url" value="/opt/ci/testbox_1.1.0.zip" />
+  <property name="mxunit.local.url" value="/opt/ci/fix-railo-nulls.zip" />
+
+  <!-- Remote URLs -->
+  <property name="railo40.remote.url" value="http://cfml-ci.s3.amazonaws.com/railo-express-4.0.4.001-nojre.tar.gz" />
+  <property name="railo41.remote.url" value="http://cfml-ci.s3.amazonaws.com/railo-express-4.1.2.005-nojre.tar.gz" />
+  <property name="railo42beta.remote.url" value="http://cfml-ci.s3.amazonaws.com/railo-express-4.2.0.000-nojre.tar.gz" />
+  <property name="acf10-linux32.remote.url" value="http://cfml-ci.s3.amazonaws.com/cf10-linux32.tar.gz" />
+  <property name="acf10-linux64.remote.url" value="http://cfml-ci.s3.amazonaws.com/cf10-linux64.tar.gz" />
+  <property name="acf902-linux64.remote.url" value="http://cfml-ci.s3.amazonaws.com/cf902-linux64.tar.gz" />
+
+  <property name="testbox.remote.url" value="http://downloads.ortussolutions.com/testbox_1.1.0.zip" />
+  <property name="mxunit.remote.url" value="https://github.com/marcins/mxunit/archive/fix-railo-nulls.zip" />
+
+  <!--
+    ***
+    Generally no need to touch anything below this point, but feel free to
+    customise it!
+    ***
+  -->
+  <property name="source" value="local" />
+
+  <property name="railo40.helper" value="railo" />
+  <property name="railo41.helper" value="railo" />
+  <property name="railo41-osx.helper" value="railo" />
+  <property name="railo42beta.helper" value="railo" />
+  <property name="acf10-linux32.helper" value="acf" />
+  <property name="acf10-linux64.helper" value="acf" />
+  <property name="acf902-linux64.helper" value="acf9" />
+
+  <fail unless="platform" message="Platform is not set" />
+  <fail unless="${platform}.${source}.url">Unkown platform ${platform} for source ${source}.
+
+Valid values are:
+ railo40
+ railo41
+ railo41-osx
+ railo42beta
+ acf10-linux32
+ acf10-linux64
+ acf902-linux64</fail>
+
+  <macrodef name="propertycopy">
+    <attribute name="name"/>
+    <attribute name="from"/>
+    <sequential>
+      <property name="@{name}" value="${@{from}}"/>
+    </sequential>
+  </macrodef>
+
+  <propertycopy name="platform.url" from="${platform}.${source}.url" />
+  <propertycopy name="platform.helper" from="${platform}.helper" />
+  <propertycopy name="test.framework.url" from="${test.framework}.${source}.url" />
+
+  <!-- General Properties -->
+  <property name="server.name" value="localhost"/>
+  <property name="server.port" value="8888"/>
+  <property name="stop.port" value="8887"/>
+  <property name="output.dir" value="tests/ci/results/"/>
+
+  <!-- TestBox Properties -->
+  <property name="testbox.directory" value="tests.testbox" />
+
+  <!-- MXUnit Properties -->
+  <property name="mxunit.jar" value="tests/ci/mxunit-ant.jar"/>
+  <property name="mxunit.output.jar" value="tests/ci/mxunit-output-ant.jar"/>
+
+  <target name="install-ci-deps">
+    <exec executable="/bin/bash" failonerror="true">
+      <env key="WORK_DIR" value="${work.dir}" />
+      <env key="BUILD_DIR" value="${build.dir}" />
+      <env key="PLATFORM_URL" value="${platform.url}" />
+      <env key="TESTFRAMEWORK" value="${test.framework}" />
+      <env key="TESTFRAMEWORK_URL" value="${test.framework.url}" />
+      <env key="SERVER_PORT" value="${server.port}" />
+      <env key="STOP_PORT" value="${stop.port}" />
+      <arg line="tests/traviscibuild/scripts/ci-helper-${platform.helper}.sh install ${test.project}"/>
+    </exec>
+  </target>
+
+  <target name="start-server">
+    <exec executable="/bin/bash" spawn="false" failonerror="true">
+      <env key="WORK_DIR" value="${work.dir}" />
+      <env key="BUILD_DIR" value="${build.dir}" />
+      <env key="SERVER_PORT" value="${server.port}" />
+      <arg line="tests/ci/scripts/ci-helper-${platform.helper}.sh start"/>
+    </exec>
+  </target>
+
+  <target name="stop-server">
+    <exec executable="/bin/bash" spawn="false" failonerror="true">
+      <env key="WORK_DIR" value="${work.dir}" />
+      <env key="BUILD_DIR" value="${build.dir}" />
+      <env key="SERVER_PORT" value="${server.port}" />
+      <arg line="tests/ci/scripts/ci-helper-${platform.helper}.sh stop"/>
+    </exec>
+  </target>
+
+  <target name="test-ci" depends="start-server,test,stop-server">
+    <fail if="mxunit.failed" message="At least one test failure!"/>
+
+    <property file="${output.dir}testbox.properties" />
+    <fail if="testbox.failed" message="At least one test failure!" />
+  </target>
+
+  <target name="test">
+    <delete dir="${output.dir}"/>
+    <mkdir dir="${output.dir}"/>
+    <antcall target="run-tests-${test.framework}" />
+  </target>
+
+  <target description="Make output directories and run the TestBox task" name="run-tests-testbox">
+    <get dest="${output.dir}/results.txt" src="http://${server.name}:${server.port}/${test.project}/tests/traviscibuild/testbox-runner.cfm?directory=${testbox.directory}&amp;reporter=text&amp;reportPath=${basedir}/${output.dir}" verbose="true" />
+    <concat><path path="${output.dir}/output.txt" /></concat>
+  </target>
+
+  <target description="Make output directories and run the MXUnit task" name="run-tests-mxunit">
+    <taskdef classname="org.mxunit.ant.MXUnitAntTask" classpath="${mxunit.jar}" name="mxunittask"/>
+    <taskdef classname="au.com.imagichine.ant.MxunitOutputAntTask" classpath="${mxunit.output.jar}" name="mxunitoutputtask"/>
+    <mxunittask
+      defaultrunner="/${test.project}/tests/traviscibuild/HttpAntRunner.cfc"
+      outputdir="${output.dir}"
+      port="${server.port}" server="${server.name}"
+      testResultsSummary="${test.project}.summary"
+      verbose="false"
+      haltonerror="true" errorproperty="mxunit.error"
+      failureproperty="mxunit.failed">
+        <directory
+          componentPath="tests.mxunit"
+          packageName="${test.project}"
+          path="/${test.project}/tests/integration/"
+          recurse="true"
+          remoteMethod="run"/>
+    </mxunittask>
+    <mxunitoutputtask resultsdirectory="${output.dir}" />
+    <fail if="mxunit.error" message="An error occured running MXUnit" />
+  </target>
+
+</project>
