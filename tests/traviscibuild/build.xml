@@ -161,8 +161,8 @@ Valid values are:
       outputdir="${output.dir}"
       port="${server.port}" server="${server.name}"
       testResultsSummary="${test.project}.summary"
-      verbose="false"
-      haltonerror="true" errorproperty="mxunit.error"
+      verbose="true"
+      haltonerror="false" errorproperty="mxunit.error"
       failureproperty="mxunit.failed">
         <directory
           componentPath="tests.integration"
