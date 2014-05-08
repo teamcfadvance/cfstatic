@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project basedir="." default="test" name="CFML CI">
+<project basedir="." default="test" name="CfStatic CI">
 
   <!--
     The CFML CI template project.
@@ -11,7 +11,7 @@
 
   <!-- you should change this value to a short name for your project
     will be used a symlink so shouldn't contain spaces -->
-  <property name="test.project" value="cfml-ci" />
+  <property name="test.project" value="cfstatic-ci" />
 
   <!-- these properties can either be passed in from your build server
     (recommended), or set here if you're sure about that -->
@@ -165,7 +165,7 @@ Valid values are:
       haltonerror="true" errorproperty="mxunit.error"
       failureproperty="mxunit.failed">
         <directory
-          componentPath="tests.mxunit"
+          componentPath="tests.integration"
           packageName="${test.project}"
           path="/${test.project}/tests/integration/"
           recurse="true"
