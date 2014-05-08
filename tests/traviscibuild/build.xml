@@ -161,13 +161,13 @@ Valid values are:
       outputdir="${output.dir}"
       port="${server.port}" server="${server.name}"
       testResultsSummary="${test.project}.summary"
-      verbose="true"
-      haltonerror="true" errorproperty="mxunit.error"
+      verbose="false"
+      haltonerror="false" errorproperty="mxunit.error"
       failureproperty="mxunit.failed">
         <directory
-          componentPath="tests.integration"
+          componentPath="tests.integration.org.cfstatic"
           packageName="${test.project}"
-          path="/${test.project}/tests/integration/"
+          path="/${test.project}/tests/integration/org/cfstatic"
           recurse="true"
           remoteMethod="run"/>
     </mxunittask>
