@@ -447,11 +447,12 @@ Or only include any resources under a `raw` folder that do not contain an unders
 <a id="useage"></a>
 ## API Useage
 
-Once you have configured CfStatic and marked up your static files with the appropriate dependency documentation, you arrive at the pleasing point of having very little left to do. The CfStatic API provides 3 public methods:
+Once you have configured CfStatic and marked up your static files with the appropriate dependency documentation, you arrive at the pleasing point of having very little left to do. The CfStatic API provides 4 public methods:
 
 1. **include( *resource*, *[throwOnMissing]* )**: used to instruct CfStatic that a particular file or package (folder) is required for this request
 2. **includeData( *data* )**: used to output data to a JavaScript variable when the javascript is rendered
 3. **renderIncludes( *[type]* )**: used to render the CSS or JavaScript includes
+4. **getIncludeUrl( *[type]*, *[resource]*, *[throwOnMissing]* )**: used to retrieve the compiled URL of a given type and resource
 
 
 ### Include( *required string resource*, *[boolean throwOnMissing]* )
@@ -584,6 +585,22 @@ The rendered output will look something like this:
 {% endhighlight %}
 
 Notice the timestamps included in the filenames. These represent the lastest last modified date of any of the files that were compiled into the single minified file. This means that you *never* have to worry about users needing to clear their cache for changed CSS or JavaScript files. Conversly, if you deploy changes to one or two static files and not to the rest, your users may still use cached content for those files that have not changed (this is good).
+
+### GetIncludeUrl( required string *[type]*, required string *[resource]*, boolean *[throwOnMissing]* )
+
+You can use this method to get the compiled URL of a given resource (an entire package (folder) or a single file in the requested page). Paths start at the directory of the specified type, so the following are all valid:
+
+{% highlight cfm %}
+<cfscript>
+// get the url of the layout.css file
+includeUrl = cfStatic.getIncludeUrl( 'css', '/core/layout.css' );
+
+// get the 'core' js package url (note the trailing slash
+// on the directory name)
+includeUrl = cfStatic.getIncludeUrl( 'js', '/core/' );
+
+</cfscript>
+{% endhighlight %}
 
 <a id="less"></a>
 ## LESS CSS
