@@ -182,6 +182,21 @@
 		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#src#"></script>', ieConditional ) & $newline() />
 	</cffunction>
 
+	<cffunction name="$extractUrlFromRenderedInclude" access="private" returntype="string" output="false">
+		<cfargument name="renderedInclude" type="string" required="true" />
+
+		<cfscript>
+			var regex    = '^.*?(href|src)="(.*?)".*$';
+			var replaced = ReReplaceNoCase( renderedInclude, regex, "\2" );
+
+			if ( replaced == renderedInclude ) {
+				return "";
+			}
+
+			return replaced;
+		</cfscript>
+	</cffunction>
+
 	<cffunction name="$generateCacheBuster" access="private" returntype="string" output="false" hint="I return a cachebuster string for a given date">
 		<cfargument name="dateLastModified" type="date" required="false" default="#Now()#" />
 

@@ -1067,8 +1067,9 @@
 	<cffunction name="t43_getIncludeUrl_shouldReturnUrlOfSpecifiedAsset" returntype="void">
 		<cfscript>
 			var expected = "/mystaticurl/min/someFolder.min.css";
-			rootDir &= 'goodFiles/standardFolders/';
+			var actual   = "";
 
+			rootDir &= 'goodFiles/standardFolders/';
 
 			cfstatic.init(
 				  staticDirectory = rootDir
@@ -1076,7 +1077,10 @@
 				, debugKey        = "doNotLetMxUnitDebugScrewTests"
 			);
 
-			super.assertEquals( expected, cfstatic.getIncludeUrl( "/css/someFolder/" ) );
+			actual = cfstatic.getIncludeUrl( "css", "/someFolder/" );
+			actual = _removeCheckSumFromFileNames( actual );
+
+			super.assertEquals( expected, actual );
 		</cfscript>
 	</cffunction>
 

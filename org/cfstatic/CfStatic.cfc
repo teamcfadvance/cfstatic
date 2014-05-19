@@ -115,6 +115,33 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="getIncludeUrl" access="public" returntype="string" output="false" hint="I am the getIncludeUrl() method. I return the URL of the compiled asset for the given path.">
+		<cfargument name="type"           type="string"  required="true"                                          hint="Either 'js' or 'css'. the type of include for which to fetch the URL." />
+		<cfargument name="resource"       type="string"  required="true"                                          hint="A url path, relative to the base static url, specifiying a static file or entire static package. e.g. '/css/core/layout.css' to include a single file, or '/css/core/' to include all files in the core css package." />
+		<cfargument name="throwOnMissing" type="boolean" required="false" default="#_getThrowOnMissingInclude()#" hint="If set to true and the resource does not exist, an informative error will be thrown. Defaults to false (no error will be thrown)" />
+		<cfargument name="debugMode"      type="boolean" required="false" default="#_isDebugOnForRequest()#"      hint="Whether or not to render the source files (as opposed to the compiled files). You should use the debug url parameter (see cfstatic config options) rather than manually setting this argument, but it is included here should you need it." />
+
+		<cfscript>
+			var include  = _appendFileTypesToSpecialIncludes( resource );
+
+			if ( arguments.throwOnMissing and not _resourceExists( arguments.resource ) ) {
+				$throw( type="cfstatic.missing.include", message="CfStatic include() error: The requested include, [#arguments.resource#], does not exist." );
+			}
+
+			renderCache = _getRenderedIncludeCache( type, debugMode )._urls;
+
+			if ( StructKeyExists( renderCache, resource ) ) {
+				return renderCache[ resource ];
+			}
+
+			if ( throwOnMissing ) {
+				$throw( type="cfstatic.missing.include", message="CfStatic getIncludeUrl() error: The requested include, [#arguments.resource#], does not exist." );
+			}
+
+			return "";
+		</cfscript>
+	</cffunction>
+
 <!--- private methods --->
 	<cffunction name="_setProperties" access="private" returntype="void" output="false">
 		<cfargument name="staticDirectory"       type="string"  required="true"                      hint="Full path to the directoy in which static files reside" />
@@ -990,6 +1017,11 @@
     		_renderedIncludeCache.css['_ordered']       = ArrayNew(1);
     		_renderedIncludeCache.debug.js['_ordered']  = ArrayNew(1);
     		_renderedIncludeCache.debug.css['_ordered'] = ArrayNew(1);
+
+    		_renderedIncludeCache.js['_urls']        = StructNew();
+    		_renderedIncludeCache.css['_urls']       = StructNew();
+    		_renderedIncludeCache.debug.js['_urls']  = StructNew();
+    		_renderedIncludeCache.debug.css['_urls'] = StructNew();
     	</cfscript>
     </cffunction>
 
@@ -1007,8 +1039,9 @@
     			node = _renderedIncludeCache[ type ];
     		}
 
-    		ArrayAppend( node['_ordered'], rendered );
+    		ArrayAppend( node[ '_ordered' ], rendered );
     		node[ path ] = ArrayLen( node['_ordered'] );
+    		node[ '_urls' ][ path ] = $extractUrlFromRenderedInclude( rendered );
     	</cfscript>
     </cffunction>
 
