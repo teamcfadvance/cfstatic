@@ -1064,6 +1064,26 @@
 		</cfscript>
 	</cffunction>
 
+	<cffunction name="t43_getIncludeUrl_shouldReturnUrlOfSpecifiedAsset" returntype="void">
+		<cfscript>
+			var expected = "/mystaticurl/min/someFolder.min.css";
+			var actual   = "";
+
+			rootDir &= 'goodFiles/standardFolders/';
+
+			cfstatic.init(
+				  staticDirectory = rootDir
+				, staticUrl       = "/mystaticurl"
+				, debugKey        = "doNotLetMxUnitDebugScrewTests"
+			);
+
+			actual = cfstatic.getIncludeUrl( "css", "/someFolder/" );
+			actual = _removeCheckSumFromFileNames( actual );
+
+			super.assertEquals( expected, actual );
+		</cfscript>
+	</cffunction>
+
 <!--- private helpers --->
 	<cffunction name="_getResourcePath" access="private" returntype="string" output="false">
 		<cfreturn '/tests/integration/resources/' />
@@ -1098,6 +1118,11 @@
 					<cffile action="delete" file="#files.directory#/#files.name#" />
 				</cfif>
 			</cfloop>
+		</cfif>
+
+		<!--- state cache file --->
+		<cfif FileExists( rootDir & "/.cfstaticstatecache" )>
+			<cffile action="delete" file="#rootDir#/.cfstaticstatecache" />
 		</cfif>
 	</cffunction>
 
