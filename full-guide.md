@@ -65,7 +65,7 @@ For CSS files only, used to indicate the target media for the CSS file, e.g. `@m
 
 Core to the correct running of CfStatic is the use of the @depends property to document dependencies between your files; CfStatic uses this information to ensure all necessary files are included in your page, and in the correct order. Dependencies can be either local or external, e.g. `@depends http://someurl.com/somejs.js` is an external dependency, `@depends /jqueryplugins/tooltip.js` is a local dependency.
 
-Local dependencies have a path that starts at the root folder of the type of file you are dealing with. i.e. If your javascript files all live at `/webroot/static/js/`, and the file `/webroot/static/js/plugins/myplugin.js` has a dependency on `/webroot/static/js/core/jquery.js`, that dependency would be written like so: `@depends /core/jquery.js`.
+Local dependencies have a path that starts at the root folder of the type of file you are dealing with. i.e. If your JavaScript files all live at `/webroot/static/js/`, and the file `/webroot/static/js/plugins/myplugin.js` has a dependency on `/webroot/static/js/core/jquery.js`, that dependency would be written like so: `@depends /core/jquery.js`.
 
 #### Already minified files
 
@@ -112,7 +112,7 @@ The dependency file can be used to document dependencies only. This has some adv
 1. Not having to repeat dependency definitions in every file. For instance, if you want to upgrade jquery, you have only one dependency definition to change
 2. Documenting dependencies between external resources
 
-An example javascript dependency file (the syntax is the same for css dependencies):
+An example JavaScript dependency file (the syntax is the same for CSS dependencies):
 
 {% highlight sh %}
 ##
@@ -156,7 +156,7 @@ http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js
 
 ### Configuring CfStatic to use the dependency file
 
-Use the two configuration options, `jsDependencyFile` and `cssDependencyFile` to point CfStatic to your dependency files. The files themselves can be called anything you like. My current preference is for `dependency.info` placed in the root of both js and css directories, for example:
+Use the two configuration options, `jsDependencyFile` and `cssDependencyFile` to point CfStatic to your dependency files. The files themselves can be called anything you like. My current preference is for `dependency.info` placed in the root of both JS and CSS directories, for example:
 
 {% highlight cfm %}
 <cfscript>
@@ -252,11 +252,11 @@ The CfStatic init() method takes the following arguments. Do not be alarmed at t
     </tr>
     <tr>
         <th>jsDirectory:</th>
-        <td>Relative path to the directoy in which javascript files reside. Relative to static path. Default is 'js'</td>
+        <td>Relative path to the directory in which JavaScript files reside. Relative to static path. Default is 'js'</td>
     </tr>
     <tr>
         <th>cssDirectory:</th>
-        <td>Relative path to the directoy in which css files reside. Relative to static path. Default is 'css'</td>
+        <td>Relative path to the directory in which CSS files reside. Relative to static path. Default is 'css'</td>
     </tr>
     <tr>
         <th>outputDirectory:</th>
@@ -296,15 +296,15 @@ The CfStatic init() method takes the following arguments. Do not be alarmed at t
     </tr>
     <tr>
         <th>embedCssImages:</th>
-        <td>Either 'none', 'all' or a regular expression to select css images that should be embedded in css files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images (default = 'none') *0.3.0*</td>
+        <td>Either 'none', 'all' or a regular expression to select CSS images that should be embedded in CSS files as base64 encoded strings, e.g. '\.gif$' for only gifs or '.*' for all images (default = 'none') *0.3.0*</td>
     </tr>
     <tr>
         <th>includePattern:</th>
-        <td>Regex pattern indicating css and javascript files to be included in CfStatic's processing. Defaults to .* (all) *0.4.0*</td>
+        <td>Regex pattern indicating CSS and JavaScript files to be included in CfStatic's processing. Defaults to .* (all) *0.4.0*</td>
     </tr>
     <tr>
         <th>excludePattern:</th>
-        <td>Regex pattern indicating css and javascript files to be excluded from CfStatic's processing. Defaults to blank (exclude none) *0.4.0*</td>
+        <td>Regex pattern indicating CSS and JavaScript files to be excluded from CfStatic's processing. Defaults to blank (exclude none) *0.4.0*</td>
     </tr>
     <tr>
         <th>outputCharset:</th>
@@ -324,11 +324,11 @@ The CfStatic init() method takes the following arguments. Do not be alarmed at t
     </tr>
     <tr>
         <th>jsDependencyFile:</th>
-        <td>Text file describing the dependencies between javascript files *0.6.0*</td>
+        <td>Text file describing the dependencies between JavaScript files *0.6.0*</td>
     </tr>
     <tr>
         <th>cssDependencyFile:</th>
-        <td>Text file describing the dependencies between css files *0.6.0*</td>
+        <td>Text file describing the dependencies between CSS files *0.6.0*</td>
     </tr>
     <tr>
         <th>throwOnMissingInclude:</th>
@@ -359,7 +359,7 @@ application.cfstatic = CreateObject('org.cfstatic.CfStatic').init(
 </cfscript>
 {% endhighlight %}
 
-Another example, this time with non-default folder names for the static files, and css and javascript having a folder to themselves in the root:
+Another example, this time with non-default folder names for the static files, and CSS and JavaScript having a folder to themselves in the root:
 
     ./
     ../
@@ -450,7 +450,7 @@ Or only include any resources under a `raw` folder that do not contain an unders
 Once you have configured CfStatic and marked up your static files with the appropriate dependency documentation, you arrive at the pleasing point of having very little left to do. The CfStatic API provides 4 public methods:
 
 1. **include( *resource*, *[throwOnMissing]* )**: used to instruct CfStatic that a particular file or package (folder) is required for this request
-2. **includeData( *data* )**: used to output data to a JavaScript variable when the javascript is rendered
+2. **includeData( *data* )**: used to output data to a JavaScript variable when the JavaScript is rendered
 3. **renderIncludes( *[type]* )**: used to render the CSS or JavaScript includes
 4. **getIncludeUrl( *[type]*, *[resource]*, *[throwOnMissing]* )**: used to retrieve the compiled URL of a given type and resource
 
@@ -477,11 +477,11 @@ cfStatic.include('/js/core/')
 </cfscript>
 {% endhighlight %}
 
-#### The throwOnMissing argument / Including non existent packages or files
+#### The throwOnMissing argument / including non existent packages or files
 
 The `throwOnMissing` argument is not required and will default to whatever the [configuration](#configuration) option, `throwOnMissingInclude`, is set to. The default, production ready setting is `false` (no errors will be thrown). If true, an error will be thrown if you attempt to include a resource that does not exist.
 
-By setting this option to `false`, or simply sticking with the default, CfStatic will *not* throw an error when you attempt to include a resource that does not exist. This allows you to create dynamic includes based on any rules you like. For instance, you might want to try to include page specific css when it is available, something like:
+By setting this option to `false`, or simply sticking with the default, CfStatic will *not* throw an error when you attempt to include a resource that does not exist. This allows you to create dynamic includes based on any rules you like. For instance, you might want to try to include page specific CSS when it is available, something like:
 
 {% highlight cfm %}
 <cfscript>
@@ -494,7 +494,7 @@ cfStatic.include(
 
 {% endhighlight %}
 
-You can then include page specific css by convention; creating directories and files that match the naming convention of your pages / modules / framework events, etc.
+You can then include page specific CSS by convention; creating directories and files that match the naming convention of your pages / modules / framework events, etc.
 
 *Prior to **0.7.0**, the `throwOnMissing` argument was not available and CfStatic would never throw an error on missing include.*
 
@@ -607,9 +607,9 @@ includeUrl = cfStatic.getIncludeUrl( 'js', '/core/' );
 
 If you've not heard of LESS CSS, head on over to [http://lesscss.org/](http://lesscss.org/) and fall to your knees in humble awe (and get all coder giddy).
 
-In CfStatic, simply create .less files with LESS css in them in exactly the same way you create .css files for CfStatic. CfStatic will take your .less files and compile them as css, saving the output to `yourfile.less.css`. It will then minify that compiled css file in accordance with the rules you configure.
+In CfStatic, simply create .less files with LESS CSS in them in exactly the same way you create .css files for CfStatic. CfStatic will take your .less files and compile them as CSS, saving the output to `yourfile.less.css`. It will then minify that compiled CSS file in accordance with the rules you configure.
 
-Additionaly, you can configure 'less globals'. These globals will be imported into every single LESS file before compiling, saving you from repeating yourself by using `@import url( ..\mygloballessdefinitions.less )` in every file.
+Additionally, you can configure 'less globals'. These globals will be imported into every single LESS file before compiling, saving you from repeating yourself by using `@import url( ..\mygloballessdefinitions.less )` in every file.
 
 <a id="coffeescript"></a>
 ## CoffeeScript
