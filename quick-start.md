@@ -150,4 +150,4 @@ Or, to render both CSS and JS includes at once:
     ...
 {% endhighlight %}
 
-And that is CfStatic in a nutshell. See the [full useage guide](full-guide.html) for full useage details, including how to process `.less` and `.coffee` files.
+And that is CfStatic in a nutshell. See the [full usage guide](full-guide.html) for full usage details, including how to process `.less` and `.coffee` files.
