@@ -25,13 +25,13 @@ Key features:
 Documentation
 -------------
 
-[http://dominicwatson.github.com/cfstatic](http://dominicwatson.github.com/cfstatic)
+[https://github.com/teamcfadvance/cfstatic/](https://github.com/teamcfadvance/cfstatic/)
 
 Other resources
 ---------------
 
 Authors Blog : [http://fusion.dominicwatson.co.uk/categories/CfStatic/](http://fusion.dominicwatson.co.uk/categories/CfStatic/)
 
-Source       : [https://github.com/DominicWatson/cfstatic/](https://github.com/DominicWatson/cfstatic/)
+Source       : [https://github.com/teamcfadvance/cfstatic/](https://github.com/teamcfadvance/cfstatic/)
 
-Issues       : [https://github.com/DominicWatson/cfstatic/issues/](https://github.com/DominicWatson/cfstatic/issues/)
+Issues       : [https://github.com/teamcfadvance/cfstatic/issues/](https://github.com/teamcfadvance/cfstatic/issues/)
