@@ -49,7 +49,7 @@
 		<cfargument name="includeConditionals" type="boolean" required="false" default="true"  />
 
 		<cfscript>
-			var final        = ArrayNew(1);
+			var finalArray        = ArrayNew(1);
 			var added        = StructNew();
 			var deep         = "";
 			var conditionals = "";
@@ -61,26 +61,26 @@
 					deep = _dependencies[i].getDependencies( true );
 					for( n=1; n LTE ArrayLen( deep ); n++ ){
 						if ( not StructKeyExists( added, deep[n].getPath() ) ) {
-							ArrayAppend( final, deep[n] );
+							ArrayAppend( finalArray, deep[n] );
 							added[ deep[n].getPath() ] = true;
 						}
 					}
 				}
 				if ( not StructKeyExists( added, _dependencies[i].getPath() ) ) {
-					ArrayAppend( final, _dependencies[i] );
+					ArrayAppend( finalArray, _dependencies[i] );
 					added[ _dependencies[i].getPath() ] = true;
 				}
 			}
 			if ( not includeConditionals ) {
 				conditionals = ArrayToList( _getConditionalDependencies() );
-				for( i=ArrayLen( final ); i GT 0 ; i-- ){
-					if ( ListFindNoCase( conditionals, final[i].getPath() ) ) {
-						ArrayDeleteAt( final, i );
+				for( i=ArrayLen( finalArray ); i GT 0 ; i-- ){
+					if ( ListFindNoCase( conditionals, finalArray[i].getPath() ) ) {
+						ArrayDeleteAt( finalArray, i );
 					}
 				}
 			}
 
-			return _bubbleSort( final );
+			return _bubbleSort( finalArray );
 		</cfscript>
 	</cffunction>
 
