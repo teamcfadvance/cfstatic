@@ -6,6 +6,7 @@
 		_url                     = "";
 		_minifiedUrl             = "";
 		_fileType                = "";
+		_ecma6					 = "";
 		_cacheBust               = true;
 		_dependencies            = ArrayNew(1);
 		_properties              = StructNew();
