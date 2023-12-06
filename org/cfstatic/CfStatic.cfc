@@ -1,5 +1,7 @@
 <cfcomponent output="false" hint="I am the CfMinify api component. Instantiate me with configuration options and use my include(), includeData() and renderIncludes() methods to awesomely manage your static includes" extends="org.cfstatic.util.Base">
-
+	<cfscript>
+		this._includeMappings = {};
+	</cfscript>
 	<!--- constructor --->
 		<cffunction name="init" access="public" returntype="any" output="false" hint="I am the constructor for CfStatic. Pass in your CfStatic configuration options to me.">
 			<cfargument name="staticDirectory"       type="string"  required="true"                      hint="Full path to the directoy in which static files reside" />
@@ -1325,11 +1327,11 @@
 			<cfargument name="includeMappings" required="true" type="struct" />
 			<cfargument name="type" type="string" required="true" />
 
-			<cfset _includeMappings[type] = includeMappings />
+			<cfset this._includeMappings[type] = includeMappings />
 		</cffunction>
 		<cffunction name="_getIncludeMappings" access="private" returntype="struct" output="false">
 			<cfargument name="type" type="string" required="true" />
-			<cfreturn _includeMappings[type] />
+			<cfreturn this._includeMappings[type] />
 		</cffunction>
 
 		<cffunction name="_getAddCacheBusters" access="private" returntype="boolean" output="false">
