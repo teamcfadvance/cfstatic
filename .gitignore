@@ -5,3 +5,4 @@ cfstatic.sublime-project
 cfstatic.sublime-workspace
 *.less.css
 mxunit
+.vscode
