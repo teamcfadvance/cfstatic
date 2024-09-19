@@ -78,6 +78,8 @@
 			var media            = "";
 			var ie               = "";
 			var shouldBeRendered = "";
+			var async            = "";
+			var defer			 = "";
 
 			switch( minification ){
 				case 'none': case 'file': case 'package':
@@ -109,7 +111,11 @@
 						media = _getCssMedia();
 						str.append( $renderCssInclude( src, media, ie ) );
 					} else {
-						str.append( $renderJsInclude( src, ie ) );
+
+						async = _getJSAsync();
+						defer = _getJSDefer();
+
+						str.append( $renderJsInclude( src, ie, async, defer ) );
 					}
 					break;
 			}
@@ -404,6 +410,44 @@
 			}
 
 			return media;
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_getJSAsync" access="public" returntype="string" output="false" hint="I get the target async property of the JS files for the entire package. All static files within a single package should have the same async property (when minifiying all together), an exception will be thrown otherwise..">
+		<cfscript>
+			var packages = getOrdered();
+			var async    = "";
+			var i        = 0;
+
+			if ( ArrayLen( packages ) ) {
+				async = getPackage( packages[1] ).getJSAsync();
+				for( i=2; i LTE ArrayLen( packages ); i++ ) {
+					if ( async NEQ getPackage( packages[i] ).getJSAsync() ) {
+						$throw( type="cfstatic.PackageCollection.badConfig", message="There was an error compiling the #_getFileType()# min file, not all files define the same Async property." );
+					}
+				}
+			}
+
+			return async;
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="_getJSDefer" access="public" returntype="string" output="false" hint="I get the target defer property of the JS files for the entire package. All static files within a single package should have the same defer property (when minifiying all together), an exception will be thrown otherwise..">
+		<cfscript>
+			var packages = getOrdered();
+			var defer    = "";
+			var i        = 0;
+
+			if ( ArrayLen( packages ) ) {
+				defer = getPackage( packages[1] ).getJSDefer();
+				for( i=2; i LTE ArrayLen( packages ); i++ ) {
+					if ( defer NEQ getPackage( packages[i] ).getJSDefer() ) {
+						$throw( type="cfstatic.PackageCollection.badConfig", message="There was an error compiling the #_getFileType()# min file, not all files define the same Defer property." );
+					}
+				}
+			}
+
+			return defer;
 		</cfscript>
 	</cffunction>
 

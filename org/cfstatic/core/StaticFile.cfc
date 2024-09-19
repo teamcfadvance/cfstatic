@@ -127,13 +127,16 @@
 		<cfscript>
 			var media = getProperty( 'media', 'all', 'string' );
 			var ie    = getProperty( 'IE', '', 'string' );
+			var async = getProperty( 'async', 'false', 'string' );
+			var defer = getProperty( 'defer', 'false', 'string' );
+
 			var src   = iif( minified, DE( _getMinifiedUrl() ), DE( _getUrl() ) );
 
 			if ( _getFileType() EQ 'css' ) {
 				return $renderCssInclude( src, media, ie );
 
 			} else {
-				return $renderJsInclude( src, ie );
+				return $renderJsInclude( src, ie, async, defer );
 			}
 		</cfscript>
 	</cffunction>

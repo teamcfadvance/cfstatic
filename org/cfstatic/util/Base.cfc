@@ -178,8 +178,10 @@
 	<cffunction name="$renderJsInclude" access="private" returntype="string" output="false" hint="I return the html nevessary to include the given javascript file">
 		<cfargument name="src"           type="string" required="true"                  />
 		<cfargument name="ieConditional" type="string" required="false" default=""      />
+		<cfargument name="async" 		 type="string" required="false" default="false" />
+		<cfargument name="defer" 		 type="string" required="false" default="false" />
 
-		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#src#"></script>', ieConditional ) & $newline() />
+		<cfreturn $renderIeConditional( '<script type="text/javascript" src="#src#" #arguments.async EQ "true" ? "async" : ""# #arguments.defer EQ "true" ? "defer" : ""# ></script>', ieConditional ) & $newline() />
 	</cffunction>
 
 	<cffunction name="$extractUrlFromRenderedInclude" access="private" returntype="string" output="false">
